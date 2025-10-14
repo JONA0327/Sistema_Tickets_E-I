@@ -4,386 +4,290 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <title>{{ config('app.name', 'Laravel') }}</title>
+        <title>Sistema de Tickets - E&I Tecnología</title>
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600,700" rel="stylesheet" />
+        <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700" rel="stylesheet" />
 
         <!-- Styles / Scripts -->
-        @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
-            @vite(['resources/css/app.css', 'resources/js/app.js'])
-        @else
-            <style>
-                :root {
-                    color-scheme: light;
-                    font-family: 'Instrument Sans', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-                    --bg-gradient-start: #0f172a;
-                    --bg-gradient-end: #1d4ed8;
-                    --card-bg: #ffffff;
-                    --card-border: rgba(15, 23, 42, 0.12);
-                    --card-shadow: 0 20px 45px rgba(15, 23, 42, 0.18);
-                    --text-primary: #0f172a;
-                    --text-secondary: #334155;
-                    --accent: #1d4ed8;
-                    --accent-hover: #2563eb;
-                    --muted: #94a3b8;
-                    --error: #dc2626;
-                }
-
-                *, *::before, *::after {
-                    box-sizing: border-box;
-                }
-
-                body {
-                    margin: 0;
-                    min-height: 100vh;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    background: radial-gradient(circle at top, rgba(37, 99, 235, 0.35), transparent 60%),
-                        linear-gradient(135deg, var(--bg-gradient-start), var(--bg-gradient-end));
-                    color: var(--text-primary);
-                    font-family: inherit;
-                    padding: 2rem;
-                }
-
-                .page-wrapper {
-                    width: min(1024px, 100%);
-                    display: grid;
-                    gap: clamp(2rem, 4vw, 4rem);
-                    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-                    align-items: center;
-                    animation: fade-up 900ms ease forwards;
-                    opacity: 0;
-                    transform: translateY(32px);
-                }
-
-                @keyframes fade-up {
-                    from {
-                        opacity: 0;
-                        transform: translateY(32px);
-                    }
-                    to {
-                        opacity: 1;
-                        transform: translateY(0);
-                    }
-                }
-
-                .brand-panel {
-                    color: #e2e8f0;
-                    display: flex;
-                    flex-direction: column;
-                    gap: 1.5rem;
-                }
-
-                .brand-logo {
-                    display: inline-flex;
-                    align-items: center;
-                    gap: 0.75rem;
-                    font-weight: 600;
-                    letter-spacing: 0.08em;
-                    text-transform: uppercase;
-                    color: #f8fafc;
-                }
-
-                .brand-logo span {
-                    width: 42px;
-                    height: 42px;
-                    border-radius: 12px;
-                    background: rgba(255, 255, 255, 0.12);
-                    display: inline-flex;
-                    align-items: center;
-                    justify-content: center;
-                    font-size: 1.25rem;
-                    font-weight: 700;
-                    color: #bfdbfe;
-                    backdrop-filter: blur(8px);
-                }
-
-                .brand-panel h1 {
-                    margin: 0;
-                    font-size: clamp(2rem, 3vw, 2.75rem);
-                    font-weight: 600;
-                    line-height: 1.2;
-                }
-
-                .brand-panel p {
-                    margin: 0;
-                    max-width: 32ch;
-                    font-size: 1.05rem;
-                    color: rgba(226, 232, 240, 0.82);
-                    line-height: 1.6;
-                }
-
-                .card {
-                    background: var(--card-bg);
-                    border-radius: 24px;
-                    padding: clamp(2rem, 4vw, 3rem);
-                    box-shadow: var(--card-shadow);
-                    border: 1px solid var(--card-border);
-                    display: flex;
-                    flex-direction: column;
-                    gap: 1.5rem;
-                    position: relative;
-                    overflow: hidden;
-                    isolation: isolate;
-                }
-
-                .card::before {
-                    content: "";
-                    position: absolute;
-                    inset: -40% auto auto -40%;
-                    width: 70%;
-                    height: 70%;
-                    background: radial-gradient(circle, rgba(37, 99, 235, 0.25), transparent 65%);
-                    z-index: -1;
-                }
-
-                .card-header {
-                    display: flex;
-                    flex-direction: column;
-                    gap: 0.5rem;
-                }
-
-                .card-header h2 {
-                    margin: 0;
-                    font-size: 1.85rem;
-                    font-weight: 600;
-                    color: var(--text-primary);
-                }
-
-                .card-header p {
-                    margin: 0;
-                    color: var(--text-secondary);
-                    line-height: 1.6;
-                }
-
-                form {
-                    display: flex;
-                    flex-direction: column;
-                    gap: 1.25rem;
-                }
-
-                label {
-                    font-size: 0.95rem;
-                    font-weight: 500;
-                    color: var(--text-primary);
-                    display: block;
-                    margin-bottom: 0.5rem;
-                }
-
-                input[type="email"],
-                input[type="password"] {
-                    width: 100%;
-                    padding: 0.85rem 1rem;
-                    border-radius: 14px;
-                    border: 1px solid rgba(15, 23, 42, 0.12);
-                    background: rgba(255, 255, 255, 0.9);
-                    font-size: 1rem;
-                    transition: border-color 180ms ease, box-shadow 180ms ease;
-                }
-
-                input[type="email"]:focus,
-                input[type="password"]:focus {
-                    outline: none;
-                    border-color: rgba(37, 99, 235, 0.75);
-                    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
-                }
-
-                .row {
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
-                    gap: 0.75rem;
-                    flex-wrap: wrap;
-                }
-
-                .remember {
-                    display: flex;
-                    align-items: center;
-                    gap: 0.5rem;
-                    font-size: 0.95rem;
-                    color: var(--text-secondary);
-                }
-
-                .remember input {
-                    width: 1.1rem;
-                    height: 1.1rem;
-                    accent-color: var(--accent);
-                }
-
-                .forgot a {
-                    color: var(--accent);
-                    font-weight: 500;
-                    text-decoration: none;
-                    transition: color 180ms ease;
-                }
-
-                .forgot a:hover,
-                .register a:hover {
-                    color: var(--accent-hover);
-                }
-
-                .button-primary {
-                    border: none;
-                    border-radius: 14px;
-                    background: linear-gradient(135deg, var(--accent), var(--accent-hover));
-                    color: #ffffff;
-                    font-weight: 600;
-                    font-size: 1rem;
-                    padding: 0.95rem 1rem;
-                    cursor: pointer;
-                    transition: transform 150ms ease, box-shadow 150ms ease;
-                }
-
-                .button-primary:hover {
-                    transform: translateY(-1px);
-                    box-shadow: 0 18px 35px rgba(37, 99, 235, 0.25);
-                }
-
-                .button-primary:focus-visible {
-                    outline: 3px solid rgba(37, 99, 235, 0.35);
-                    outline-offset: 3px;
-                }
-
-                .register {
-                    text-align: center;
-                    font-size: 0.95rem;
-                    color: var(--text-secondary);
-                }
-
-                .register a {
-                    color: var(--accent);
-                    font-weight: 600;
-                    text-decoration: none;
-                }
-
-                .alert-error {
-                    background: rgba(220, 38, 38, 0.08);
-                    border-left: 4px solid var(--error);
-                    padding: 0.75rem 1rem;
-                    border-radius: 12px;
-                    color: var(--error);
-                    font-size: 0.9rem;
-                }
-
-                .dashboard-link {
-                    display: inline-flex;
-                    align-items: center;
-                    gap: 0.5rem;
-                    background: rgba(255, 255, 255, 0.12);
-                    border-radius: 999px;
-                    padding: 0.75rem 1.5rem;
-                    color: #f8fafc;
-                    text-decoration: none;
-                    font-weight: 600;
-                    transition: background 150ms ease;
-                }
-
-                .dashboard-link:hover {
-                    background: rgba(255, 255, 255, 0.2);
-                }
-
-                @media (max-width: 720px) {
-                    body {
-                        padding: 1.5rem;
-                    }
-
-                    .card {
-                        border-radius: 20px;
-                        padding: 2rem;
-                    }
-                }
-
-                @media (prefers-reduced-motion: reduce) {
-                    *, *::before, *::after {
-                        animation-duration: 1ms !important;
-                        animation-iteration-count: 1 !important;
-                        transition-duration: 1ms !important;
-                        scroll-behavior: auto !important;
-                    }
-                }
-            </style>
-        @endif
+        @vite(['resources/css/app.css', 'resources/js/app.js'])
+        
+        <!-- Alpine.js -->
+        <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     </head>
-    <body class="antialiased">
-        <div class="page-wrapper">
-            <div class="brand-panel">
-                <div class="brand-logo">
-                    <span>ST</span>
-                    {{ config('app.name', 'Sistema de Tickets') }}
-                </div>
-                <h1>Gestiona tus tickets con confianza.</h1>
-                <p>
-                    Inicia sesión para acceder a tu panel y dar seguimiento a los casos de soporte con una
-                    experiencia rápida, organizada y profesional.
-                </p>
-
-                @auth
-                    <a href="{{ url('/dashboard') }}" class="dashboard-link">
-                        Ir al panel
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                            <path d="M5 12h14"></path>
-                            <path d="M12 5l7 7-7 7"></path>
-                        </svg>
-                    </a>
-                @endauth
-            </div>
-
-            <div class="card">
-                <div class="card-header">
-                    <h2>Inicia sesión</h2>
-                    <p>Bienvenido de nuevo. Ingresa tus credenciales para continuar trabajando.</p>
-                </div>
-
-                @auth
-                    <div class="alert-error" role="alert">
-                        Ya tienes una sesión activa. Utiliza el enlace del panel para continuar.
-                    </div>
-                @else
-                    @if ($errors->any())
-                        <div class="alert-error" role="alert">
-                            {{ __('Credenciales no válidas. Por favor, verifica tu correo y contraseña.') }}
-                        </div>
-                    @endif
-
-                    <form method="POST" action="{{ route('login') }}">
-                        @csrf
-                        <div>
-                            <label for="email">Correo electrónico</label>
-                            <input id="email" type="email" name="email" value="{{ old('email') }}" required autofocus autocomplete="username" placeholder="nombre@empresa.com">
-                        </div>
-
-                        <div>
-                            <label for="password">Contraseña</label>
-                            <input id="password" type="password" name="password" required autocomplete="current-password" placeholder="Ingresa tu contraseña">
-                        </div>
-
-                        <div class="row">
-                            <label class="remember">
-                                <input type="checkbox" name="remember">
-                                <span>Recordarme</span>
-                            </label>
-
-                            @if (Route::has('password.request'))
-                                <div class="forgot">
-                                    <a href="{{ route('password.request') }}">¿Olvidaste tu contraseña?</a>
+    <body class="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100">
+        <!-- Header -->
+        <header class="bg-white shadow-sm border-b border-blue-100">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between items-center h-16">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <div class="flex items-center">
+                                <img src="{{ asset('images/logo-ei.png') }}" alt="E&I Logo" class="h-12 w-auto mr-3">
+                                <div>
+                                    <h1 class="text-xl font-bold text-gray-900">Sistema de Tickets</h1>
+                                    <p class="text-sm text-gray-600">E&I - Tecnología</p>
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        @if (Auth::check())
+                            @if (Auth::user()->isAdmin())
+                                <a href="{{ route('admin.dashboard') }}" class="text-sm text-blue-600 hover:text-blue-800 font-medium mr-4">
+                                    Panel Admin
+                                </a>
+                            @else
+                                <a href="{{ route('tickets.mis-tickets') }}" class="text-sm text-blue-600 hover:text-blue-800 font-medium mr-4">
+                                    Mis Tickets
+                                </a>
                             @endif
-                        </div>
-
-                        <button type="submit" class="button-primary">Acceder</button>
-                    </form>
-
-                    @if (Route::has('register'))
-                        <div class="register">
-                            ¿Aún no tienes cuenta?
-                            <a href="{{ route('register') }}">Crear una cuenta</a>
-                        </div>
-                    @endif
-                @endauth
+                            
+                            <!-- Profile Dropdown -->
+                            <div class="relative" x-data="{ open: false }">
+                                <button @click="open = !open" 
+                                        class="flex items-center space-x-2 text-sm rounded-full bg-blue-50 p-2 text-gray-700 hover:bg-blue-100 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                                    <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+                                        <span class="text-white text-sm font-medium">{{ substr(Auth::user()->name, 0, 1) }}</span>
+                                    </div>
+                                    <span class="hidden md:block font-medium">{{ Auth::user()->name }}</span>
+                                    <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                    </svg>
+                                </button>
+                                
+                                <!-- Dropdown Menu -->
+                                <div x-show="open" 
+                                     @click.away="open = false"
+                                     x-transition:enter="transition ease-out duration-200"
+                                     x-transition:enter-start="transform opacity-0 scale-95"
+                                     x-transition:enter-end="transform opacity-100 scale-100"
+                                     x-transition:leave="transition ease-in duration-75"
+                                     x-transition:leave-start="transform opacity-100 scale-100"
+                                     x-transition:leave-end="transform opacity-0 scale-95"
+                                     class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
+                                    <div class="py-1">
+                                        <div class="px-4 py-2 text-xs text-gray-500 border-b border-gray-100">
+                                            @if (Auth::user()->isAdmin())
+                                                Administrador TI
+                                            @else
+                                                Usuario
+                                            @endif
+                                        </div>
+                                        <form method="POST" action="{{ route('logout') }}">
+                                            @csrf
+                                            <button type="submit" 
+                                                    class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 hover:text-red-800 transition-colors duration-200 flex items-center">
+                                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                                                </svg>
+                                                Cerrar Sesión
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        @else
+                            <div class="flex space-x-3">
+                                <a href="{{ route('login') }}" class="text-blue-600 hover:text-blue-800 px-3 py-2 text-sm font-medium transition-colors duration-200">
+                                    Iniciar Sesión
+                                </a>
+                                <a href="{{ route('register') }}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200">
+                                    Registrarse
+                                </a>
+                            </div>
+                        @endif
+                    </div>
+                </div>
             </div>
-        </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+            <!-- Success Message -->
+            @if(session('success'))
+                <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-8 mx-auto max-w-4xl">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <svg class="h-5 w-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-green-800 font-medium">
+                                {{ session('success') }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
+            <!-- Info Message -->
+            @if(session('info'))
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-8 mx-auto max-w-4xl">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <svg class="h-5 w-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-blue-800 font-medium">
+                                {{ session('info') }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
+            <!-- Hero Section -->
+            <div class="text-center mb-12">
+                <h2 class="text-4xl font-bold text-gray-900 mb-4">
+                    Centro de <span class="text-blue-600">Soporte Técnico</span>
+                </h2>
+                <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+                    Gestiona tus solicitudes de soporte técnico de manera rápida y eficiente
+                </p>
+            </div>
+
+            @auth
+            <!-- Quick Access Section -->
+            <div class="text-center mb-12">
+                <div class="bg-white rounded-xl shadow-lg border border-blue-100 p-6 max-w-md mx-auto">
+                    <div class="flex items-center justify-center w-12 h-12 bg-blue-100 rounded-lg mb-4 mx-auto">
+                        <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">¿Ya tienes un ticket?</h3>
+                    <p class="text-gray-600 mb-4">Consulta el estado de tus tickets existentes</p>
+                    <a href="{{ route('tickets.mis-tickets') }}" 
+                       class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-lg transition-colors duration-200 inline-flex items-center">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                        Ver Mis Tickets
+                    </a>
+                </div>
+            </div>
+            @else
+            <!-- Login/Register Section for Non-Authenticated Users -->
+            <div class="text-center mb-12">
+                <div class="bg-white rounded-xl shadow-lg border border-blue-100 p-8 max-w-2xl mx-auto">
+                    <div class="flex items-center justify-center w-16 h-16 bg-blue-100 rounded-lg mb-6 mx-auto">
+                        <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-semibold text-gray-900 mb-4">¡Bienvenido al Sistema de Tickets!</h3>
+                    <p class="text-gray-600 mb-6 leading-relaxed">
+                        Para crear y gestionar tus tickets de soporte técnico, necesitas iniciar sesión o crear una cuenta.
+                    </p>
+                    <div class="flex justify-center space-x-4">
+                        <a href="{{ route('login') }}" 
+                           class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg transition-colors duration-200 inline-flex items-center">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>
+                            </svg>
+                            Iniciar Sesión
+                        </a>
+                        <a href="{{ route('register') }}" 
+                           class="border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white font-medium py-3 px-6 rounded-lg transition-colors duration-200 inline-flex items-center">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
+                            </svg>
+                            Crear Cuenta
+                        </a>
+                    </div>
+                </div>
+            </div>
+            @endauth
+
+            @auth
+            <!-- Cards Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Card 1: Reportar Problema de Software -->
+                <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 border border-blue-100">
+                    <div class="p-8">
+                        <div class="flex items-center justify-center w-16 h-16 bg-blue-100 rounded-lg mb-6 mx-auto">
+                            <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-semibold text-gray-900 text-center mb-4">
+                            Reportar Problema de Software
+                        </h3>
+                        <p class="text-gray-600 text-center mb-6 leading-relaxed">
+                            ¿Tienes problemas con algún programa o aplicación? Reporta errores, fallos o comportamientos inesperados.
+                        </p>
+                        <a href="{{ route('tickets.create', 'software') }}" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg transition-colors duration-200 flex items-center justify-center">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                            </svg>
+                            Crear Reporte
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Card 2: Programar Mantenimiento -->
+                <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 border border-blue-100">
+                    <div class="p-8">
+                        <div class="flex items-center justify-center w-16 h-16 bg-blue-100 rounded-lg mb-6 mx-auto">
+                            <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3a1 1 0 011-1h6a1 1 0 011 1v4h3a1 1 0 011 1v9a1 1 0 01-1 1H5a1 1 0 01-1-1V8a1 1 0 011-1h3z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 12h.01M8 16h8"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-semibold text-gray-900 text-center mb-4">
+                            Programar Mantenimiento
+                        </h3>
+                        <p class="text-gray-600 text-center mb-6 leading-relaxed">
+                            Solicita mantenimiento preventivo o correctivo para tus equipos. Programa revisiones y actualizaciones.
+                        </p>
+                        <a href="{{ route('tickets.create', 'mantenimiento') }}" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg transition-colors duration-200 flex items-center justify-center">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                            </svg>
+                            Programar Cita
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Card 3: Problema de Equipo -->
+                <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 border border-blue-100">
+                    <div class="p-8">
+                        <div class="flex items-center justify-center w-16 h-16 bg-blue-100 rounded-lg mb-6 mx-auto">
+                            <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-semibold text-gray-900 text-center mb-4">
+                            Reportar Problema de Equipo
+                        </h3>
+                        <p class="text-gray-600 text-center mb-6 leading-relaxed">
+                            ¿Tu computadora, impresora u otro equipo no funciona correctamente? Reporta problemas de hardware.
+                        </p>
+                        <a href="{{ route('tickets.create', 'hardware') }}" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg transition-colors duration-200 flex items-center justify-center">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.084 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                            </svg>
+                            Reportar Falla
+                        </a>
+                    </div>
+                </div>
+            </div>
+            @endauth
+        </main>
+
+        <!-- Footer -->
+        <footer class="bg-white border-t border-blue-100 mt-16">
+            <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+                <div class="text-center text-gray-500 text-sm">
+                    <p>&copy; {{ date('Y') }} E&I - Comercio Exterior, Logística y Tecnología. Todos los derechos reservados.</p>
+                </div>
+            </div>
+        </footer>
     </body>
 </html>
