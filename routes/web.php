@@ -1,9 +1,6 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\AdminController;
-use App\Http\Controllers\TicketController;
-use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ArchivoProblemasController;
 use App\Http\Controllers\InventarioController;
 use App\Http\Controllers\PrestamoController;
@@ -26,6 +23,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/ticket', [TicketController::class, 'store'])->name('tickets.store');
     Route::get('/mis-tickets', [TicketController::class, 'misTickets'])->name('tickets.mis-tickets');
     Route::delete('/ticket/{ticket}', [TicketController::class, 'destroy'])->name('tickets.destroy');
+
+    Route::resource('prestamos', PrestamoController::class);
     
     // Rutas del archivo de problemas
     Route::get('/archivo-problemas', [ArchivoProblemasController::class, 'index'])->name('archivo-problemas.index');
