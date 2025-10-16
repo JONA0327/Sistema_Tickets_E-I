@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Agregar Artículo - E&I Sistema de Inventario</title>
+        <link rel="preconnect" href="https://fonts.bunny.net">
+        <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700" rel="stylesheet" />
+        @vite(['resources/css/app.css', 'resources/js/app.js'])
+        <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    </head>
+    <body class="min-h-screen bg-gradient-to-br from-green-50 to-green-100">
+        <!-- Header -->
+        <header class="bg-white shadow-sm border-b border-green-100">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between items-center h-16">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <div class="flex items-center">
+                                <img src="{{ asset('images/logo-ei.png') }}" alt="E&I Logo" class="h-12 w-auto mr-3">
+                                <div>
+                                    <h1 class="text-xl font-bold text-gray-900">Agregar Artículo</h1>
+                                    <p class="text-sm text-gray-600">E&I - Inventario</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-4" x-data="{ open: false }">
+                        <!-- User Profile Dropdown -->
+                        <div class="relative">
+                            <button 
+                                @click="open = !open" 
+                                @click.away="open = false"
+                                class="flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-green-50 transition-colors duration-200">
+                                <div class="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center">
+                                    <span class="text-sm font-medium text-white">{{ substr(auth()->user()->name, 0, 1) }}</span>
+                                </div>
+                                <span class="text-sm font-medium text-gray-700">{{ auth()->user()->name }}</span>
+                                <svg class="w-4 h-4 text-gray-400" :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                </svg>
+                            </button>
+
+                            <div x-show="open" 
+                                 x-transition:enter="transition ease-out duration-100"
+                                 x-transition:enter-start="transform opacity-0 scale-95"
+                                 x-transition:enter-end="transform opacity-100 scale-100"
+                                 x-transition:leave="transition ease-in duration-75"
+                                 x-transition:leave-start="transform opacity-100 scale-100"
+                                 x-transition:leave-end="transform opacity-0 scale-95"
+                                 class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
+                                <a href="{{ route('welcome') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">🏠 Inicio</a>
+                                <a href="{{ route('admin.dashboard') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">⚙️ Panel Admin</a>
+                                <a href="{{ route('inventario.index') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">📦 Inventario</a>
+                                <form method="POST" action="{{ route('logout') }}" class="block">
+                                    @csrf
+                                    <button type="submit" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">🚪 Cerrar Sesión</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="max-w-4xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                <div class="p-6 text-gray-900">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-2xl font-bold text-gray-900">
+                            <svg class="w-6 h-6 inline-block mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                            </svg>
+                            Agregar Nuevo Artículo
+                        </h2>
+                        <div class="flex space-x-2">
+                            <a href="{{ route('inventario.index') }}" 
+                               class="bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200">
+                                <svg class="w-4 h-4 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                                </svg>
+                                Volver
+                            </a>
+                        </div>
+                    </div>
+
+                    @if ($errors->any())
+                        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                            <ul class="list-disc list-inside">
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+
+                    @if(session('success'))
+                        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+                            {{ session('success') }}
+                        </div>
+                    @endif
+
+                    @if(session('error'))
+                        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                            {{ session('error') }}
+                        </div>
+                    @endif
+
+                    <!-- Similar Item Alert -->
+                    @if(isset($similarItem))
+                        <div class="mb-6 bg-purple-50 border border-purple-200 rounded-lg p-4">
+                            <div class="flex items-start">
+                                <svg class="w-5 h-5 text-purple-600 mt-0.5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                <div>
+                                    <h3 class="text-sm font-medium text-purple-800 mb-1">Creando unidad similar</h3>
+                                    <p class="text-sm text-purple-700">
+                                        Se pre-cargarán los datos del artículo: <strong>{{ $similarItem->articulo }} {{ $similarItem->modelo }}</strong>
+                                        <br>
+                                        <span class="font-mono text-xs bg-white px-2 py-1 rounded border">{{ $similarItem->codigo_inventario }}</span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
+
+                    <!-- Form -->
+                    <form action="{{ route('inventario.store') }}" method="POST" enctype="multipart/form-data" 
+                          x-data="{ 
+                              categoria: '{{ isset($similarItem) ? $similarItem->categoria : old('categoria') }}',
+                              tipoCreacion: '{{ old('crear_como', 'unidad_unica') }}'
+                          }">
+                        @csrf
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Columna izquierda -->
+                            <div class="space-y-4">
+                                <div>
+                                    <label for="categoria" class="block text-sm font-medium text-gray-700 mb-1">Categoría *</label>
+                                    <select name="categoria" 
+                                            id="categoria" 
+                                            x-model="categoria"
+                                            class="w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500" 
+                                            required>
+                                        <option value="">Seleccionar categoría</option>
+                                        @foreach($categorias as $key => $label)
+                                            <option value="{{ $key }}" 
+                                                {{ (old('categoria', isset($similarItem) ? $similarItem->categoria : '') == $key) ? 'selected' : '' }}>
+                                                {{ $label }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    <div class="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                                        <div class="flex items-start">
+                                            <svg class="w-4 h-4 text-blue-600 mt-0.5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                            </svg>
+                                            <div class="text-xs text-blue-700">
+                                                <p class="font-medium mb-1">💡 Código Automático por Categoría:</p>
+                                                <div class="grid grid-cols-2 gap-1 font-mono text-xs">
+                                                    <span>Mouse → MOU001</span>
+                                                    <span>Discos → DDU001</span>
+                                                    <span>RAM → RAM001</span>
+                                                    <span>Cargador → CAR001</span>
+                                                    <span>Batería → BAT001</span>
+                                                    <span>Computadora → COM001</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label for="articulo" class="block text-sm font-medium text-gray-700 mb-1">Artículo *</label>
+                                    <input type="text" 
+                                           name="articulo" 
+                                           id="articulo" 
+                                           value="{{ old('articulo', isset($similarItem) ? $similarItem->articulo : '') }}"
+                                           class="w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
+                                           required>
+                                </div>
+
+                                <div>
+                                    <label for="modelo" class="block text-sm font-medium text-gray-700 mb-1">Modelo *</label>
+                                    <input type="text" 
+                                           name="modelo" 
+                                           id="modelo" 
+                                           value="{{ old('modelo', isset($similarItem) ? $similarItem->modelo : '') }}"
+                                           class="w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
+                                           required>
+                                </div>
+
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div x-show="tipoCreacion !== 'multiples_unidades'" x-transition>
+                                        <label for="cantidad" class="block text-sm font-medium text-gray-700 mb-1">Cantidad *</label>
+                                        <input type="number" 
+                                               name="cantidad" 
+                                               id="cantidad" 
+                                               value="{{ old('cantidad', 1) }}"
+                                               min="1"
+                                               max="50"
+                                               class="w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
+                                               :required="tipoCreacion !== 'multiples_unidades'">
+                                    </div>
+
+                                    <div x-show="tipoCreacion !== 'multiples_unidades'" x-transition>
+                                        <label for="estado" class="block text-sm font-medium text-gray-700 mb-1">Estado *</label>
+                                        <select name="estado" id="estado" 
+                                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500" 
+                                                :required="tipoCreacion !== 'multiples_unidades'">
+                                            <option value="">Seleccionar estado</option>
+                                            @foreach($estados as $key => $label)
+                                                <option value="{{ $key }}" {{ old('estado', isset($similarItem) ? $similarItem->estado : '') == $key ? 'selected' : '' }}>{{ $label }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <!-- Opciones de creación -->
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-3">¿Cómo deseas crear este inventario? *</label>
+                                    
+                                    <div class="space-y-3">
+                                        <div class="flex items-start space-x-3 p-3 border rounded-lg" 
+                                             :class="tipoCreacion === 'unidad_unica' ? 'border-green-300 bg-green-50' : 'border-gray-200'">
+                                            <input type="radio" 
+                                                   name="crear_como" 
+                                                   id="unidad_unica" 
+                                                   value="unidad_unica"
+                                                   x-model="tipoCreacion"
+                                                   class="mt-1 text-green-600 focus:ring-green-500 focus:border-green-500">
+                                            <div>
+                                                <label for="unidad_unica" class="text-sm font-medium text-gray-700 cursor-pointer">
+                                                    📦 Unidad Única con Cantidad
+                                                </label>
+                                                <p class="text-xs text-gray-600 mt-1">
+                                                    Ejemplo: 1 registro "MOU001" con cantidad 5 (útil para items idénticos no rastreables individualmente)
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        <div class="flex items-start space-x-3 p-3 border rounded-lg"
+                                             :class="tipoCreacion === 'multiples_unidades' ? 'border-blue-300 bg-blue-50' : 'border-gray-200'">
+                                            <input type="radio" 
+                                                   name="crear_como" 
+                                                   id="multiples_unidades" 
+                                                   value="multiples_unidades"
+                                                   x-model="tipoCreacion"
+                                                   class="mt-1 text-blue-600 focus:ring-blue-500 focus:border-blue-500">
+                                            <div>
+                                                <label for="multiples_unidades" class="text-sm font-medium text-gray-700 cursor-pointer">
+                                                    🏷️ Múltiples Unidades Individuales
+                                                </label>
+                                                <p class="text-xs text-gray-600 mt-1">
+                                                    Ejemplo: 5 registros separados "MOU001, MOU002, MOU003..." (útil para rastrear cada item individualmente)
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Sección dinámica para múltiples unidades -->
+                                    <div x-show="tipoCreacion === 'multiples_unidades'" 
+                                         x-transition
+                                         x-data="{
+                                             unidades: [
+                                                 { estado: 'nuevo', observaciones: '', color: '' }
+                                             ],
+                                             agregarUnidad() {
+                                                 this.unidades.push({ estado: 'nuevo', observaciones: '', color: '' });
+                                             },
+                                             eliminarUnidad(index) {
+                                                 if (this.unidades.length > 1) {
+                                                     this.unidades.splice(index, 1);
+                                                 }
+                                             }
+                                         }"
+                                         class="mt-4 space-y-4">
+                                        
+                                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                            <div class="flex items-start justify-between mb-3">
+                                                <div>
+                                                    <h4 class="text-sm font-medium text-blue-800 mb-1">🏷️ Configurar Unidades Individuales</h4>
+                                                    <p class="text-xs text-blue-600">
+                                                        Cada unidad tendrá su propio código único. Solo configura los campos que pueden variar.
+                                                    </p>
+                                                </div>
+                                                <button type="button" 
+                                                        @click="agregarUnidad()"
+                                                        class="bg-blue-600 hover:bg-blue-700 text-white text-xs px-3 py-1 rounded-md transition-colors">
+                                                    + Agregar Unidad
+                                                </button>
+                                            </div>
+
+                                            <div class="space-y-3 max-h-64 overflow-y-auto">
+                                                <template x-for="(unidad, index) in unidades" :key="index">
+                                                    <div class="bg-white border border-gray-200 rounded-lg p-3">
+                                                        <div class="flex items-center justify-between mb-3">
+                                                            <h5 class="text-sm font-medium text-gray-700">
+                                                                Unidad <span x-text="index + 1"></span>
+                                                                <span class="text-xs text-gray-500 font-mono ml-2">
+                                                                    (Se asignará código automáticamente)
+                                                                </span>
+                                                            </h5>
+                                                            <button type="button" 
+                                                                    x-show="unidades.length > 1"
+                                                                    @click="eliminarUnidad(index)"
+                                                                    class="text-red-600 hover:text-red-700 text-xs">
+                                                                🗑️ Eliminar
+                                                            </button>
+                                                        </div>
+
+                                                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                                            <!-- Estado -->
+                                                            <div>
+                                                                <label class="block text-xs font-medium text-gray-700 mb-1">Estado</label>
+                                                                <select x-model="unidad.estado" 
+                                                                        :name="'unidades[' + index + '][estado]'"
+                                                                        class="w-full text-sm rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
+                                                                        required>
+                                                                    @foreach($estados as $key => $label)
+                                                                        <option value="{{ $key }}">{{ $label }}</option>
+                                                                    @endforeach
+                                                                </select>
+                                                            </div>
+
+                                                            <!-- Color (opcional) -->
+                                                            <div>
+                                                                <label class="block text-xs font-medium text-gray-700 mb-1">Color (opcional)</label>
+                                                                <input type="text" 
+                                                                       x-model="unidad.color"
+                                                                       :name="'unidades[' + index + '][color]'"
+                                                                       class="w-full text-sm rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
+                                                                       placeholder="Ej: Negro, Blanco, Azul">
+                                                            </div>
+
+                                                            <!-- Observaciones específicas -->
+                                                            <div>
+                                                                <label class="block text-xs font-medium text-gray-700 mb-1">Observaciones específicas</label>
+                                                                <textarea x-model="unidad.observaciones"
+                                                                          :name="'unidades[' + index + '][observaciones]'"
+                                                                          rows="2"
+                                                                          class="w-full text-sm rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
+                                                                          placeholder="Detalles únicos de esta unidad..."></textarea>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </template>
+                                            </div>
+
+                                            <div class="mt-3 p-2 bg-amber-50 border border-amber-200 rounded text-xs text-amber-700">
+                                                <strong>💡 Información compartida:</strong> Categoría, Artículo, Modelo y otras características generales se aplicarán a todas las unidades.
+                                                Solo los campos arriba pueden variar entre unidades.
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Campos específicos para computadoras -->
+                                <div x-show="categoria === 'computadoras'" x-transition class="space-y-4">
+                                    <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                                        <h4 class="text-md font-medium text-blue-800 mb-3">💻 Información de Computadora</h4>
+                                        
+                                        <div class="grid grid-cols-1 gap-4">
+                                            <div>
+                                                <label for="password_computadora" class="block text-sm font-medium text-gray-700 mb-1">Contraseña</label>
+                                                <input type="text" 
+                                                       name="password_computadora" 
+                                                       id="password_computadora" 
+                                                       value="{{ old('password_computadora') }}"
+                                                       class="w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
+                                                       placeholder="Contraseña de acceso">
+                                            </div>
+
+                                            <div>
+                                                <label for="anos_uso" class="block text-sm font-medium text-gray-700 mb-1">Años de Uso</label>
+                                                <input type="number" 
+                                                       name="anos_uso" 
+                                                       id="anos_uso" 
+                                                       value="{{ old('anos_uso') }}"
+                                                       min="0"
+                                                       max="50"
+                                                       class="w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
+                                                       placeholder="0">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Columna derecha -->
+                            <div class="space-y-4">
+                                <div>
+                                    <label for="observaciones" class="block text-sm font-medium text-gray-700 mb-1">
+                                        <span x-show="tipoCreacion !== 'multiples_unidades'">Observaciones</span>
+                                        <span x-show="tipoCreacion === 'multiples_unidades'">Observaciones Generales (opcionales)</span>
+                                    </label>
+                                    <textarea name="observaciones" 
+                                              id="observaciones" 
+                                              rows="4"
+                                              class="w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
+                                              x-bind:placeholder="tipoCreacion === 'multiples_unidades' ? 
+                                                  'Información que se aplicará a todas las unidades (ej: marca, año de compra, etc.)' : 
+                                                  'Detalles adicionales, condiciones especiales, etc.'">{{ old('observaciones', isset($similarItem) ? $similarItem->observaciones : '') }}</textarea>
+                                    <p x-show="tipoCreacion === 'multiples_unidades'" class="text-xs text-gray-500 mt-1">
+                                        💡 Las observaciones específicas de cada unidad se configuran más arriba
+                                    </p>
+                                </div>
+
+                                <div>
+                                    <label for="imagenes" class="block text-sm font-medium text-gray-700 mb-1">Imágenes (opcional)</label>
+                                    <input type="file" 
+                                           name="imagenes[]" 
+                                           id="imagenes" 
+                                           multiple
+                                           accept="image/*"
+                                           class="w-full border border-gray-300 rounded-md p-2 focus:border-green-500 focus:ring-green-500">
+                                    <div class="mt-1 flex items-center space-x-4">
+                                        <p class="text-xs text-gray-500">
+                                            <strong>💡 Tip:</strong> Mantén <kbd class="px-1 py-0.5 bg-gray-200 rounded text-xs">Ctrl</kbd> presionado para seleccionar múltiples archivos
+                                        </p>
+                                        <span id="image_count" class="text-xs text-green-600 font-medium"></span>
+                                    </div>
+                                    <div id="image_preview" class="mt-3 grid grid-cols-3 gap-2"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-end space-x-3 mt-6 pt-6 border-t">
+                            <a href="{{ route('inventario.index') }}" 
+                               class="bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200">
+                                Cancelar
+                            </a>
+                            <button type="submit" 
+                                    class="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-6 rounded-lg transition-colors duration-200 flex items-center">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                                Agregar Artículo
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="bg-white border-t border-gray-200 mt-12">
+            <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+                <div class="text-center text-gray-500 text-sm">
+                    <p>&copy; {{ date('Y') }} E&I - Comercio Exterior, Logística y Tecnología. Todos los derechos reservados.</p>
+                </div>
+            </div>
+        </footer>
+
+        <script>
+            // Preview de imágenes
+            document.getElementById('imagenes').addEventListener('change', function(e) {
+                const previewContainer = document.getElementById('image_preview');
+                const counterSpan = document.getElementById('image_count');
+                previewContainer.innerHTML = '';
+                
+                const files = Array.from(e.target.files);
+                
+                // Actualizar contador
+                if (files.length > 0) {
+                    counterSpan.textContent = `📸 ${files.length} imagen${files.length > 1 ? 'es' : ''} seleccionada${files.length > 1 ? 's' : ''}`;
+                    counterSpan.className = 'text-xs text-green-600 font-medium bg-green-50 px-2 py-1 rounded';
+                } else {
+                    counterSpan.textContent = '';
+                    counterSpan.className = 'text-xs text-green-600 font-medium';
+                }
+                
+                files.forEach((file, index) => {
+                    if (file.type.startsWith('image/')) {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            const previewDiv = document.createElement('div');
+                            previewDiv.className = 'relative border rounded-lg overflow-hidden bg-green-50';
+                            previewDiv.innerHTML = `
+                                <img src="${e.target.result}" class="w-full h-20 object-cover" />
+                                <div class="text-xs text-center p-1 bg-green-100">
+                                    <span class="font-medium text-green-700">#${index + 1}</span>
+                                </div>
+                                <div class="text-xs text-gray-600 truncate px-1" title="${file.name}">${file.name}</div>
+                            `;
+                            previewContainer.appendChild(previewDiv);
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                });
+            });
+
+            // Validación del formulario
+            document.querySelector('form').addEventListener('submit', function(e) {
+                const files = document.getElementById('imagenes').files;
+                
+                if (files.length > 5) {
+                    if (!confirm(`Estás a punto de subir ${files.length} imágenes. Esto puede tardar un momento. ¿Continuar?`)) {
+                        e.preventDefault();
+                        return false;
+                    }
+                }
+                
+                // Cambiar texto del botón
+                const submitBtn = document.querySelector('button[type="submit"]');
+                if (submitBtn && files.length > 0) {
+                    submitBtn.innerHTML = `
+                        <svg class="w-4 h-4 mr-2 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                        </svg>
+                        Procesando...
+                    `;
+                    submitBtn.disabled = true;
+                }
+            });
+        </script>
+    </body>
+</html>

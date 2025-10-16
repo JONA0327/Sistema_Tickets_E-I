@@ -100,8 +100,7 @@ class AdminController extends Controller
      */
     public function inventoryRequests()
     {
-        // Por implementar
-        return view('admin.inventory-requests');
+        return redirect()->route('prestamos.index');
     }
 
     /**

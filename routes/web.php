@@ -2,10 +2,8 @@
 
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ArchivoProblemasController;
-use App\Http\Controllers\AuthController;
+use App\Http\Controllers\InventarioController;
 use App\Http\Controllers\PrestamoController;
-use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\TicketController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -57,6 +55,39 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
     Route::get('/users/{user}/edit', [AdminController::class, 'editUser'])->name('users.edit');
     Route::put('/users/{user}', [AdminController::class, 'updateUser'])->name('users.update');
     Route::delete('/users/{user}', [AdminController::class, 'destroyUser'])->name('users.destroy');
+});
+
+// Rutas de inventario - solo administradores (DEBEN IR PRIMERO para evitar conflictos)
+Route::middleware(['auth', 'admin'])->group(function () {
+    // CRUD de inventario
+    Route::get('/inventario/crear', [InventarioController::class, 'create'])->name('inventario.create');
+    Route::get('/inventario/{inventario}/editar', [InventarioController::class, 'edit'])->name('inventario.edit');
+    Route::post('/inventario', [InventarioController::class, 'store'])->name('inventario.store');
+    Route::put('/inventario/{inventario}', [InventarioController::class, 'update'])->name('inventario.update');
+    Route::delete('/inventario/{inventario}', [InventarioController::class, 'destroy'])->name('inventario.destroy');
+    Route::delete('/inventario/{inventario}/eliminar-imagen', [InventarioController::class, 'eliminarImagen'])->name('inventario.eliminar-imagen');
+    
+    // Gestión de préstamos
+    Route::get('/prestamos', [PrestamoController::class, 'index'])->name('prestamos.index');
+    Route::get('/prestamos/crear', [PrestamoController::class, 'create'])->name('prestamos.create');
+    Route::post('/prestamos', [PrestamoController::class, 'store'])->name('prestamos.store');
+    Route::get('/prestamos/{prestamo}', [PrestamoController::class, 'show'])->name('prestamos.show');
+    Route::get('/prestamos/{prestamo}/devolver', [PrestamoController::class, 'devolver'])->name('prestamos.devolver');
+    Route::put('/prestamos/{prestamo}/devolver', [PrestamoController::class, 'procesarDevolucion'])->name('prestamos.procesar-devolucion');
+    Route::get('/prestamos/usuario/{user}', [PrestamoController::class, 'prestamosUsuario'])->name('prestamos.usuario');
+    
+    // AJAX routes
+    Route::get('/api/inventario/{inventario}/disponibilidad', [PrestamoController::class, 'getDisponibilidad'])->name('inventario.disponibilidad');
+});
+
+// Rutas de inventario (accesibles para usuarios autenticados - visualización)
+Route::middleware('auth')->group(function () {
+    // Inventario - visualización para todos
+    Route::get('/inventario', [InventarioController::class, 'index'])->name('inventario.index');
+    Route::get('/inventario/{inventario}', [InventarioController::class, 'show'])->name('inventario.show');
+    
+    // Préstamos - ver préstamos de usuario  
+    Route::get('/mis-prestamos/{user?}', [PrestamoController::class, 'prestamosUsuario'])->name('mis-prestamos');
 });
 
 Route::middleware('auth')->group(function () {

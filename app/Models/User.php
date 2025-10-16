@@ -62,4 +62,28 @@ class User extends Authenticatable
     {
         return $this->hasMany(Ticket::class);
     }
+
+    /**
+     * Relación con préstamos activos de inventario
+     */
+    public function prestamosActivos()
+    {
+        return $this->hasMany(PrestamoInventario::class, 'user_id')->where('estado_prestamo', 'activo');
+    }
+
+    /**
+     * Relación con todos los préstamos de inventario
+     */
+    public function prestamosInventario()
+    {
+        return $this->hasMany(PrestamoInventario::class, 'user_id');
+    }
+
+    /**
+     * Relación con inventarios creados por el usuario
+     */
+    public function inventariosCreados()
+    {
+        return $this->hasMany(Inventario::class, 'created_by');
+    }
 }
