@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use App\Models\User;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -20,6 +19,10 @@ class DatabaseSeeder extends Seeder
             'name' => 'Administrador TI',
             'email' => 'sistemas@estrategiaeinnovacion.com.mx',
             'password' => bcrypt('Estrategias2025IT'),
+        ]);
+
+        $this->call([
+            InventoryItemSeeder::class,
         ]);
     }
 }

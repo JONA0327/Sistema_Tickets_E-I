@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\InventoryItem;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 
@@ -28,10 +29,70 @@ class AdminController extends Controller
     /**
      * Mostrar el inventario
      */
-    public function inventory()
+    public function inventory(Request $request)
     {
-        // Por implementar
-        return view('admin.inventory');
+        $filters = [
+            'solo_funcionales' => $request->boolean('solo_funcionales'),
+            'solo_disponibles' => $request->boolean('solo_disponibles'),
+        ];
+
+        $query = InventoryItem::query();
+
+        if ($filters['solo_funcionales']) {
+            $query->where('es_funcional', true);
+        }
+
+        if ($filters['solo_disponibles']) {
+            $query->where('estado', InventoryItem::ESTADO_DISPONIBLE);
+        }
+
+        $items = $query
+            ->orderBy('codigo_producto')
+            ->orderBy('identificador')
+            ->orderBy('id')
+            ->get();
+
+        $groupedInventory = $items
+            ->groupBy('codigo_producto')
+            ->map(function ($items) {
+                /** @var \App\Models\InventoryItem $first */
+                $first = $items->first();
+
+                $stateCounts = [
+                    InventoryItem::ESTADO_DISPONIBLE => $items->where('estado', InventoryItem::ESTADO_DISPONIBLE)->count(),
+                    InventoryItem::ESTADO_PRESTADO => $items->where('estado', InventoryItem::ESTADO_PRESTADO)->count(),
+                    InventoryItem::ESTADO_MANTENIMIENTO => $items->where('estado', InventoryItem::ESTADO_MANTENIMIENTO)->count(),
+                    InventoryItem::ESTADO_RESERVADO => $items->where('estado', InventoryItem::ESTADO_RESERVADO)->count(),
+                    InventoryItem::ESTADO_DANADO => $items->where('estado', InventoryItem::ESTADO_DANADO)->count(),
+                ];
+
+                return [
+                    'codigo_producto' => $first->codigo_producto,
+                    'nombre' => $first->nombre,
+                    'categoria' => $first->categoria,
+                    'marca' => $first->marca,
+                    'modelo' => $first->modelo,
+                    'descripcion_general' => $first->descripcion_general,
+                    'total' => $items->count(),
+                    'stateCounts' => $stateCounts,
+                    'items' => $items,
+                ];
+            })
+            ->values();
+
+        $globalStats = [
+            'total' => InventoryItem::count(),
+            'funcionales' => InventoryItem::where('es_funcional', true)->count(),
+            'disponibles' => InventoryItem::where('estado', InventoryItem::ESTADO_DISPONIBLE)->count(),
+            'danados' => InventoryItem::where('estado', InventoryItem::ESTADO_DANADO)->count(),
+        ];
+
+        return view('admin.inventory', [
+            'inventoryGroups' => $groupedInventory,
+            'filters' => $filters,
+            'globalStats' => $globalStats,
+            'estadoLabels' => InventoryItem::estadoLabels(),
+        ]);
     }
 
     /**
