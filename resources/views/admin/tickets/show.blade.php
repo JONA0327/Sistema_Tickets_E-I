@@ -423,10 +423,16 @@
 
                 <!-- Panel de Gestión -->
                 <div class="lg:col-span-1">
-                    <div class="bg-white shadow-xl rounded-lg border border-blue-100 p-6 sticky top-4 z-40 max-h-[calc(100vh-2rem)] overflow-y-auto">
-                        <h3 class="text-lg font-semibold text-gray-900 mb-6 sticky top-0 bg-white border-b border-gray-100 pb-4 -mx-6 px-6 -mt-6 pt-6">Gestionar Ticket</h3>
+                    <div class="bg-white shadow-xl rounded-2xl border border-blue-100 p-6 sticky top-4 z-40 max-h-[calc(100vh-2rem)] overflow-y-auto flex flex-col">
+                        <div class="flex items-center justify-between gap-4 pb-4 mb-6 border-b border-gray-100">
+                            <h3 class="text-lg font-semibold text-gray-900">Gestionar Ticket</h3>
+                            <span class="inline-flex items-center gap-2 text-sm font-medium text-blue-600 bg-blue-50 border border-blue-100 px-3 py-1 rounded-full">
+                                <span class="w-2 h-2 bg-blue-400 rounded-full"></span>
+                                Ticket #{{ $ticket->id }}
+                            </span>
+                        </div>
 
-                        <form method="POST" action="{{ route('admin.tickets.update', $ticket) }}" class="space-y-6 pt-4" enctype="multipart/form-data">
+                        <form method="POST" action="{{ route('admin.tickets.update', $ticket) }}" class="space-y-6" enctype="multipart/form-data">
                             @csrf
                             @method('PATCH')
 
