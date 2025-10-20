@@ -131,12 +131,13 @@
             </div>
 
             <!-- Stats Cards -->
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
                 @php
                     $abiertos = $tickets->where('estado', 'abierto')->count();
                     $enProceso = $tickets->where('estado', 'en_proceso')->count();
                     $cerrados = $tickets->where('estado', 'cerrado')->count();
                     $software = $tickets->where('tipo_problema', 'software')->count();
+                    $mantenimiento = $tickets->where('tipo_problema', 'mantenimiento')->count();
                 @endphp
 
                 <div class="bg-white rounded-lg p-6 border border-red-200 shadow-sm">
@@ -200,6 +201,32 @@
                             <p class="text-sm font-medium text-gray-600">Software</p>
                             <p class="text-2xl font-semibold text-gray-900">{{ $software }}</p>
                         </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg p-6 border border-green-200 shadow-sm">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0">
+                                <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                                    <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3a1 1 0 011-1h6a1 1 0 011 1v4h3a1 1 0 011 1v9a1 1 0 01-1 1H5a1 1 0 01-1-1V8a1 1 0 011-1h3z"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-gray-600">Mantenimiento</p>
+                                <p class="text-2xl font-semibold text-gray-900">{{ $mantenimiento }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <a href="{{ route('admin.maintenance.index') }}" class="inline-flex items-center text-sm font-semibold text-green-700 hover:text-green-900 transition-colors">
+                            Configurar horarios
+                            <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                            </svg>
+                        </a>
                     </div>
                 </div>
             </div>

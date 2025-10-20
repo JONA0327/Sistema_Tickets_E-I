@@ -162,13 +162,100 @@
                                       placeholder="{{ $tipo === 'mantenimiento' ? 
                                         'Describe qué tipo de mantenimiento necesitas, cuándo y cualquier detalle importante...' : 
                                         'Describe el problema con el mayor detalle posible. ¿Qué estabas haciendo cuando ocurrió? ¿Qué mensajes de error aparecen?' }}">{{ old('descripcion_problema') }}</textarea>
-                            @error('descripcion_problema')
-                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                            @enderror
-                        </div>
+                        @error('descripcion_problema')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
                     </div>
 
-                    <!-- Imágenes -->
+                    @if($tipo === 'mantenimiento')
+                        <div class="mt-6">
+                            <h4 class="text-base font-semibold text-gray-800 mb-2">Agenda tu mantenimiento</h4>
+                            <p class="text-sm text-gray-600 mb-4">
+                                Selecciona el día y horario disponible para tu mantenimiento. Los colores indican la disponibilidad: verde (disponible), amarillo (algunas horas reservadas) y rojo (sin horarios).
+                            </p>
+
+                            <input type="hidden" name="maintenance_slot_id" id="maintenance_slot_id" value="{{ old('maintenance_slot_id') }}">
+                            <input type="hidden" name="maintenance_selected_date" id="maintenance_selected_date" value="{{ old('maintenance_selected_date') }}">
+
+                            <div id="maintenanceScheduling"
+                                 data-availability-url="{{ route('maintenance.availability') }}"
+                                 data-slots-url="{{ route('maintenance.slots') }}"
+                                 class="bg-white border border-green-200 rounded-lg p-4 shadow-sm">
+                                <div class="flex items-center justify-between mb-4">
+                                    <button type="button" id="calendarPrev" class="flex items-center text-sm text-blue-600 hover:text-blue-800">
+                                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                                        </svg>
+                                        Mes anterior
+                                    </button>
+                                    <div id="calendarMonthLabel" class="text-lg font-semibold text-gray-800"></div>
+                                    <button type="button" id="calendarNext" class="flex items-center text-sm text-blue-600 hover:text-blue-800">
+                                        Mes siguiente
+                                        <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                        </svg>
+                                    </button>
+                                </div>
+
+                                <div class="grid grid-cols-7 gap-2 text-xs font-semibold text-gray-500 uppercase mb-2">
+                                    <div class="text-center">Dom</div>
+                                    <div class="text-center">Lun</div>
+                                    <div class="text-center">Mar</div>
+                                    <div class="text-center">Mié</div>
+                                    <div class="text-center">Jue</div>
+                                    <div class="text-center">Vie</div>
+                                    <div class="text-center">Sáb</div>
+                                </div>
+
+                                <div id="calendarGrid" class="grid grid-cols-7 gap-2"></div>
+
+                                <div class="mt-4 flex flex-wrap gap-4 text-xs text-gray-600">
+                                    <div class="flex items-center gap-2">
+                                        <span class="w-3 h-3 rounded-full bg-green-500"></span>
+                                        Disponible
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <span class="w-3 h-3 rounded-full bg-yellow-400"></span>
+                                        Horarios reservados
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <span class="w-3 h-3 rounded-full bg-red-500"></span>
+                                        Sin disponibilidad
+                                    </div>
+                                </div>
+                            </div>
+
+                            @error('maintenance_slot_id')
+                                <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+
+                            <div id="timeSlotsWrapper" class="mt-6 bg-white border border-blue-100 rounded-lg p-4 hidden">
+                                <div class="flex items-center justify-between mb-3">
+                                    <h5 class="text-sm font-semibold text-gray-700">Horarios disponibles para <span id="selectedDateLabel" class="text-blue-600"></span></h5>
+                                    <span id="selectedSlotLabel" class="text-xs text-gray-500"></span>
+                                </div>
+                                <div id="timeSlotsList" class="grid gap-3 sm:grid-cols-2"></div>
+                                <p id="noSlotsMessage" class="text-sm text-red-600 hidden">No hay horarios disponibles para la fecha seleccionada.</p>
+                            </div>
+
+                            <div class="mt-6">
+                                <label for="maintenance_details" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Detalles adicionales del equipo <span class="text-red-500">*</span>
+                                </label>
+                                <textarea name="maintenance_details"
+                                          id="maintenance_details"
+                                          rows="4"
+                                          class="block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+                                          placeholder="Describe cualquier falla actual, síntomas o comentarios relevantes para el mantenimiento.">{{ old('maintenance_details') }}</textarea>
+                                @error('maintenance_details')
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
+                            </div>
+                        </div>
+                    @endif
+                </div>
+
+                <!-- Imágenes -->
                     <div class="bg-orange-50 p-6 rounded-lg border border-orange-100">
                         <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
                             <svg class="w-5 h-5 text-orange-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -391,9 +478,204 @@
             
             // Hacer la función removeImage global para que funcione desde el HTML
             window.removeImage = removeImage;
-            
+
+            // Calendario de mantenimiento
+            initMaintenanceCalendar();
+
             // Inicializar contador
             updateImageCount();
+
+            function initMaintenanceCalendar() {
+                const schedulingContainer = document.getElementById('maintenanceScheduling');
+                if (!schedulingContainer) {
+                    return;
+                }
+
+                const availabilityUrl = schedulingContainer.dataset.availabilityUrl;
+                const slotsUrl = schedulingContainer.dataset.slotsUrl;
+                const calendarGrid = document.getElementById('calendarGrid');
+                const monthLabel = document.getElementById('calendarMonthLabel');
+                const prevButton = document.getElementById('calendarPrev');
+                const nextButton = document.getElementById('calendarNext');
+                const selectedDateLabel = document.getElementById('selectedDateLabel');
+                const selectedSlotLabel = document.getElementById('selectedSlotLabel');
+                const timeSlotsWrapper = document.getElementById('timeSlotsWrapper');
+                const timeSlotsList = document.getElementById('timeSlotsList');
+                const noSlotsMessage = document.getElementById('noSlotsMessage');
+                const hiddenSlotInput = document.getElementById('maintenance_slot_id');
+                const hiddenDateInput = document.getElementById('maintenance_selected_date');
+
+                let availabilityByDay = {};
+                let selectedDate = hiddenDateInput?.value || null;
+                let currentDate = selectedDate ? new Date(`${selectedDate}T00:00:00`) : new Date();
+
+                const statusClasses = {
+                    available: 'bg-green-100 text-green-700 border border-green-200 hover:bg-green-200',
+                    partial: 'bg-yellow-100 text-yellow-700 border border-yellow-200 hover:bg-yellow-200',
+                    full: 'bg-red-100 text-red-700 border border-red-200 cursor-not-allowed',
+                    empty: 'bg-gray-100 text-gray-400 border border-gray-200 cursor-not-allowed'
+                };
+
+                prevButton.addEventListener('click', () => {
+                    currentDate.setMonth(currentDate.getMonth() - 1);
+                    fetchAvailability();
+                });
+
+                nextButton.addEventListener('click', () => {
+                    currentDate.setMonth(currentDate.getMonth() + 1);
+                    fetchAvailability();
+                });
+
+                fetchAvailability().then(() => {
+                    if (selectedDate) {
+                        selectDate(selectedDate, true);
+                    }
+                });
+
+                function fetchAvailability() {
+                    const monthParam = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
+                    return fetch(`${availabilityUrl}?month=${monthParam}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            availabilityByDay = {};
+                            (data.days || []).forEach(day => {
+                                availabilityByDay[day.date] = day;
+                            });
+                            renderCalendar();
+                        })
+                        .catch(() => {
+                            calendarGrid.innerHTML = '<p class="col-span-7 text-sm text-red-600">No se pudo cargar la disponibilidad.</p>';
+                        });
+                }
+
+                function renderCalendar() {
+                    calendarGrid.innerHTML = '';
+                    const firstDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+                    const totalDays = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate();
+                    const startWeekDay = firstDay.getDay();
+
+                    monthLabel.textContent = firstDay.toLocaleDateString('es-MX', {
+                        month: 'long',
+                        year: 'numeric'
+                    }).replace(/^\w/u, c => c.toUpperCase());
+
+                    for (let i = 0; i < startWeekDay; i++) {
+                        const placeholder = document.createElement('div');
+                        placeholder.className = 'h-12';
+                        calendarGrid.appendChild(placeholder);
+                    }
+
+                    for (let day = 1; day <= totalDays; day++) {
+                        const isoDate = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                        const info = availabilityByDay[isoDate];
+                        const status = info ? info.status : 'empty';
+
+                        const button = document.createElement('button');
+                        button.type = 'button';
+                        button.dataset.date = isoDate;
+                        button.className = `h-12 rounded-lg flex flex-col items-center justify-center text-sm transition-colors duration-200 ${statusClasses[status] || statusClasses.empty}`;
+
+                        if (status === 'full' || status === 'empty') {
+                            button.disabled = true;
+                        } else {
+                            button.classList.add('cursor-pointer');
+                            button.addEventListener('click', () => selectDate(isoDate, true));
+                        }
+
+                        if (selectedDate === isoDate) {
+                            button.classList.add('ring-2', 'ring-blue-500', 'ring-offset-2');
+                        }
+
+                        button.innerHTML = `
+                            <span class="font-semibold">${day}</span>
+                            <span class="text-[11px]">${info ? info.available : 0}/${info ? info.total_capacity : 0}</span>
+                        `;
+
+                        calendarGrid.appendChild(button);
+                    }
+                }
+
+                function selectDate(isoDate, shouldLoadSlots = true) {
+                    selectedDate = isoDate;
+                    hiddenDateInput.value = isoDate;
+                    renderCalendar();
+
+                    if (shouldLoadSlots) {
+                        loadSlots(isoDate);
+                    }
+                }
+
+                function loadSlots(isoDate) {
+                    timeSlotsList.innerHTML = '';
+                    noSlotsMessage.classList.add('hidden');
+                    noSlotsMessage.textContent = 'No hay horarios disponibles para la fecha seleccionada.';
+                    timeSlotsWrapper.classList.remove('hidden');
+                    selectedDateLabel.textContent = new Date(`${isoDate}T00:00:00`).toLocaleDateString('es-MX', {
+                        day: '2-digit',
+                        month: 'long',
+                        year: 'numeric'
+                    });
+                    selectedSlotLabel.textContent = '';
+
+                    fetch(`${slotsUrl}?date=${isoDate}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            const slots = data.slots || [];
+
+                            if (slots.length === 0) {
+                                noSlotsMessage.classList.remove('hidden');
+                                hiddenSlotInput.value = '';
+                                return;
+                            }
+
+                            let matchedSlot = false;
+
+                            slots.forEach(slot => {
+                                const label = document.createElement('label');
+                                label.className = 'flex items-center justify-between border rounded-lg px-3 py-2 cursor-pointer transition-colors duration-200 hover:border-blue-300';
+
+                                const radio = document.createElement('input');
+                                radio.type = 'radio';
+                                radio.name = 'maintenance_slot_choice';
+                                radio.value = slot.id;
+                                radio.className = 'h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300';
+
+                                if (hiddenSlotInput.value && String(hiddenSlotInput.value) === String(slot.id)) {
+                                    radio.checked = true;
+                                    selectedSlotLabel.textContent = `Horario seleccionado: ${slot.label}`;
+                                    matchedSlot = true;
+                                }
+
+                                radio.addEventListener('change', () => {
+                                    hiddenSlotInput.value = slot.id;
+                                    selectedSlotLabel.textContent = `Horario seleccionado: ${slot.label}`;
+                                });
+
+                                const infoContainer = document.createElement('div');
+                                infoContainer.className = 'flex flex-col text-sm text-gray-700';
+                                infoContainer.innerHTML = `
+                                    <span class="font-semibold text-gray-900">${slot.label}</span>
+                                    <span class="text-xs text-gray-500">${slot.available} lugar(es) disponible(s)</span>
+                                `;
+
+                                label.appendChild(radio);
+                                label.appendChild(infoContainer);
+
+                                timeSlotsList.appendChild(label);
+                            });
+
+                            if (!matchedSlot) {
+                                hiddenSlotInput.value = '';
+                                selectedSlotLabel.textContent = '';
+                            }
+                        })
+                        .catch(() => {
+                            noSlotsMessage.classList.remove('hidden');
+                            noSlotsMessage.textContent = 'No se pudieron cargar los horarios disponibles.';
+                        });
+                }
+            }
+
         </script>
     </body>
 </html>

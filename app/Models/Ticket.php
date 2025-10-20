@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Ticket extends Model
@@ -25,7 +27,21 @@ class Ticket extends Model
         'prioridad',
         'is_read',
         'notified_at',
-        'read_at'
+        'read_at',
+        'maintenance_slot_id',
+        'maintenance_scheduled_at',
+        'maintenance_details',
+        'equipment_identifier',
+        'equipment_brand',
+        'equipment_model',
+        'disk_type',
+        'ram_capacity',
+        'battery_status',
+        'aesthetic_observations',
+        'maintenance_report',
+        'closure_observations',
+        'replacement_components',
+        'computer_profile_id',
     ];
 
     protected $casts = [
@@ -35,6 +51,8 @@ class Ticket extends Model
         'notified_at' => 'datetime',
         'read_at' => 'datetime',
         'is_read' => 'boolean',
+        'maintenance_scheduled_at' => 'datetime',
+        'replacement_components' => 'array',
     ];
 
     protected static function boot()
@@ -116,8 +134,23 @@ class Ticket extends Model
     /**
      * Relación con el usuario que creó el ticket
      */
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function maintenanceSlot(): BelongsTo
+    {
+        return $this->belongsTo(MaintenanceSlot::class);
+    }
+
+    public function maintenanceBooking(): HasOne
+    {
+        return $this->hasOne(MaintenanceBooking::class);
+    }
+
+    public function computerProfile(): BelongsTo
+    {
+        return $this->belongsTo(ComputerProfile::class);
     }
 }
