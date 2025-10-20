@@ -58,6 +58,7 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
 
     Route::get('/maintenance', [MaintenanceController::class, 'adminIndex'])->name('maintenance.index');
     Route::post('/maintenance/slots', [MaintenanceController::class, 'storeSlot'])->name('maintenance.slots.store');
+    Route::post('/maintenance/slots/bulk', [MaintenanceController::class, 'storeBulkSlots'])->name('maintenance.slots.store-bulk');
     Route::put('/maintenance/slots/{slot}', [MaintenanceController::class, 'updateSlot'])->name('maintenance.slots.update');
     Route::delete('/maintenance/slots/{slot}', [MaintenanceController::class, 'destroySlot'])->name('maintenance.slots.destroy');
     Route::get('/maintenance/computers', [MaintenanceController::class, 'computersIndex'])->name('maintenance.computers.index');

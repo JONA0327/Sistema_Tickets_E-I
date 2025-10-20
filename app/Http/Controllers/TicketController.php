@@ -32,15 +32,24 @@ class TicketController extends Controller
      */
     public function store(Request $request)
     {
+        // Log de debug
+        \Log::info('TicketController::store - Datos recibidos', [
+            'tipo_problema' => $request->input('tipo_problema'),
+            'maintenance_slot_id' => $request->input('maintenance_slot_id'),
+            'all_input' => $request->all()
+        ]);
+
         $validated = $request->validate([
             'nombre_programa' => 'nullable|string|max:255',
-            'descripcion_problema' => 'required|string',
+            'otro_programa_nombre' => 'nullable|string|max:255',
+            'descripcion_problema' => 'nullable|string',
             'tipo_problema' => 'required|in:software,hardware,mantenimiento',
             'imagenes' => 'nullable|array|max:5',
             'imagenes.*' => 'nullable|image|max:2048',
             'maintenance_slot_id' => 'required_if:tipo_problema,mantenimiento|exists:maintenance_slots,id',
-            'maintenance_details' => 'required_if:tipo_problema,mantenimiento|string|max:1000',
         ]);
+
+        \Log::info('TicketController::store - Datos validados', $validated);
 
         // Manejar imágenes en base64
         $imagenes = [];
@@ -59,12 +68,18 @@ class TicketController extends Controller
         $ticket = null;
 
         DB::transaction(function () use ($request, $imagenes, &$ticket, $validated) {
+            // Determinar el nombre del programa
+            $nombrePrograma = $validated['nombre_programa'] ?? null;
+            if ($nombrePrograma === 'Otro' && !empty($validated['otro_programa_nombre'])) {
+                $nombrePrograma = $validated['otro_programa_nombre'];
+            }
+
             $ticketData = [
                 'user_id' => auth()->id(),
                 'nombre_solicitante' => auth()->user()->name,
                 'correo_solicitante' => auth()->user()->email,
-                'nombre_programa' => $validated['nombre_programa'] ?? null,
-                'descripcion_problema' => $validated['descripcion_problema'],
+                'nombre_programa' => $nombrePrograma,
+                'descripcion_problema' => $validated['descripcion_problema'] ?? '',
                 'tipo_problema' => $validated['tipo_problema'],
                 'imagenes' => $imagenes,
                 'estado' => 'abierto',
@@ -90,19 +105,30 @@ class TicketController extends Controller
 
                 $ticketData['maintenance_slot_id'] = $slot->id;
                 $ticketData['maintenance_scheduled_at'] = $slot->start_date_time;
-                $ticketData['maintenance_details'] = $validated['maintenance_details'];
 
                 $ticket = Ticket::create($ticketData);
 
                 MaintenanceBooking::create([
                     'maintenance_slot_id' => $slot->id,
                     'ticket_id' => $ticket->id,
-                    'additional_details' => $validated['maintenance_details'],
+                    'additional_details' => $validated['descripcion_problema'] ?? '',
                 ]);
 
                 $slot->increment('booked_count');
+                
+                \Log::info('TicketController::store - Ticket de mantenimiento creado exitosamente', [
+                    'ticket_id' => $ticket->id,
+                    'folio' => $ticket->folio,
+                    'slot_id' => $slot->id
+                ]);
             } else {
                 $ticket = Ticket::create($ticketData);
+                
+                \Log::info('TicketController::store - Ticket regular creado exitosamente', [
+                    'ticket_id' => $ticket->id,
+                    'folio' => $ticket->folio,
+                    'tipo' => $ticket->tipo_problema
+                ]);
             }
         });
 
@@ -142,6 +168,7 @@ class TicketController extends Controller
                 'equipment_identifier' => 'nullable|string|max:255',
                 'equipment_brand' => 'nullable|string|max:255',
                 'equipment_model' => 'nullable|string|max:255',
+                'equipment_password' => 'nullable|string|max:255',
                 'disk_type' => 'nullable|string|max:255',
                 'ram_capacity' => 'nullable|string|max:255',
                 'battery_status' => 'nullable|in:functional,partially_functional,damaged',
@@ -151,6 +178,10 @@ class TicketController extends Controller
                 'replacement_components' => 'nullable|array',
                 'replacement_components.*' => 'in:disco_duro,ram,bateria,pantalla,conectores,teclado,mousepad,cargador',
                 'mark_as_loaned' => 'nullable|boolean',
+                'imagenes_admin' => 'nullable|array',
+                'imagenes_admin.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
+                'removed_admin_images' => 'nullable|array',
+                'removed_admin_images.*' => 'integer',
             ]);
         }
 
@@ -174,6 +205,7 @@ class TicketController extends Controller
                 'equipment_identifier',
                 'equipment_brand',
                 'equipment_model',
+                'equipment_password',
                 'disk_type',
                 'ram_capacity',
                 'battery_status',
@@ -191,6 +223,31 @@ class TicketController extends Controller
             $maintenanceData['replacement_components'] = $request->has('replacement_components')
                 ? ($validated['replacement_components'] ?? [])
                 : [];
+
+            // Procesamiento de imágenes del administrador
+            $existingImages = $ticket->imagenes_admin ?? [];
+            
+            // Remover imágenes marcadas para eliminación
+            if ($request->has('removed_admin_images')) {
+                $removedIndices = $request->input('removed_admin_images');
+                foreach ($removedIndices as $index) {
+                    unset($existingImages[$index]);
+                }
+                // Reindexar el array
+                $existingImages = array_values($existingImages);
+            }
+
+            // Agregar nuevas imágenes
+            if ($request->hasFile('imagenes_admin')) {
+                foreach ($request->file('imagenes_admin') as $imagen) {
+                    if ($imagen->isValid()) {
+                        $imageData = base64_encode(file_get_contents($imagen->getPathname()));
+                        $existingImages[] = $imageData;
+                    }
+                }
+            }
+
+            $maintenanceData['imagenes_admin'] = $existingImages;
 
             $data = array_merge($data, $maintenanceData);
         }

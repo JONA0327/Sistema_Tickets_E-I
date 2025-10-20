@@ -132,40 +132,117 @@
                         @if($tipo === 'software')
                             <div class="mb-6">
                                 <label for="nombre_programa" class="block text-sm font-medium text-gray-700 mb-2">
-                                    Nombre del Programa/Software
+                                    Programa/Software
                                 </label>
-                                <input type="text" 
-                                       name="nombre_programa" 
-                                       id="nombre_programa"
-                                       value="{{ old('nombre_programa') }}"
-                                       class="block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200" 
-                                       placeholder="Ej: Microsoft Word, Chrome, Sistema de ventas...">
+                                <select name="nombre_programa" 
+                                        id="nombre_programa"
+                                        onchange="toggleOtroPrograma()"
+                                        class="block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200">
+                                    <option value="">Selecciona un programa</option>
+                                    <option value="Microsoft Outlook" {{ old('nombre_programa') === 'Microsoft Outlook' ? 'selected' : '' }}>Microsoft Outlook</option>
+                                    <option value="Microsoft OneDrive" {{ old('nombre_programa') === 'Microsoft OneDrive' ? 'selected' : '' }}>Microsoft OneDrive</option>
+                                    <option value="Microsoft Word" {{ old('nombre_programa') === 'Microsoft Word' ? 'selected' : '' }}>Microsoft Word</option>
+                                    <option value="Microsoft Excel" {{ old('nombre_programa') === 'Microsoft Excel' ? 'selected' : '' }}>Microsoft Excel</option>
+                                    <option value="Microsoft PowerPoint" {{ old('nombre_programa') === 'Microsoft PowerPoint' ? 'selected' : '' }}>Microsoft PowerPoint</option>
+                                    <option value="Microsoft Teams" {{ old('nombre_programa') === 'Microsoft Teams' ? 'selected' : '' }}>Microsoft Teams</option>
+                                    <option value="Google Chrome" {{ old('nombre_programa') === 'Google Chrome' ? 'selected' : '' }}>Google Chrome</option>
+                                    <option value="Mozilla Firefox" {{ old('nombre_programa') === 'Mozilla Firefox' ? 'selected' : '' }}>Mozilla Firefox</option>
+                                    <option value="Microsoft Edge" {{ old('nombre_programa') === 'Microsoft Edge' ? 'selected' : '' }}>Microsoft Edge</option>
+                                    <option value="Adobe Acrobat Reader" {{ old('nombre_programa') === 'Adobe Acrobat Reader' ? 'selected' : '' }}>Adobe Acrobat Reader</option>
+                                    <option value="Zoom" {{ old('nombre_programa') === 'Zoom' ? 'selected' : '' }}>Zoom</option>
+                                    <option value="Skype" {{ old('nombre_programa') === 'Skype' ? 'selected' : '' }}>Skype</option>
+                                    <option value="WhatsApp Desktop" {{ old('nombre_programa') === 'WhatsApp Desktop' ? 'selected' : '' }}>WhatsApp Desktop</option>
+                                    <option value="Sistema ERP" {{ old('nombre_programa') === 'Sistema ERP' ? 'selected' : '' }}>Sistema ERP</option>
+                                    <option value="Sistema CRM" {{ old('nombre_programa') === 'Sistema CRM' ? 'selected' : '' }}>Sistema CRM</option>
+                                    <option value="Sistema de Nómina" {{ old('nombre_programa') === 'Sistema de Nómina' ? 'selected' : '' }}>Sistema de Nómina</option>
+                                    <option value="Sistema Contable" {{ old('nombre_programa') === 'Sistema Contable' ? 'selected' : '' }}>Sistema Contable</option>
+                                    <option value="Antivirus" {{ old('nombre_programa') === 'Antivirus' ? 'selected' : '' }}>Antivirus</option>
+                                    <option value="Otro" {{ old('nombre_programa') === 'Otro' ? 'selected' : '' }}>Otro</option>
+                                </select>
                                 @error('nombre_programa')
                                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                 @enderror
+                                
+                                <!-- Campo adicional para "Otro" -->
+                                <div id="otroPrograma" class="mt-3 {{ old('nombre_programa') === 'Otro' ? '' : 'hidden' }}">
+                                    <label for="otro_programa_nombre" class="block text-sm font-medium text-gray-700 mb-2">
+                                        Especifica el nombre del programa/sistema
+                                    </label>
+                                    <input type="text" 
+                                           name="otro_programa_nombre" 
+                                           id="otro_programa_nombre"
+                                           value="{{ old('otro_programa_nombre') }}"
+                                           class="block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200" 
+                                           placeholder="Ej: Sistema interno de la empresa, aplicación específica...">
+                                    @error('otro_programa_nombre')
+                                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                    @enderror
+                                </div>
                             </div>
                         @endif
 
                         <div>
                             <label for="descripcion_problema" class="block text-sm font-medium text-gray-700 mb-2">
                                 @if($tipo === 'mantenimiento')
-                                    Descripción del Mantenimiento Requerido <span class="text-red-500">*</span>
+                                    Añadir detalles de problemas presentados en el equipo (Opcional)
                                 @else
-                                    Descripción del Problema <span class="text-red-500">*</span>
+                                    Descripción de la falla del programa (Opcional)
                                 @endif
                             </label>
                             <textarea name="descripcion_problema" 
                                       id="descripcion_problema"
                                       rows="5"
-                                      required
                                       class="block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200" 
                                       placeholder="{{ $tipo === 'mantenimiento' ? 
                                         'Describe qué tipo de mantenimiento necesitas, cuándo y cualquier detalle importante...' : 
-                                        'Describe el problema con el mayor detalle posible. ¿Qué estabas haciendo cuando ocurrió? ¿Qué mensajes de error aparecen?' }}">{{ old('descripcion_problema') }}</textarea>
+                                        'Describe la falla del programa con el mayor detalle posible. ¿Qué estabas haciendo cuando ocurrió? ¿Qué mensajes de error aparecen?' }}">{{ old('descripcion_problema') }}</textarea>
                         @error('descripcion_problema')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
                     </div>
+
+                    @if($tipo === 'software')
+                        <!-- Sección de imágenes solo para tickets de software -->
+                        <div class="mt-6">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                Imágenes del problema (Opcional)
+                            </label>
+                            <p class="text-xs text-gray-500 mb-3">
+                                Sube capturas de pantalla o fotos que ayuden a entender el problema. Máximo 5 imágenes.
+                            </p>
+                            
+                            <!-- Input de archivos -->
+                            <input type="file" 
+                                   id="imageInput" 
+                                   name="imagenes[]" 
+                                   multiple 
+                                   accept="image/*"
+                                   class="hidden">
+                            
+                            <!-- Botón para subir imágenes -->
+                            <button type="button" 
+                                    id="uploadButton"
+                                    class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                </svg>
+                                Seleccionar imágenes
+                            </button>
+
+                            <!-- Contador de imágenes -->
+                            <span id="imageCount" class="ml-3 text-sm text-gray-500">0/5 imágenes</span>
+
+                            <!-- Área de vista previa -->
+                            <div id="imagePreview" class="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3"></div>
+
+                            @error('imagenes')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                            @error('imagenes.*')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+                    @endif
 
                     @if($tipo === 'mantenimiento')
                         <div class="mt-6">
@@ -237,71 +314,9 @@
                                 <div id="timeSlotsList" class="grid gap-3 sm:grid-cols-2"></div>
                                 <p id="noSlotsMessage" class="text-sm text-red-600 hidden">No hay horarios disponibles para la fecha seleccionada.</p>
                             </div>
-
-                            <div class="mt-6">
-                                <label for="maintenance_details" class="block text-sm font-medium text-gray-700 mb-2">
-                                    Detalles adicionales del equipo <span class="text-red-500">*</span>
-                                </label>
-                                <textarea name="maintenance_details"
-                                          id="maintenance_details"
-                                          rows="4"
-                                          class="block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
-                                          placeholder="Describe cualquier falla actual, síntomas o comentarios relevantes para el mantenimiento.">{{ old('maintenance_details') }}</textarea>
-                                @error('maintenance_details')
-                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                @enderror
-                            </div>
                         </div>
                     @endif
                 </div>
-
-                <!-- Imágenes -->
-                    <div class="bg-orange-50 p-6 rounded-lg border border-orange-100">
-                        <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                            <svg class="w-5 h-5 text-orange-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                            </svg>
-                            Adjuntar Imágenes (Opcional)
-                        </h3>
-                        
-                        <div>
-                            <div class="flex items-center gap-4 mb-4">
-                                <label for="imagenes" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg cursor-pointer transition-colors duration-200 flex items-center">
-                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                                    </svg>
-                                    Agregar Imágenes
-                                </label>
-                                <input type="file" 
-                                       id="imagenes"
-                                       multiple
-                                       accept="image/*"
-                                       class="hidden">
-                                <span id="imageCount" class="text-sm text-gray-600">
-                                    0 de 5 imágenes seleccionadas
-                                </span>
-                            </div>
-                            
-                            <p class="text-xs text-gray-500 mb-4">
-                                PNG, JPG, GIF hasta 2MB por imagen. Máximo 5 imágenes.
-                            </p>
-                            
-                            @error('imagenes.*')
-                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                            @enderror
-                            
-                            <!-- Preview Container -->
-                            <div id="imagePreviewContainer" class="hidden">
-                                <h4 class="text-sm font-medium text-gray-700 mb-3">Imágenes seleccionadas:</h4>
-                                <div id="imagePreviewGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-                                    <!-- Las previsualizaciones aparecerán aquí -->
-                                </div>
-                            </div>
-                            
-                            <!-- Hidden inputs para enviar los archivos -->
-                            <div id="hiddenInputsContainer"></div>
-                        </div>
-                    </div>
 
                     <!-- Botones -->
                     <div class="flex justify-between items-center pt-6">
@@ -314,7 +329,8 @@
                         </a>
 
                         <button type="submit" 
-                                class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-8 rounded-lg transition-colors duration-200 flex items-center">
+                                class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-8 rounded-lg transition-colors duration-200 flex items-center"
+                                onclick="return validateForm()">
                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                             </svg>
@@ -335,155 +351,8 @@
         </footer>
 
         <script>
-            // Sistema de gestión de múltiples imágenes
-            let selectedImages = [];
-            const maxFiles = 5;
-            const maxSize = 2 * 1024 * 1024; // 2MB en bytes
-            
-            document.getElementById('imagenes').addEventListener('change', function(e) {
-                const newFiles = Array.from(e.target.files);
-                
-                // Verificar si agregar estos archivos excedería el límite
-                if (selectedImages.length + newFiles.length > maxFiles) {
-                    alert(`Solo puedes subir un máximo de ${maxFiles} imágenes. Actualmente tienes ${selectedImages.length} imágenes seleccionadas.`);
-                    e.target.value = '';
-                    return;
-                }
-                
-                // Validar cada archivo nuevo
-                for (let file of newFiles) {
-                    // Verificar tamaño
-                    if (file.size > maxSize) {
-                        alert(`La imagen "${file.name}" excede el tamaño máximo de 2MB`);
-                        e.target.value = '';
-                        return;
-                    }
-                    
-                    // Verificar si ya existe (por nombre y tamaño)
-                    const isDuplicate = selectedImages.some(img => 
-                        img.file.name === file.name && img.file.size === file.size
-                    );
-                    
-                    if (isDuplicate) {
-                        alert(`La imagen "${file.name}" ya está seleccionada`);
-                        continue;
-                    }
-                    
-                    // Agregar imagen con ID único
-                    const imageId = Date.now() + Math.random();
-                    selectedImages.push({
-                        id: imageId,
-                        file: file
-                    });
-                }
-                
-                // Limpiar el input para permitir seleccionar más archivos
-                e.target.value = '';
-                
-                // Actualizar la interfaz
-                updateImagePreviews();
-                updateImageCount();
-                updateHiddenInputs();
-            });
-            
-            function removeImage(imageId) {
-                selectedImages = selectedImages.filter(img => img.id !== imageId);
-                updateImagePreviews();
-                updateImageCount();
-                updateHiddenInputs();
-            }
-            
-            function updateImageCount() {
-                const countElement = document.getElementById('imageCount');
-                countElement.textContent = `${selectedImages.length} de ${maxFiles} imágenes seleccionadas`;
-                
-                // Cambiar color basado en la cantidad
-                if (selectedImages.length === 0) {
-                    countElement.className = 'text-sm text-gray-600';
-                } else if (selectedImages.length >= maxFiles) {
-                    countElement.className = 'text-sm text-red-600 font-medium';
-                } else {
-                    countElement.className = 'text-sm text-blue-600 font-medium';
-                }
-            }
-            
-            function updateImagePreviews() {
-                const container = document.getElementById('imagePreviewContainer');
-                const grid = document.getElementById('imagePreviewGrid');
-                
-                if (selectedImages.length === 0) {
-                    container.classList.add('hidden');
-                    grid.innerHTML = '';
-                    return;
-                }
-                
-                container.classList.remove('hidden');
-                grid.innerHTML = '';
-                
-                selectedImages.forEach((imageObj, index) => {
-                    const reader = new FileReader();
-                    
-                    reader.onload = function(e) {
-                        const previewDiv = document.createElement('div');
-                        previewDiv.className = 'relative group';
-                        
-                        previewDiv.innerHTML = `
-                            <div class="aspect-square rounded-lg overflow-hidden border-2 border-gray-200 group-hover:border-blue-300 transition-colors relative">
-                                <img src="${e.target.result}" 
-                                     alt="Preview ${index + 1}" 
-                                     class="w-full h-full object-cover">
-                                <div class="absolute top-1 right-1 bg-black bg-opacity-50 text-white text-xs px-2 py-1 rounded">
-                                    ${index + 1}
-                                </div>
-                                <button type="button" 
-                                        onclick="removeImage(${imageObj.id})"
-                                        class="absolute top-1 left-1 bg-red-500 hover:bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold transition-colors duration-200 opacity-0 group-hover:opacity-100">
-                                    ×
-                                </button>
-                            </div>
-                            <div class="mt-1 text-xs text-gray-600 truncate" title="${imageObj.file.name}">
-                                ${imageObj.file.name}
-                            </div>
-                            <div class="text-xs text-gray-500">
-                                ${(imageObj.file.size / 1024 / 1024).toFixed(2)} MB
-                            </div>
-                        `;
-                        
-                        grid.appendChild(previewDiv);
-                    };
-                    
-                    reader.readAsDataURL(imageObj.file);
-                });
-            }
-            
-            function updateHiddenInputs() {
-                const container = document.getElementById('hiddenInputsContainer');
-                container.innerHTML = '';
-                
-                selectedImages.forEach((imageObj, index) => {
-                    // Crear un input file oculto para cada imagen
-                    const input = document.createElement('input');
-                    input.type = 'file';
-                    input.name = 'imagenes[]';
-                    input.style.display = 'none';
-                    
-                    // Crear un DataTransfer para asignar el archivo al input
-                    const dt = new DataTransfer();
-                    dt.items.add(imageObj.file);
-                    input.files = dt.files;
-                    
-                    container.appendChild(input);
-                });
-            }
-            
-            // Hacer la función removeImage global para que funcione desde el HTML
-            window.removeImage = removeImage;
-
             // Calendario de mantenimiento
             initMaintenanceCalendar();
-
-            // Inicializar contador
-            updateImageCount();
 
             function initMaintenanceCalendar() {
                 const schedulingContainer = document.getElementById('maintenanceScheduling');
@@ -674,6 +543,121 @@
                             noSlotsMessage.textContent = 'No se pudieron cargar los horarios disponibles.';
                         });
                 }
+            }
+
+            // Sistema de imágenes para tickets de software
+            @if($tipo === 'software')
+            initImageUpload();
+
+            function initImageUpload() {
+                const imageInput = document.getElementById('imageInput');
+                const uploadButton = document.getElementById('uploadButton');
+                const imagePreview = document.getElementById('imagePreview');
+                const imageCount = document.getElementById('imageCount');
+                let selectedFiles = new DataTransfer();
+                const maxFiles = 5;
+
+                uploadButton.addEventListener('click', () => {
+                    imageInput.click();
+                });
+
+                imageInput.addEventListener('change', (e) => {
+                    const files = Array.from(e.target.files);
+                    
+                    files.forEach(file => {
+                        if (selectedFiles.files.length < maxFiles) {
+                            if (file.type.startsWith('image/')) {
+                                selectedFiles.items.add(file);
+                            }
+                        }
+                    });
+
+                    updateImagePreview();
+                    imageInput.files = selectedFiles.files;
+                });
+
+                function updateImagePreview() {
+                    imagePreview.innerHTML = '';
+                    imageCount.textContent = `${selectedFiles.files.length}/${maxFiles} imágenes`;
+
+                    Array.from(selectedFiles.files).forEach((file, index) => {
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                            const imageContainer = document.createElement('div');
+                            imageContainer.className = 'relative group';
+
+                            imageContainer.innerHTML = `
+                                <img src="${e.target.result}" alt="Preview ${index + 1}" 
+                                     class="w-full h-20 object-cover rounded-lg border border-gray-200 shadow-sm">
+                                <button type="button" 
+                                        onclick="removeImage(${index})" 
+                                        class="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold transition-colors duration-200 opacity-0 group-hover:opacity-100">
+                                    ×
+                                </button>
+                                <div class="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white text-xs p-1 rounded-b-lg truncate">
+                                    ${file.name}
+                                </div>
+                            `;
+
+                            imagePreview.appendChild(imageContainer);
+                        };
+                        reader.readAsDataURL(file);
+                    });
+                }
+
+                window.removeImage = function(index) {
+                    const files = Array.from(selectedFiles.files);
+                    files.splice(index, 1);
+                    
+                    selectedFiles = new DataTransfer();
+                    files.forEach(file => selectedFiles.items.add(file));
+                    
+                    imageInput.files = selectedFiles.files;
+                    updateImagePreview();
+                };
+            }
+            @endif
+
+            @if($tipo === 'software')
+            // Función para mostrar/ocultar el campo "Otro programa" (solo para tickets de software)
+            function toggleOtroPrograma() {
+                const select = document.getElementById('nombre_programa');
+                const otroDiv = document.getElementById('otroPrograma');
+                const otroInput = document.getElementById('otro_programa_nombre');
+                
+                // Verificar que todos los elementos existen
+                if (!select || !otroDiv || !otroInput) {
+                    return;
+                }
+                
+                if (select.value === 'Otro') {
+                    otroDiv.classList.remove('hidden');
+                    otroInput.focus();
+                } else {
+                    otroDiv.classList.add('hidden');
+                    otroInput.value = '';
+                }
+            }
+
+            // Inicializar cuando la página carga
+            document.addEventListener('DOMContentLoaded', function() {
+                toggleOtroPrograma();
+            });
+            @endif
+
+            // Validación del formulario
+            function validateForm() {
+                @if($tipo === 'mantenimiento')
+                const slotId = document.getElementById('maintenance_slot_id').value;
+                if (!slotId) {
+                    alert('Por favor selecciona un horario de mantenimiento antes de crear el ticket.');
+                    return false;
+                }
+                console.log('Slot seleccionado:', slotId);
+                @endif
+                
+                console.log('Formulario validado correctamente');
+                return true;
             }
 
         </script>

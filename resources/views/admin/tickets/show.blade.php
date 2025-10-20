@@ -275,6 +275,18 @@
                                         <p class="text-gray-500 text-xs uppercase tracking-wider">Estado de batería</p>
                                         <p class="font-semibold text-gray-900">{{ $ticket->battery_status ? ucfirst(str_replace('_', ' ', $ticket->battery_status)) : 'No evaluada' }}</p>
                                     </div>
+                                    @if($ticket->equipment_password)
+                                    <div>
+                                        <p class="text-gray-500 text-xs uppercase tracking-wider">Contraseña del equipo</p>
+                                        <div class="flex items-center space-x-2">
+                                            <span id="password-text" class="font-semibold text-gray-900 bg-gray-100 px-2 py-1 rounded" style="display: none;">{{ $ticket->equipment_password }}</span>
+                                            <span id="password-hidden" class="font-semibold text-gray-900">••••••••</span>
+                                            <button type="button" onclick="togglePassword()" class="text-blue-600 hover:text-blue-800 text-xs underline">
+                                                <span id="toggle-text">Mostrar</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    @endif
                                     @if($ticket->aesthetic_observations)
                                         <div class="md:col-span-2">
                                             <p class="text-gray-500 text-xs uppercase tracking-wider">Observaciones estéticas</p>
@@ -411,10 +423,10 @@
 
                 <!-- Panel de Gestión -->
                 <div class="lg:col-span-1">
-                    <div class="bg-white shadow-xl rounded-lg border border-blue-100 p-6 sticky top-8">
-                        <h3 class="text-lg font-semibold text-gray-900 mb-6">Gestionar Ticket</h3>
+                    <div class="bg-white shadow-xl rounded-lg border border-blue-100 p-6 sticky top-4 z-40 max-h-[calc(100vh-2rem)] overflow-y-auto">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-6 sticky top-0 bg-white border-b border-gray-100 pb-4 -mx-6 px-6 -mt-6 pt-6">Gestionar Ticket</h3>
 
-                        <form method="POST" action="{{ route('admin.tickets.update', $ticket) }}" class="space-y-6">
+                        <form method="POST" action="{{ route('admin.tickets.update', $ticket) }}" class="space-y-6 pt-4" enctype="multipart/form-data">
                             @csrf
                             @method('PATCH')
 
@@ -486,7 +498,13 @@
                                                 <input type="text" id="equipment_model" name="equipment_model" value="{{ old('equipment_model', $ticket->equipment_model) }}" class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                                                 @error('equipment_model')<p class="text-xs text-red-600 mt-1">{{ $message }}</p>@enderror
                                             </div>
-                                            <div>
+                                        </div>
+                                        <div>
+                                            <label for="equipment_password" class="block text-xs font-medium text-gray-600 mb-1">Contraseña del equipo</label>
+                                            <input type="password" id="equipment_password" name="equipment_password" value="{{ old('equipment_password', $ticket->equipment_password) }}" class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Contraseña de acceso al equipo">
+                                            @error('equipment_password')<p class="text-xs text-red-600 mt-1">{{ $message }}</p>@enderror
+                                        </div>
+                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                                 <label for="disk_type" class="block text-xs font-medium text-gray-600 mb-1">Tipo de disco</label>
                                                 <input type="text" id="disk_type" name="disk_type" value="{{ old('disk_type', $ticket->disk_type) }}" class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                                                 @error('disk_type')<p class="text-xs text-red-600 mt-1">{{ $message }}</p>@enderror
@@ -512,6 +530,44 @@
                                             <textarea id="aesthetic_observations" name="aesthetic_observations" rows="3" class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">{{ old('aesthetic_observations', $ticket->aesthetic_observations) }}</textarea>
                                             @error('aesthetic_observations')<p class="text-xs text-red-600 mt-1">{{ $message }}</p>@enderror
                                         </div>
+                                    </div>
+                                </div>
+
+                                <div class="border-t border-gray-200 pt-6 mt-6">
+                                    <h4 class="text-sm font-semibold text-gray-700 mb-4">Imágenes del administrador</h4>
+                                    <div class="space-y-4">
+                                        <div>
+                                            <label for="imagenes_admin" class="block text-xs font-medium text-gray-600 mb-1">Anexar imágenes (solo administrador)</label>
+                                            <input type="file" id="imagenes_admin" name="imagenes_admin[]" multiple accept="image/*" class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                                            <p class="text-xs text-gray-500 mt-1">Puedes subir múltiples imágenes relacionadas con el mantenimiento</p>
+                                            @error('imagenes_admin')<p class="text-xs text-red-600 mt-1">{{ $message }}</p>@enderror
+                                            @error('imagenes_admin.*')<p class="text-xs text-red-600 mt-1">{{ $message }}</p>@enderror
+                                        </div>
+                                        
+                                        <!-- Preview de imágenes -->
+                                        <div id="imagePreviewAdmin" class="grid grid-cols-3 gap-2 mt-4" style="display: none;">
+                                        </div>
+                                        
+                                        <!-- Imágenes existentes -->
+                                        @if($ticket->imagenes_admin && count($ticket->imagenes_admin) > 0)
+                                            <div class="mt-4">
+                                                <h5 class="text-xs font-medium text-gray-600 mb-2">Imágenes existentes ({{ count($ticket->imagenes_admin) }}):</h5>
+                                                <div class="grid grid-cols-3 gap-2">
+                                                    @foreach($ticket->imagenes_admin as $index => $imagen)
+                                                        <div class="relative group">
+                                                            <img src="data:image/jpeg;base64,{{ $imagen }}" alt="Imagen {{ $index + 1 }}" class="w-full h-16 object-cover rounded-lg border border-gray-200 cursor-pointer hover:opacity-75 transition-opacity" onclick="openImageModal('data:image/jpeg;base64,{{ $imagen }}')">
+                                                            <div class="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                                <button type="button" onclick="removeExistingAdminImage({{ $index }})" class="bg-red-500 hover:bg-red-600 text-white rounded-full p-1 text-xs">
+                                                                    <svg class="w-2 h-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                                                    </svg>
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    @endforeach
+                                                </div>
+                                            </div>
+                                        @endif
                                     </div>
                                 </div>
 
@@ -591,17 +647,19 @@
                             </div>
 
                             <!-- Botón de Actualizar -->
-                            <button type="submit" 
-                                    class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center">
-                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-                                </svg>
-                                Actualizar Ticket
-                            </button>
+                            <div class="sticky bottom-0 bg-white border-t border-gray-100 pt-4 -mx-6 px-6 -mb-6 pb-6 mt-6">
+                                <button type="submit" 
+                                        class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center">
+                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                                    </svg>
+                                    Actualizar Ticket
+                                </button>
+                            </div>
                         </form>
 
                         <!-- Acción Rápida: Contactar Solicitante -->
-                        <div class="mt-6 pt-6 border-t border-gray-200">
+                        <div class="pt-6 border-t border-gray-200">
                             <a href="mailto:{{ $ticket->correo_solicitante }}?subject=Ticket {{ $ticket->folio }} - Seguimiento&body=Estimado/a {{ $ticket->nombre_solicitante }},
 
 Referente a su ticket {{ $ticket->folio }}..."
@@ -648,14 +706,113 @@ Referente a su ticket {{ $ticket->folio }}..."
         </div>
 
         <script>
-            function openImageModal(imgElement) {
+            // Funciones para manejo de imágenes del administrador
+            document.getElementById('imagenes_admin').addEventListener('change', function(event) {
+                const files = event.target.files;
+                const previewContainer = document.getElementById('imagePreviewAdmin');
+                
+                // Limpiar previsualizaciones anteriores
+                previewContainer.innerHTML = '';
+                
+                if (files.length > 0) {
+                    previewContainer.style.display = 'grid';
+                    
+                    Array.from(files).forEach((file, index) => {
+                        if (file.type.startsWith('image/')) {
+                            const reader = new FileReader();
+                            reader.onload = function(e) {
+                                const imageContainer = document.createElement('div');
+                                imageContainer.className = 'relative group';
+                                
+                                imageContainer.innerHTML = `
+                                    <img src="${e.target.result}" alt="Preview ${index + 1}" class="w-full h-16 object-cover rounded-lg border border-gray-200">
+                                    <div class="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <button type="button" onclick="removePreviewImage(${index})" class="bg-red-500 hover:bg-red-600 text-white rounded-full p-1 text-xs">
+                                            <svg class="w-2 h-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                `;
+                                
+                                previewContainer.appendChild(imageContainer);
+                            };
+                            reader.readAsDataURL(file);
+                        }
+                    });
+                } else {
+                    previewContainer.style.display = 'none';
+                }
+            });
+
+            function removePreviewImage(index) {
+                // Esta función remove la preview, pero el usuario tendría que volver a seleccionar archivos
+                // Una implementación más compleja podría manejar archivos individuales
+                const previewContainer = document.getElementById('imagePreviewAdmin');
+                const imageElements = previewContainer.children;
+                if (imageElements[index]) {
+                    imageElements[index].remove();
+                }
+                
+                if (previewContainer.children.length === 0) {
+                    previewContainer.style.display = 'none';
+                }
+            }
+
+            let removedAdminImages = [];
+
+            function togglePassword() {
+                const passwordText = document.getElementById('password-text');
+                const passwordHidden = document.getElementById('password-hidden');
+                const toggleText = document.getElementById('toggle-text');
+                
+                if (passwordText.style.display === 'none') {
+                    passwordText.style.display = 'inline';
+                    passwordHidden.style.display = 'none';
+                    toggleText.textContent = 'Ocultar';
+                } else {
+                    passwordText.style.display = 'none';
+                    passwordHidden.style.display = 'inline';
+                    toggleText.textContent = 'Mostrar';
+                }
+            }
+
+            function removeExistingAdminImage(index) {
+                // Agregar el índice a la lista de imágenes a remover
+                removedAdminImages.push(index);
+                
+                // Ocultar la imagen visualmente
+                event.target.closest('.relative').style.display = 'none';
+                
+                // Crear un campo hidden para enviar qué imágenes remover
+                const form = document.querySelector('form');
+                const hiddenInput = document.createElement('input');
+                hiddenInput.type = 'hidden';
+                hiddenInput.name = 'removed_admin_images[]';
+                hiddenInput.value = index;
+                form.appendChild(hiddenInput);
+            }
+
+            function openImageModal(src) {
                 const modal = document.getElementById('imageModal');
                 const modalImage = document.getElementById('modalImage');
                 const modalImageName = document.getElementById('modalImageName');
 
-                modalImage.src = imgElement.src;
-                modalImage.alt = imgElement.alt || 'Imagen del ticket';
-                modalImageName.textContent = imgElement.alt || 'Imagen del ticket';
+            function openImageModal(src) {
+                const modal = document.getElementById('imageModal');
+                const modalImage = document.getElementById('modalImage');
+                const modalImageName = document.getElementById('modalImageName');
+
+                // Si src es un elemento img, obtenemos su src, si no, usamos src directamente
+                if (typeof src === 'object' && src.src) {
+                    modalImage.src = src.src;
+                    modalImage.alt = src.alt || 'Imagen del ticket';
+                    modalImageName.textContent = src.alt || 'Imagen del ticket';
+                } else {
+                    modalImage.src = src;
+                    modalImage.alt = 'Imagen del ticket';
+                    modalImageName.textContent = 'Imagen del ticket';
+                }
 
                 modal.classList.remove('hidden');
                 document.body.style.overflow = 'hidden';

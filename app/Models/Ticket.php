@@ -34,6 +34,7 @@ class Ticket extends Model
         'equipment_identifier',
         'equipment_brand',
         'equipment_model',
+        'equipment_password',
         'disk_type',
         'ram_capacity',
         'battery_status',
@@ -42,6 +43,7 @@ class Ticket extends Model
         'closure_observations',
         'replacement_components',
         'computer_profile_id',
+        'imagenes_admin',
     ];
 
     protected $casts = [
@@ -53,6 +55,7 @@ class Ticket extends Model
         'is_read' => 'boolean',
         'maintenance_scheduled_at' => 'datetime',
         'replacement_components' => 'array',
+        'imagenes_admin' => 'array',
     ];
 
     protected static function boot()
