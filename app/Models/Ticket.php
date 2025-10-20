@@ -22,13 +22,29 @@ class Ticket extends Model
         'fecha_cierre',
         'observaciones',
         'tipo_problema',
-        'prioridad'
+        'prioridad',
+        'maintenance_time_slot_id',
+        'maintenance_date',
+        'maintenance_time',
+        'maintenance_details',
+        'equipo_marca',
+        'equipo_modelo',
+        'equipo_tipo_disco',
+        'equipo_ram_capacidad',
+        'equipo_observaciones_esteticas',
+        'equipo_bateria_estado',
+        'maintenance_cierre_observaciones',
+        'maintenance_reporte',
+        'maintenance_componentes_reemplazo',
     ];
 
     protected $casts = [
         'imagenes' => 'array',
         'fecha_apertura' => 'datetime',
         'fecha_cierre' => 'datetime',
+        'maintenance_date' => 'date',
+        'maintenance_time' => 'datetime:H:i',
+        'maintenance_componentes_reemplazo' => 'array',
     ];
 
     protected static function boot()
@@ -113,5 +129,15 @@ class Ticket extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function maintenanceSlot()
+    {
+        return $this->belongsTo(MaintenanceTimeSlot::class, 'maintenance_time_slot_id');
+    }
+
+    public function maintenanceRecord()
+    {
+        return $this->hasOne(MaintenanceEquipmentRecord::class);
     }
 }

@@ -166,6 +166,78 @@
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
                         </div>
+                        @if($tipo === 'mantenimiento')
+                            <div class="mt-6">
+                                <h4 class="text-md font-semibold text-gray-900 mb-4 flex items-center">
+                                    <svg class="w-5 h-5 text-green-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3a1 1 0 011-1h6a1 1 0 011 1v4h3a1 1 0 011 1v9a1 1 0 01-1 1H5a1 1 0 01-1-1V8a1 1 0 011-1h3z"></path>
+                                    </svg>
+                                    Agenda tu mantenimiento
+                                </h4>
+                                <input type="hidden" name="maintenance_time_slot_id" id="maintenance_time_slot_id" value="{{ old('maintenance_time_slot_id') }}">
+
+                                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                                    <div class="lg:col-span-2 bg-white border border-green-200 rounded-lg p-4 shadow-sm">
+                                        <div class="flex justify-between items-center mb-4">
+                                            <button type="button" id="maintenancePrevMonth" class="text-sm text-blue-600 hover:text-blue-800 font-medium">&larr; Mes anterior</button>
+                                            <div>
+                                                <p id="maintenanceMonthLabel" class="text-lg font-semibold text-gray-800"></p>
+                                                <p class="text-xs text-gray-500">Selecciona un día para ver horarios disponibles</p>
+                                            </div>
+                                            <button type="button" id="maintenanceNextMonth" class="text-sm text-blue-600 hover:text-blue-800 font-medium">Mes siguiente &rarr;</button>
+                                        </div>
+                                        <div class="grid grid-cols-7 gap-2 text-xs font-semibold text-gray-500 mb-2">
+                                            <div class="text-center">Lun</div>
+                                            <div class="text-center">Mar</div>
+                                            <div class="text-center">Mié</div>
+                                            <div class="text-center">Jue</div>
+                                            <div class="text-center">Vie</div>
+                                            <div class="text-center">Sáb</div>
+                                            <div class="text-center">Dom</div>
+                                        </div>
+                                        <div id="maintenanceCalendar" class="grid grid-cols-7 gap-2"></div>
+                                        <div class="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                                            <div class="flex items-center space-x-2">
+                                                <span class="w-4 h-4 rounded-full bg-green-200 border border-green-400"></span>
+                                                <span class="text-gray-600">Disponible</span>
+                                            </div>
+                                            <div class="flex items-center space-x-2">
+                                                <span class="w-4 h-4 rounded-full bg-yellow-200 border border-yellow-400"></span>
+                                                <span class="text-gray-600">Reservado parcialmente</span>
+                                            </div>
+                                            <div class="flex items-center space-x-2">
+                                                <span class="w-4 h-4 rounded-full bg-red-200 border border-red-400"></span>
+                                                <span class="text-gray-600">Sin disponibilidad</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="bg-green-50 border border-green-200 rounded-lg p-4 shadow-inner">
+                                        <h5 class="text-sm font-semibold text-gray-800 mb-3">Horarios disponibles</h5>
+                                        <div id="maintenanceSlotList" class="space-y-3 text-sm text-gray-700">
+                                            <p class="text-xs text-gray-500">Selecciona una fecha en el calendario.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                @error('maintenance_time_slot_id')
+                                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
+                            </div>
+
+                            <div class="mt-6">
+                                <label for="maintenance_details" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Detalles adicionales del equipo o fallas observadas
+                                </label>
+                                <textarea name="maintenance_details"
+                                          id="maintenance_details"
+                                          rows="4"
+                                          class="block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+                                          placeholder="Cuéntanos si el equipo presenta fallas específicas, ruidos, calentamiento u observaciones importantes para el mantenimiento.">{{ old('maintenance_details') }}</textarea>
+                                @error('maintenance_details')
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
+                            </div>
+                        @endif
+
                     </div>
 
                     <!-- Imágenes -->
@@ -229,12 +301,236 @@
 
         <script>
             // Limitar el número de archivos seleccionados
-            document.getElementById('imagenes').addEventListener('change', function(e) {
-                if (e.target.files.length > 5) {
-                    alert('Máximo 5 imágenes permitidas');
-                    e.target.value = '';
+            const imagenesInput = document.getElementById('imagenes');
+            if (imagenesInput) {
+                imagenesInput.addEventListener('change', function(e) {
+                    if (e.target.files.length > 5) {
+                        alert('Máximo 5 imágenes permitidas');
+                        e.target.value = '';
+                    }
+                });
+            }
+
+            @if($tipo === 'mantenimiento')
+            const maintenanceData = @json($slots);
+            const slotsByDate = maintenanceData.reduce((acc, slot) => {
+                if (!acc[slot.date]) {
+                    acc[slot.date] = [];
                 }
-            });
+                acc[slot.date].push(slot);
+                return acc;
+            }, {});
+
+            const monthNames = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+            const calendarEl = document.getElementById('maintenanceCalendar');
+            const slotListEl = document.getElementById('maintenanceSlotList');
+            const monthLabelEl = document.getElementById('maintenanceMonthLabel');
+            const prevBtn = document.getElementById('maintenancePrevMonth');
+            const nextBtn = document.getElementById('maintenanceNextMonth');
+            const hiddenSlotInput = document.getElementById('maintenance_time_slot_id');
+
+            const statusClasses = {
+                free: 'bg-green-100 border-green-300 text-green-900 hover:bg-green-200',
+                partial: 'bg-yellow-100 border-yellow-300 text-yellow-900 hover:bg-yellow-200',
+                full: 'bg-red-100 border-red-300 text-red-900 cursor-not-allowed',
+                closed: 'bg-gray-100 border-gray-200 text-gray-400 cursor-not-allowed'
+            };
+
+            const selectedClasses = 'ring-2 ring-blue-500';
+
+            const formatDateKey = (dateObj) => {
+                const year = dateObj.getFullYear();
+                const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+                const day = String(dateObj.getDate()).padStart(2, '0');
+                return `${year}-${month}-${day}`;
+            };
+
+            const formatMonthKey = (dateObj) => {
+                const year = dateObj.getFullYear();
+                const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+                return `${year}-${month}`;
+            };
+
+            const today = new Date();
+            let currentDate = maintenanceData.length
+                ? new Date(maintenanceData[0].date + 'T00:00:00')
+                : new Date(today.getFullYear(), today.getMonth(), 1);
+            currentDate.setDate(1);
+
+            let selectedDate = null;
+            let selectedSlotId = hiddenSlotInput ? hiddenSlotInput.value : null;
+
+            if (selectedSlotId) {
+                const slot = maintenanceData.find(item => item.id.toString() === selectedSlotId.toString());
+                if (slot) {
+                    selectedDate = slot.date;
+                    currentDate = new Date(slot.date + 'T00:00:00');
+                    currentDate.setDate(1);
+                }
+            }
+
+            function getDayStatus(dateString) {
+                const slots = slotsByDate[dateString] || [];
+                if (slots.length === 0) {
+                    return 'closed';
+                }
+
+                const totalCapacity = slots.reduce((total, slot) => total + slot.capacity, 0);
+                const totalAvailable = slots.reduce((total, slot) => total + slot.available, 0);
+                const totalBooked = slots.reduce((total, slot) => total + slot.booked, 0);
+
+                if (totalAvailable === 0) {
+                    return 'full';
+                }
+
+                if (totalBooked === 0 && totalAvailable === totalCapacity) {
+                    return 'free';
+                }
+
+                return 'partial';
+            }
+
+            function renderCalendar() {
+                if (!calendarEl || !monthLabelEl) {
+                    return;
+                }
+
+                calendarEl.innerHTML = '';
+
+                const year = currentDate.getFullYear();
+                const month = currentDate.getMonth();
+
+                monthLabelEl.textContent = `${monthNames[month]} ${year}`;
+
+                const firstDay = new Date(year, month, 1);
+                const paddingDays = (firstDay.getDay() + 6) % 7; // Ajustar para que lunes sea el primer día
+
+                for (let i = 0; i < paddingDays; i++) {
+                    const emptyCell = document.createElement('div');
+                    calendarEl.appendChild(emptyCell);
+                }
+
+                const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+                for (let day = 1; day <= daysInMonth; day++) {
+                    const dateObj = new Date(year, month, day);
+                    const dateString = formatDateKey(dateObj);
+                    const status = getDayStatus(dateString);
+
+                    const dayButton = document.createElement('button');
+                    dayButton.type = 'button';
+                    dayButton.textContent = day;
+                    dayButton.className = `p-2 rounded-lg border text-sm transition ${statusClasses[status] || statusClasses.closed}`;
+
+                    const isPast = dateObj < new Date(today.getFullYear(), today.getMonth(), today.getDate());
+                    if (status === 'closed' || status === 'full' || isPast) {
+                        dayButton.disabled = true;
+                        dayButton.classList.add('opacity-60');
+                    }
+
+                    if (selectedDate === dateString) {
+                        dayButton.classList.add(...selectedClasses.split(' '));
+                    }
+
+                    if (!dayButton.disabled) {
+                        dayButton.addEventListener('click', () => {
+                            selectedDate = dateString;
+                            renderCalendar();
+                            renderSlotList(dateString);
+                        });
+                    }
+
+                    calendarEl.appendChild(dayButton);
+                }
+            }
+
+            function renderSlotList(dateString) {
+                if (!slotListEl) {
+                    return;
+                }
+
+                const slots = slotsByDate[dateString] || [];
+                slotListEl.innerHTML = '';
+
+                const title = document.createElement('p');
+                title.className = 'text-xs text-gray-500 uppercase tracking-wide';
+                title.textContent = `Horarios para ${dateString.split('-').reverse().join('/')}`;
+                slotListEl.appendChild(title);
+
+                if (slots.length === 0) {
+                    const empty = document.createElement('p');
+                    empty.className = 'text-sm text-gray-500 mt-2';
+                    empty.textContent = 'No hay horarios disponibles en esta fecha.';
+                    slotListEl.appendChild(empty);
+                    hiddenSlotInput.value = '';
+                    selectedSlotId = null;
+                    return;
+                }
+
+                slots.forEach(slot => {
+                    const available = slot.available;
+                    const booked = slot.booked;
+                    const timeLabel = slot.end_time ? `${slot.start_time} - ${slot.end_time}` : slot.start_time;
+
+                    const button = document.createElement('button');
+                    button.type = 'button';
+                    button.className = `w-full text-left px-4 py-3 border rounded-lg transition ${available > 0 ? 'bg-white hover:border-blue-400 hover:shadow-md' : 'bg-red-50 border-red-200 text-red-600 cursor-not-allowed'}`;
+
+                    const title = document.createElement('div');
+                    title.className = 'flex justify-between items-center';
+                    title.innerHTML = `<span class="font-semibold">${timeLabel}</span><span class="text-xs">${available} libres / ${slot.capacity} totales</span>`;
+
+                    const note = document.createElement('p');
+                    note.className = 'text-xs text-gray-500 mt-1';
+                    note.textContent = slot.notes || (booked > 0 ? 'Algunos equipos ya asignados a este horario.' : 'Horario completamente disponible.');
+
+                    button.appendChild(title);
+                    button.appendChild(note);
+
+                    if (slot.id.toString() === (selectedSlotId || '').toString()) {
+                        button.classList.add('border-blue-500', 'ring', 'ring-blue-200');
+                    }
+
+                    if (available > 0) {
+                        button.addEventListener('click', () => {
+                            selectedSlotId = slot.id;
+                            if (hiddenSlotInput) {
+                                hiddenSlotInput.value = slot.id;
+                            }
+                            renderSlotList(dateString);
+                        });
+                    } else {
+                        button.disabled = true;
+                    }
+
+                    slotListEl.appendChild(button);
+                });
+            }
+
+            function changeMonth(delta) {
+                currentDate.setMonth(currentDate.getMonth() + delta);
+                renderCalendar();
+                if (selectedDate) {
+                    const monthString = formatMonthKey(currentDate);
+                    if (!selectedDate.startsWith(monthString)) {
+                        slotListEl.innerHTML = '<p class="text-xs text-gray-500">Selecciona una fecha en el calendario.</p>';
+                    }
+                }
+            }
+
+            if (prevBtn) {
+                prevBtn.addEventListener('click', () => changeMonth(-1));
+            }
+
+            if (nextBtn) {
+                nextBtn.addEventListener('click', () => changeMonth(1));
+            }
+
+            renderCalendar();
+            if (selectedDate) {
+                renderSlotList(selectedDate);
+            }
+            @endif
         </script>
     </body>
 </html>

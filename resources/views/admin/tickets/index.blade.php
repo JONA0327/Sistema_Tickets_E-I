@@ -123,6 +123,12 @@
                     <p class="text-gray-600 mt-2">Administra y da seguimiento a todas las solicitudes</p>
                 </div>
                 <div class="flex items-center space-x-4">
+                    <a href="{{ route('admin.maintenance.index') }}" class="inline-flex items-center px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium rounded-lg shadow-sm transition">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3a1 1 0 011-1h6a1 1 0 011 1v4h3a1 1 0 011 1v9a1 1 0 01-1 1H5a1 1 0 01-1-1V8a1 1 0 011-1h3z" />
+                        </svg>
+                        Agenda de mantenimiento
+                    </a>
                     <div class="bg-white rounded-lg px-4 py-2 border border-gray-200">
                         <span class="text-sm text-gray-600">Total de tickets: </span>
                         <span class="font-semibold text-blue-600">{{ $tickets->total() }}</span>

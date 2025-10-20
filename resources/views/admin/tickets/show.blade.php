@@ -17,6 +17,9 @@
         <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     </head>
     <body class="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100">
+        @php
+            use Illuminate\Support\Str;
+        @endphp
         <!-- Header -->
         <header class="bg-white shadow-sm border-b border-blue-100">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -196,6 +199,103 @@
                                         <p class="text-gray-900 leading-relaxed">{{ $ticket->descripcion_problema }}</p>
                                     </div>
                                 </div>
+
+                                @if($ticket->tipo_problema === 'mantenimiento')
+                                <div class="bg-white p-4 rounded-lg border border-emerald-100 space-y-4">
+                                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                                        <div>
+                                            <p class="text-xs font-semibold text-emerald-600 uppercase tracking-wide">Horario programado</p>
+                                            @if($ticket->maintenanceSlot)
+                                                <p class="text-sm text-gray-900 font-medium">{{ $ticket->maintenanceSlot->date->format('d/m/Y') }} · {{ $ticket->maintenanceSlot->display_time }}</p>
+                                            @elseif($ticket->maintenance_date)
+                                                <p class="text-sm text-gray-900 font-medium">{{ $ticket->maintenance_date->format('d/m/Y') }} · {{ optional($ticket->maintenance_time)->format('H:i') }}</p>
+                                            @else
+                                                <p class="text-sm text-red-600 font-medium">Sin horario asignado</p>
+                                            @endif
+                                        </div>
+                                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium {{ $ticket->maintenanceSlot && $ticket->maintenanceSlot->is_open ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-gray-100 text-gray-600 border border-gray-200' }}">
+                                            {{ $ticket->maintenanceSlot && $ticket->maintenanceSlot->is_open ? 'Agenda activa' : 'Agenda por asignar' }}
+                                        </span>
+                                    </div>
+
+                                    @if($ticket->maintenance_details)
+                                        <div>
+                                            <p class="text-xs font-semibold text-gray-600 uppercase tracking-wide">Detalles adicionales</p>
+                                            <p class="text-sm text-gray-700 leading-relaxed">{{ $ticket->maintenance_details }}</p>
+                                        </div>
+                                    @endif
+
+                                    @if($ticket->equipo_marca || $ticket->equipo_modelo || $ticket->equipo_tipo_disco || $ticket->equipo_ram_capacidad)
+                                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm text-gray-700">
+                                            @if($ticket->equipo_marca)
+                                                <div>
+                                                    <p class="text-xs font-semibold text-gray-500 uppercase">Marca</p>
+                                                    <p class="text-gray-900">{{ $ticket->equipo_marca }}</p>
+                                                </div>
+                                            @endif
+                                            @if($ticket->equipo_modelo)
+                                                <div>
+                                                    <p class="text-xs font-semibold text-gray-500 uppercase">Modelo</p>
+                                                    <p class="text-gray-900">{{ $ticket->equipo_modelo }}</p>
+                                                </div>
+                                            @endif
+                                            @if($ticket->equipo_tipo_disco)
+                                                <div>
+                                                    <p class="text-xs font-semibold text-gray-500 uppercase">Tipo de disco</p>
+                                                    <p class="text-gray-900">{{ $ticket->equipo_tipo_disco }}</p>
+                                                </div>
+                                            @endif
+                                            @if($ticket->equipo_ram_capacidad)
+                                                <div>
+                                                    <p class="text-xs font-semibold text-gray-500 uppercase">Capacidad de RAM</p>
+                                                    <p class="text-gray-900">{{ $ticket->equipo_ram_capacidad }}</p>
+                                                </div>
+                                            @endif
+                                        </div>
+                                    @endif
+
+                                    @if($ticket->equipo_observaciones_esteticas)
+                                        <div>
+                                            <p class="text-xs font-semibold text-gray-500 uppercase">Observaciones estéticas</p>
+                                            <p class="text-sm text-gray-700">{{ $ticket->equipo_observaciones_esteticas }}</p>
+                                        </div>
+                                    @endif
+
+                                    @if($ticket->equipo_bateria_estado)
+                                        <div class="text-xs uppercase tracking-wide font-semibold {{ $ticket->equipo_bateria_estado === 'funcional' ? 'text-emerald-600' : ($ticket->equipo_bateria_estado === 'parcialmente_funcional' ? 'text-amber-600' : 'text-red-600') }}">
+                                            Batería: {{ str_replace('_', ' ', ucfirst($ticket->equipo_bateria_estado)) }}
+                                        </div>
+                                    @endif
+
+                                    @if($ticket->maintenance_cierre_observaciones || $ticket->maintenance_reporte)
+                                        <div class="border-t border-emerald-100 pt-3 space-y-3">
+                                            @if($ticket->maintenance_cierre_observaciones)
+                                                <div>
+                                                    <p class="text-xs font-semibold text-gray-500 uppercase">Observaciones de cierre</p>
+                                                    <p class="text-sm text-gray-700">{{ $ticket->maintenance_cierre_observaciones }}</p>
+                                                </div>
+                                            @endif
+                                            @if($ticket->maintenance_reporte)
+                                                <div>
+                                                    <p class="text-xs font-semibold text-gray-500 uppercase">Reporte técnico</p>
+                                                    <p class="text-sm text-gray-700 whitespace-pre-line">{{ $ticket->maintenance_reporte }}</p>
+                                                </div>
+                                            @endif
+                                        </div>
+                                    @endif
+
+                                    @if($ticket->maintenance_componentes_reemplazo)
+                                        <div>
+                                            <p class="text-xs font-semibold text-gray-500 uppercase mb-1">Componentes reemplazados</p>
+                                            <ul class="flex flex-wrap gap-2 text-xs">
+                                                @foreach($ticket->maintenance_componentes_reemplazo as $componente)
+                                                    <li class="px-3 py-1 bg-emerald-100 text-emerald-700 rounded-full border border-emerald-200">{{ Str::title(str_replace('_', ' ', $componente)) }}</li>
+                                                @endforeach
+                                            </ul>
+                                        </div>
+                                    @endif
+                                </div>
+                                @endif
                             </div>
                         </div>
 
@@ -315,21 +415,128 @@
                                 </select>
                             </div>
 
-                            <!-- Prioridad -->
-                            <div>
-                                <label for="prioridad" class="block text-sm font-medium text-gray-700 mb-2">
-                                    Prioridad
-                                </label>
-                                <select name="prioridad" 
-                                        id="prioridad"
-                                        class="block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200">
-                                    <option value="">Sin asignar</option>
-                                    <option value="baja" {{ $ticket->prioridad === 'baja' ? 'selected' : '' }}>Baja</option>
-                                    <option value="media" {{ $ticket->prioridad === 'media' ? 'selected' : '' }}>Media</option>
-                                    <option value="alta" {{ $ticket->prioridad === 'alta' ? 'selected' : '' }}>Alta</option>
-                                    <option value="critica" {{ $ticket->prioridad === 'critica' ? 'selected' : '' }}>Crítica</option>
-                                </select>
-                            </div>
+                            @if($ticket->tipo_problema === 'mantenimiento')
+                                <div class="bg-emerald-50 border border-emerald-100 rounded-lg p-5 space-y-5">
+                                    <div>
+                                        <h4 class="text-sm font-semibold text-emerald-800 mb-3">Programación del mantenimiento</h4>
+                                        <label for="maintenance_time_slot_id" class="block text-xs font-medium text-gray-600 mb-1">
+                                            Seleccionar horario disponible
+                                        </label>
+                                        <select name="maintenance_time_slot_id" id="maintenance_time_slot_id" class="block w-full px-3 py-2 border border-emerald-200 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm">
+                                            <option value="">Sin asignar</option>
+                                            @foreach($maintenanceSlots as $slotOption)
+                                                @php
+                                                    $available = max(0, $slotOption->capacity - $slotOption->tickets_count);
+                                                    $isSelected = $ticket->maintenance_time_slot_id === $slotOption->id;
+                                                    $disabled = !$slotOption->is_open && !$isSelected;
+                                                    if ($available <= 0 && !$isSelected) {
+                                                        $disabled = true;
+                                                    }
+                                                    $label = $slotOption->date->format('d/m/Y') . ' · ' . $slotOption->display_time . ' (' . $available . ' disponibles)';
+                                                @endphp
+                                                <option value="{{ $slotOption->id }}" {{ $isSelected ? 'selected' : '' }} {{ $disabled ? 'disabled' : '' }}>
+                                                    {{ $label }}{{ !$slotOption->is_open ? ' - Cerrado' : '' }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                        <p class="text-xs text-gray-500 mt-1">Puedes reasignar el equipo a otro horario disponible según la agenda configurada.</p>
+                                    </div>
+
+                                    <div>
+                                        <label for="maintenance_details" class="block text-xs font-medium text-gray-600 mb-1">
+                                            Detalles adicionales compartidos por el usuario
+                                        </label>
+                                        <textarea name="maintenance_details" id="maintenance_details" rows="3" class="block w-full px-3 py-2 border border-emerald-200 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm" placeholder="Notas complementarias sobre los síntomas o requerimientos del mantenimiento.">{{ old('maintenance_details', $ticket->maintenance_details) }}</textarea>
+                                    </div>
+
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <label class="block text-xs font-medium text-gray-600 mb-1" for="equipo_marca">Marca del equipo</label>
+                                            <input type="text" id="equipo_marca" name="equipo_marca" value="{{ old('equipo_marca', $ticket->equipo_marca) }}" class="w-full px-3 py-2 border border-emerald-200 rounded-lg focus:ring-emerald-500 focus:border-emerald-500 text-sm">
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs font-medium text-gray-600 mb-1" for="equipo_modelo">Modelo</label>
+                                            <input type="text" id="equipo_modelo" name="equipo_modelo" value="{{ old('equipo_modelo', $ticket->equipo_modelo) }}" class="w-full px-3 py-2 border border-emerald-200 rounded-lg focus:ring-emerald-500 focus:border-emerald-500 text-sm">
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs font-medium text-gray-600 mb-1" for="equipo_tipo_disco">Tipo de disco</label>
+                                            <input type="text" id="equipo_tipo_disco" name="equipo_tipo_disco" value="{{ old('equipo_tipo_disco', $ticket->equipo_tipo_disco) }}" class="w-full px-3 py-2 border border-emerald-200 rounded-lg focus:ring-emerald-500 focus:border-emerald-500 text-sm" placeholder="HDD, SSD, NVMe, etc.">
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs font-medium text-gray-600 mb-1" for="equipo_ram_capacidad">Capacidad de RAM</label>
+                                            <input type="text" id="equipo_ram_capacidad" name="equipo_ram_capacidad" value="{{ old('equipo_ram_capacidad', $ticket->equipo_ram_capacidad) }}" class="w-full px-3 py-2 border border-emerald-200 rounded-lg focus:ring-emerald-500 focus:border-emerald-500 text-sm" placeholder="Ej. 8 GB DDR4">
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-xs font-medium text-gray-600 mb-1" for="equipo_observaciones_esteticas">Observaciones estéticas</label>
+                                        <textarea name="equipo_observaciones_esteticas" id="equipo_observaciones_esteticas" rows="2" class="block w-full px-3 py-2 border border-emerald-200 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm" placeholder="Golpes, rayaduras, faltantes, etc.">{{ old('equipo_observaciones_esteticas', $ticket->equipo_observaciones_esteticas) }}</textarea>
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-xs font-medium text-gray-600 mb-1" for="equipo_bateria_estado">Estado de la batería</label>
+                                        <select name="equipo_bateria_estado" id="equipo_bateria_estado" class="block w-full px-3 py-2 border border-emerald-200 rounded-lg focus:ring-emerald-500 focus:border-emerald-500 text-sm">
+                                            <option value="">Sin especificar</option>
+                                            <option value="funcional" {{ old('equipo_bateria_estado', $ticket->equipo_bateria_estado) === 'funcional' ? 'selected' : '' }}>Funcional</option>
+                                            <option value="parcialmente_funcional" {{ old('equipo_bateria_estado', $ticket->equipo_bateria_estado) === 'parcialmente_funcional' ? 'selected' : '' }}>Parcialmente funcional</option>
+                                            <option value="danada" {{ old('equipo_bateria_estado', $ticket->equipo_bateria_estado) === 'danada' ? 'selected' : '' }}>Dañada</option>
+                                        </select>
+                                    </div>
+
+                                    <div id="maintenanceClosureFields" class="bg-white border border-emerald-200 rounded-lg p-4 space-y-4 {{ $ticket->estado === 'cerrado' ? '' : 'hidden' }}">
+                                        <div class="flex items-center justify-between">
+                                            <h5 class="text-sm font-semibold text-emerald-800">Cierre y reporte técnico</h5>
+                                            <span class="text-xs text-emerald-600">Visible al marcar el ticket como cerrado</span>
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs font-medium text-gray-600 mb-1" for="maintenance_cierre_observaciones">Observaciones de cierre</label>
+                                            <textarea name="maintenance_cierre_observaciones" id="maintenance_cierre_observaciones" rows="3" class="block w-full px-3 py-2 border border-emerald-200 rounded-lg focus:ring-emerald-500 focus:border-emerald-500 text-sm" placeholder="Resumen del estado final del equipo tras el mantenimiento.">{{ old('maintenance_cierre_observaciones', $ticket->maintenance_cierre_observaciones) }}</textarea>
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs font-medium text-gray-600 mb-1" for="maintenance_reporte">Reporte técnico detallado</label>
+                                            <textarea name="maintenance_reporte" id="maintenance_reporte" rows="4" class="block w-full px-3 py-2 border border-emerald-200 rounded-lg focus:ring-emerald-500 focus:border-emerald-500 text-sm" placeholder="Describe los procedimientos realizados, pruebas ejecutadas y cualquier recomendación.">{{ old('maintenance_reporte', $ticket->maintenance_reporte) }}</textarea>
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs font-medium text-gray-600 mb-2" for="maintenance_componentes_reemplazo">Componentes reemplazados</label>
+                                            @php
+                                                $componentesSeleccionados = collect(old('maintenance_componentes_reemplazo', $ticket->maintenance_componentes_reemplazo ?? []))->map(fn($value) => strtolower($value));
+                                                $componentesCatalogo = [
+                                                    'disco_duro' => 'Disco duro',
+                                                    'ram' => 'Memoria RAM',
+                                                    'bateria' => 'Batería',
+                                                    'pantalla' => 'Pantalla',
+                                                    'conectores' => 'Conectores',
+                                                    'teclado' => 'Teclado',
+                                                    'mousepad' => 'Mousepad',
+                                                    'cargador' => 'Cargador',
+                                                ];
+                                            @endphp
+                                            <select name="maintenance_componentes_reemplazo[]" id="maintenance_componentes_reemplazo" multiple size="8" class="w-full px-3 py-2 border border-emerald-200 rounded-lg focus:ring-emerald-500 focus:border-emerald-500 text-sm">
+                                                @foreach($componentesCatalogo as $valor => $texto)
+                                                    <option value="{{ $valor }}" {{ $componentesSeleccionados->contains($valor) ? 'selected' : '' }}>{{ $texto }}</option>
+                                                @endforeach
+                                            </select>
+                                            <p class="text-xs text-gray-500 mt-1">Mantén presionada la tecla Ctrl (o Cmd en Mac) para seleccionar múltiples componentes.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            @else
+                                <!-- Prioridad -->
+                                <div>
+                                    <label for="prioridad" class="block text-sm font-medium text-gray-700 mb-2">
+                                        Prioridad
+                                    </label>
+                                    <select name="prioridad"
+                                            id="prioridad"
+                                            class="block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200">
+                                        <option value="">Sin asignar</option>
+                                        <option value="baja" {{ $ticket->prioridad === 'baja' ? 'selected' : '' }}>Baja</option>
+                                        <option value="media" {{ $ticket->prioridad === 'media' ? 'selected' : '' }}>Media</option>
+                                        <option value="alta" {{ $ticket->prioridad === 'alta' ? 'selected' : '' }}>Alta</option>
+                                        <option value="critica" {{ $ticket->prioridad === 'critica' ? 'selected' : '' }}>Crítica</option>
+                                    </select>
+                                </div>
+                            @endif
 
                             <!-- Observaciones -->
                             <div>
@@ -454,7 +661,7 @@ Referente a su ticket {{ $ticket->folio }}..."
             function expandImage(imgElement) {
                 const container = imgElement.parentElement;
                 const isExpanded = container.classList.contains('expanded-image');
-                
+
                 if (isExpanded) {
                     // Contraer imagen
                     container.classList.remove('expanded-image');
@@ -470,6 +677,22 @@ Referente a su ticket {{ $ticket->folio }}..."
                     imgElement.classList.add('object-contain');
                     imgElement.title = 'Clic para contraer imagen';
                 }
+            }
+
+            const estadoSelect = document.getElementById('estado');
+            const closureFields = document.getElementById('maintenanceClosureFields');
+
+            if (estadoSelect && closureFields) {
+                const toggleClosureFields = () => {
+                    if (estadoSelect.value === 'cerrado') {
+                        closureFields.classList.remove('hidden');
+                    } else {
+                        closureFields.classList.add('hidden');
+                    }
+                };
+
+                estadoSelect.addEventListener('change', toggleClosureFields);
+                toggleClosureFields();
             }
         </script>
     </body>

@@ -2,8 +2,11 @@
 
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ArchivoProblemasController;
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\InventarioController;
+use App\Http\Controllers\MaintenanceAdminController;
 use App\Http\Controllers\PrestamoController;
+use App\Http\Controllers\TicketController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -23,6 +26,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/ticket', [TicketController::class, 'store'])->name('tickets.store');
     Route::get('/mis-tickets', [TicketController::class, 'misTickets'])->name('tickets.mis-tickets');
     Route::delete('/ticket/{ticket}', [TicketController::class, 'destroy'])->name('tickets.destroy');
+    Route::get('/api/maintenance/slots', [TicketController::class, 'maintenanceSlots'])->name('maintenance.slots');
 
     Route::resource('prestamos', PrestamoController::class);
     
@@ -46,6 +50,12 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
     Route::patch('/tickets/{ticket}', [TicketController::class, 'update'])->name('tickets.update');
     Route::get('/inventory', [AdminController::class, 'inventory'])->name('inventory');
     Route::get('/inventory-requests', [AdminController::class, 'inventoryRequests'])->name('inventory-requests');
+
+    Route::get('/maintenance', [MaintenanceAdminController::class, 'index'])->name('maintenance.index');
+    Route::post('/maintenance/slots', [MaintenanceAdminController::class, 'storeSlot'])->name('maintenance.slots.store');
+    Route::put('/maintenance/slots/{slot}', [MaintenanceAdminController::class, 'updateSlot'])->name('maintenance.slots.update');
+    Route::delete('/maintenance/slots/{slot}', [MaintenanceAdminController::class, 'destroySlot'])->name('maintenance.slots.destroy');
+    Route::post('/maintenance/equipment/{record}/loan', [MaintenanceAdminController::class, 'updateLoanStatus'])->name('maintenance.equipment.loan');
     
     // Gestión de usuarios
     Route::get('/users', [AdminController::class, 'users'])->name('users');
