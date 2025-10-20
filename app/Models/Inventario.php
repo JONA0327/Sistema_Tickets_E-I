@@ -20,13 +20,21 @@ class Inventario extends Model
         'imagenes',
         'password_computadora',
         'anos_uso',
-        'created_by'
+        'created_by',
+        // Campos para discos con información
+        'tiene_informacion',
+        'informacion_contenido',
+        'nivel_confidencialidad',
+        'bloqueado_prestamo',
+        'razon_bloqueo'
     ];
 
     protected $casts = [
         'imagenes' => 'array',
         'anos_uso' => 'integer',
-        'cantidad' => 'integer'
+        'cantidad' => 'integer',
+        'tiene_informacion' => 'boolean',
+        'bloqueado_prestamo' => 'boolean'
     ];
 
     // Definir las categorías disponibles
@@ -40,6 +48,17 @@ class Inventario extends Model
             'baterias' => 'Baterías',
             'computadoras' => 'Computadoras',
             'otros' => 'Otros'
+        ];
+    }
+
+    // Definir los niveles de confidencialidad disponibles
+    public static function getNivelesConfidencialidad()
+    {
+        return [
+            'bajo' => 'Bajo - Información general',
+            'medio' => 'Medio - Información sensible',
+            'alto' => 'Alto - Información confidencial',
+            'critico' => 'Crítico - Información clasificada'
         ];
     }
 
@@ -71,30 +90,26 @@ class Inventario extends Model
         return $this->hasMany(PrestamoInventario::class)->where('estado_prestamo', 'activo');
     }
 
-    // Cantidad disponible (cantidad total - cantidad prestada - unidades dañadas)
+    // Relación con discos en uso (para discos duros)
+    public function discoEnUso()
+    {
+        return $this->hasOne(DiscoEnUso::class)->where('esta_activo', true);
+    }
+
+    // Historial de uso de discos
+    public function historialDiscosUso()
+    {
+        return $this->hasMany(DiscoEnUso::class);
+    }
+
+    // Cantidad disponible para unidades individuales
     public function getCantidadDisponibleAttribute()
     {
-        $cantidadPrestada = $this->prestamosActivos()->sum('cantidad_prestada');
-        $cantidadBase = $this->cantidad - $cantidadPrestada;
+        // Para unidades individuales, la cantidad base es siempre 1
+        $cantidadPrestada = (int) $this->prestamosActivos()->sum('cantidad_prestada');
+        $cantidadBase = (int) $this->cantidad - $cantidadPrestada;
         
-        // Si es múltiples unidades, restar las unidades dañadas
-        if (str_contains($this->observaciones ?? '', '--- DETALLES POR UNIDAD ---')) {
-            $unidadesDanadas = 0;
-            $detalles = explode('--- DETALLES POR UNIDAD ---', $this->observaciones)[1] ?? '';
-            
-            if ($detalles) {
-                $lineas = array_filter(explode("\n", $detalles));
-                foreach ($lineas as $linea) {
-                    if (str_contains($linea, 'UNIDAD') && str_contains($linea, 'Estado: Dañado')) {
-                        $unidadesDanadas++;
-                    }
-                }
-            }
-            
-            return max(0, $cantidadBase - $unidadesDanadas);
-        }
-        
-        // Si el estado general es dañado y es unidad única
+        // Si el estado es dañado, no está disponible
         if ($this->estado == 'dañado') {
             return 0;
         }
@@ -105,7 +120,35 @@ class Inventario extends Model
     // Verificar si está disponible para préstamo
     public function getEstaDisponibleAttribute()
     {
+        // Si está bloqueado para préstamo, no está disponible
+        if ($this->bloqueado_prestamo) {
+            return false;
+        }
+
+        // Si es un disco duro y está en uso, no está disponible para préstamo
+        if ($this->categoria === 'discos_duros' && $this->discoEnUso) {
+            return false;
+        }
+        
         return $this->cantidad_disponible > 0 && in_array($this->estado, ['nuevo', 'usado']);
+    }
+
+    // Verificar si es un disco con información
+    public function getEsDiscoConInformacionAttribute()
+    {
+        return $this->categoria === 'discos_duros' && $this->tiene_informacion;
+    }
+
+    // Obtener el color del nivel de confidencialidad
+    public function getColorConfidencialidadAttribute()
+    {
+        return match($this->nivel_confidencialidad) {
+            'bajo' => 'text-green-600 bg-green-50',
+            'medio' => 'text-yellow-600 bg-yellow-50',
+            'alto' => 'text-orange-600 bg-orange-50', 
+            'critico' => 'text-red-600 bg-red-50',
+            default => 'text-gray-600 bg-gray-50'
+        };
     }
 
     // Scope para filtrar por categoría
@@ -285,6 +328,14 @@ class Inventario extends Model
             ->where('modelo', $this->modelo)
             ->orderBy('created_at', 'asc')
             ->get();
+    }
+
+    /**
+     * Contar total de unidades del grupo
+     */
+    public function getTotalGrupoAttribute()
+    {
+        return $this->grupo_completa->count();
     }
 
     /**

@@ -14,7 +14,7 @@ class InventoryItem extends Model
     public const ESTADO_PRESTADO = 'prestado';
     public const ESTADO_MANTENIMIENTO = 'mantenimiento';
     public const ESTADO_RESERVADO = 'reservado';
-    public const ESTADO_DANADO = 'danado';
+    public const ESTADO_DANADO = 'dañado';
 
     /**
      * The attributes that are mass assignable.

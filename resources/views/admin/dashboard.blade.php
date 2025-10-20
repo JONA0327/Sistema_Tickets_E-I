@@ -3,6 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="csrf-token" content="{{ csrf_token() }}">
 
         <title>Panel de Administración - Sistema IT</title>
 
@@ -33,6 +34,106 @@
                         </div>
                     </div>
                     <div class="flex items-center space-x-4">
+                        <!-- Notifications Dropdown -->
+                        <div class="relative" x-data="notificationDropdown()" x-init="init()">
+                            <button @click="toggleDropdown()" 
+                                    class="relative flex items-center justify-center w-11 h-11 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-full transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 group">
+                                <!-- Modern Bell Icon -->
+                                <svg class="w-6 h-6 transform group-hover:rotate-12 transition-all duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-5 -5v-5a6 6 0 1 0 -12 0v5l-5 5h5m6 0v1a2 2 0 1 1 -4 0v-1m4 0H9"/>
+                                </svg>
+                                <!-- Modern notification badge with gradient and glow -->
+                                <span x-show="unreadCount > 0" 
+                                      x-text="unreadCount > 99 ? '99+' : unreadCount"
+                                      class="absolute -top-1 -right-1 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white bg-gradient-to-r from-red-500 to-pink-500 rounded-full min-w-[22px] h-6 shadow-lg ring-2 ring-white animate-bounce"></span>
+                            </button>
+                            
+                            <!-- Notification Dropdown -->
+                            <div x-show="isOpen" 
+                                 @click.away="closeDropdown()"
+                                 x-transition:enter="transition ease-out duration-200"
+                                 x-transition:enter-start="transform opacity-0 scale-95"
+                                 x-transition:enter-end="transform opacity-100 scale-100"
+                                 x-transition:leave="transition ease-in duration-75"
+                                 x-transition:leave-start="transform opacity-100 scale-100"
+                                 x-transition:leave-end="transform opacity-0 scale-95"
+                                 class="absolute right-0 mt-2 w-96 bg-white rounded-lg shadow-xl ring-1 ring-black ring-opacity-5 focus:outline-none z-50 max-h-96 overflow-hidden">
+                                
+                                <!-- Header -->
+                                <div class="px-4 py-3 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+                                    <h3 class="text-sm font-semibold text-gray-900">Notificaciones</h3>
+                                    <div class="flex items-center space-x-2">
+                                        <span x-text="unreadCount" class="text-xs bg-red-100 text-red-800 px-2 py-1 rounded-full font-medium"></span>
+                                        <button @click="markAllAsRead()" 
+                                                x-show="unreadCount > 0"
+                                                class="text-xs text-blue-600 hover:text-blue-800 font-medium">
+                                            Marcar todas como leídas
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <!-- Notifications List -->
+                                <div class="max-h-80 overflow-y-auto">
+                                    <template x-if="notifications.length === 0">
+                                        <div class="px-4 py-8 text-center text-gray-500">
+                                            <svg class="w-12 h-12 mx-auto mb-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2 2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
+                                            </svg>
+                                            <p class="text-sm">No tienes notificaciones nuevas</p>
+                                        </div>
+                                    </template>
+                                    
+                                    <template x-for="notification in notifications" :key="notification.id">
+                                        <div class="px-4 py-3 border-b border-gray-100 hover:bg-gray-50 cursor-pointer transition-colors duration-200"
+                                             @click="openTicket(notification)">
+                                            <div class="flex items-start space-x-3">
+                                                <!-- Type Icon -->
+                                                <div class="flex-shrink-0">
+                                                    <div class="w-8 h-8 rounded-full flex items-center justify-center"
+                                                         :class="{
+                                                             'bg-blue-100 text-blue-600': notification.tipo === 'Software',
+                                                             'bg-orange-100 text-orange-600': notification.tipo === 'Hardware',
+                                                             'bg-green-100 text-green-600': notification.tipo === 'Mantenimiento'
+                                                         }">
+                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                                        </svg>
+                                                    </div>
+                                                </div>
+                                                
+                                                <!-- Content -->
+                                                <div class="flex-1 min-w-0">
+                                                    <div class="flex items-center justify-between">
+                                                        <p class="text-sm font-medium text-gray-900" x-text="'Ticket #' + notification.folio"></p>
+                                                        <p class="text-xs text-gray-500" x-text="notification.fecha"></p>
+                                                    </div>
+                                                    <p class="text-xs text-gray-600 mt-1" x-text="notification.solicitante"></p>
+                                                    <p class="text-sm text-gray-800 mt-1" x-text="notification.descripcion"></p>
+                                                    <div class="flex items-center mt-2">
+                                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium"
+                                                              :class="{
+                                                                  'bg-blue-100 text-blue-800': notification.tipo === 'Software',
+                                                                  'bg-orange-100 text-orange-800': notification.tipo === 'Hardware',
+                                                                  'bg-green-100 text-green-800': notification.tipo === 'Mantenimiento'
+                                                              }"
+                                                              x-text="notification.tipo"></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </template>
+                                </div>
+                                
+                                <!-- Footer -->
+                                <div class="px-4 py-3 bg-gray-50 border-t border-gray-100">
+                                    <a href="{{ route('admin.tickets.index') }}" 
+                                       class="block text-center text-sm text-blue-600 hover:text-blue-800 font-medium">
+                                        Ver todos los tickets
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- Profile Dropdown -->
                         <div class="relative" x-data="{ open: false }">
                             <button @click="open = !open" 
@@ -244,5 +345,109 @@
                 </div>
             </div>
         </footer>
+
+        <!-- Notification System JavaScript -->
+        <script>
+            function notificationDropdown() {
+                return {
+                    isOpen: false,
+                    unreadCount: 0,
+                    notifications: [],
+                    
+                    init() {
+                        this.loadNotifications();
+                        // Actualizar cada 30 segundos
+                        setInterval(() => {
+                            this.loadNotifications();
+                        }, 30000);
+                    },
+                    
+                    toggleDropdown() {
+                        this.isOpen = !this.isOpen;
+                        if (this.isOpen) {
+                            this.loadNotifications();
+                        }
+                    },
+                    
+                    closeDropdown() {
+                        this.isOpen = false;
+                    },
+                    
+                    async loadNotifications() {
+                        try {
+                            const response = await fetch('/api/notifications/unread');
+                            const data = await response.json();
+                            
+                            this.notifications = data.tickets || [];
+                            this.unreadCount = data.count || 0;
+                        } catch (error) {
+                            console.error('Error loading notifications:', error);
+                        }
+                    },
+                    
+                    async markAsRead(ticketId) {
+                        try {
+                            const response = await fetch(`/api/notifications/${ticketId}/read`, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+                                }
+                            });
+                            
+                            if (response.ok) {
+                                this.loadNotifications();
+                            }
+                        } catch (error) {
+                            console.error('Error marking notification as read:', error);
+                        }
+                    },
+                    
+                    async markAllAsRead() {
+                        try {
+                            const response = await fetch('/api/notifications/mark-all-read', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+                                }
+                            });
+                            
+                            if (response.ok) {
+                                this.loadNotifications();
+                                this.showToast('Todas las notificaciones marcadas como leídas');
+                            }
+                        } catch (error) {
+                            console.error('Error marking all as read:', error);
+                        }
+                    },
+                    
+                    async openTicket(notification) {
+                        // Marcar como leída al hacer clic
+                        await this.markAsRead(notification.id);
+                        
+                        // Navegar al ticket
+                        window.location.href = notification.url;
+                    },
+                    
+                    showToast(message) {
+                        // Crear toast notification
+                        const toast = document.createElement('div');
+                        toast.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 transform transition-all duration-300';
+                        toast.textContent = message;
+                        
+                        document.body.appendChild(toast);
+                        
+                        // Remover después de 3 segundos
+                        setTimeout(() => {
+                            toast.classList.add('opacity-0', 'translate-x-full');
+                            setTimeout(() => {
+                                document.body.removeChild(toast);
+                            }, 300);
+                        }, 3000);
+                    }
+                }
+            }
+        </script>
     </body>
 </html>

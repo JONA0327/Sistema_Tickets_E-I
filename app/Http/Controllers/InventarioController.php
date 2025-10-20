@@ -48,8 +48,13 @@ class InventarioController extends Controller
             $query->funcionales();
         }
 
-        // Determinar si mostrar vista agrupada
-        $vistaAgrupada = $request->get('agrupado', false);
+        // Determinar si mostrar vista agrupada - activar por defecto si hay unidades similares
+        $hasMultipleUnits = Inventario::selectRaw('categoria, articulo, modelo, COUNT(*) as count')
+                                     ->groupBy('categoria', 'articulo', 'modelo')
+                                     ->having('count', '>', 1)
+                                     ->exists();
+        
+        $vistaAgrupada = $request->get('agrupado', $hasMultipleUnits);
         
         if ($vistaAgrupada) {
             // Vista agrupada: agrupar por categoría, artículo y modelo
@@ -58,11 +63,32 @@ class InventarioController extends Controller
                                     return $item->categoria . '|' . $item->articulo . '|' . $item->modelo;
                                 })
                                 ->map(function($grupo) {
-                                    $representante = $grupo->first();
-                                    $representante->unidades_grupo = $grupo;
-                                    $representante->total_unidades_grupo = $grupo->count();
-                                    $representante->unidades_disponibles_grupo = $grupo->where('cantidad_disponible', '>', 0)->count();
-                                    return $representante;
+                                    $funcionales = 0;
+                                    $danadas = 0;
+                                    $disponibles = 0;
+                                    
+                                    foreach ($grupo as $item) {
+                                        if (in_array($item->estado, ['nuevo', 'usado'])) {
+                                            $funcionales++;
+                                        }
+                                        if ($item->estado === 'dañado') {
+                                            $danadas++;
+                                        }
+                                        if ($item->esta_disponible) {
+                                            $disponibles++;
+                                        }
+                                    }
+                                    
+                                    return [
+                                        'grupo' => $grupo->first()->articulo . ' ' . $grupo->first()->modelo,
+                                        'categoria' => $grupo->first()->categoria_formateada,
+                                        'total' => $grupo->count(),
+                                        'disponibles' => $disponibles,
+                                        'funcionales' => $funcionales,
+                                        'danadas' => $danadas,
+                                        'inventarios' => $grupo,
+                                        'representante' => $grupo->first()
+                                    ];
                                 })
                                 ->values();
                                 
@@ -130,7 +156,7 @@ class InventarioController extends Controller
             'categoria' => 'required|in:mouse,discos_duros,memorias_ram,cargadores,baterias,computadoras,otros',
             'articulo' => 'required|string|max:255',
             'modelo' => 'required|string|max:255',
-            'imagenes.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'imagenes.*' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
             'crear_como' => 'required|in:unidad_unica,multiples_unidades',
             // Campos específicos para computadoras
             'password_computadora' => 'nullable|string|max:255',
@@ -164,6 +190,15 @@ class InventarioController extends Controller
             if ($request->categoria === 'computadoras') {
                 $datosBase['password_computadora'] = $request->password_computadora;
                 $datosBase['anos_uso'] = $request->anos_uso;
+            }
+
+            // Campos específicos para discos duros con información
+            if ($request->categoria === 'discos_duros') {
+                $datosBase['tiene_informacion'] = $request->boolean('tiene_informacion', false);
+                $datosBase['informacion_contenido'] = $request->informacion_contenido;
+                $datosBase['nivel_confidencialidad'] = $request->nivel_confidencialidad;
+                $datosBase['bloqueado_prestamo'] = $request->boolean('bloqueado_prestamo', false);
+                $datosBase['razon_bloqueo'] = $request->razon_bloqueo;
             }
 
             // Procesar imágenes una sola vez
@@ -235,8 +270,14 @@ class InventarioController extends Controller
         $categorias = Inventario::getCategorias();
         $estados = Inventario::getEstados();
         $prestamosActivos = $inventario->prestamosActivos;
+        
+        // Cargar información de discos en uso si es un disco duro
+        $discoEnUso = null;
+        if ($inventario->categoria === 'discos_duros') {
+            $discoEnUso = $inventario->discoEnUso()->with('usuario')->first();
+        }
 
-        return view('inventario.show', compact('inventario', 'categorias', 'estados', 'prestamosActivos'));
+        return view('inventario.show', compact('inventario', 'categorias', 'estados', 'prestamosActivos', 'discoEnUso'));
     }
 
     /**
@@ -260,19 +301,29 @@ class InventarioController extends Controller
             'categoria' => 'required|in:mouse,discos_duros,memorias_ram,cargadores,baterias,computadoras,otros',
             'articulo' => 'required|string|max:255',
             'modelo' => 'required|string|max:255',
-            'imagenes.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'imagenes.*' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
             // Campos específicos para computadoras
             'password_computadora' => 'nullable|string|max:255',
             'anos_uso' => 'nullable|integer|min:0|max:50',
+            // Campos para discos con información
+            'tiene_informacion' => 'nullable|boolean',
+            'informacion_contenido' => 'nullable|string',
+            'nivel_confidencialidad' => 'nullable|in:bajo,medio,alto,critico',
+            'bloqueado_prestamo' => 'nullable|boolean',
+            'razon_bloqueo' => 'nullable|string'
         ];
 
-        // Validación condicional según si es múltiple
+        // Validación condicional - más flexible para actualizaciones parciales
         if ($request->filled('es_multiple')) {
-            $rules['unidades'] = 'required|array|min:1';
-            $rules['unidades.*.estado'] = 'required|in:nuevo,usado,dañado';
-            $rules['unidades.*.observaciones'] = 'nullable|string';
-            $rules['unidades.*.color'] = 'nullable|string|max:255';
+            // Si se envían unidades, validarlas
+            if ($request->has('unidades') && is_array($request->unidades)) {
+                $rules['unidades'] = 'array|min:1';
+                $rules['unidades.*.estado'] = 'required|in:nuevo,usado,dañado';
+                $rules['unidades.*.observaciones'] = 'nullable|string';
+                $rules['unidades.*.color'] = 'nullable|string|max:255';
+            }
         } else {
+            // Solo requerir estos campos si no es múltiple
             $rules['cantidad'] = 'required|integer|min:1';
             $rules['estado'] = 'required|in:nuevo,usado,dañado';
         }
@@ -282,7 +333,7 @@ class InventarioController extends Controller
         $request->validate($rules);
 
         try {
-            // Actualizar campos base
+            // Actualizar campos base SIEMPRE
             $inventario->categoria = $request->categoria;
             $inventario->articulo = $request->articulo;
             $inventario->modelo = $request->modelo;
@@ -296,8 +347,27 @@ class InventarioController extends Controller
                 $inventario->anos_uso = null;
             }
 
-            if ($request->filled('es_multiple')) {
-                // Actualizar múltiples unidades
+            // Campos específicos para discos duros con información
+            if ($request->categoria === 'discos_duros') {
+                $inventario->tiene_informacion = $request->boolean('tiene_informacion', false);
+                $inventario->informacion_contenido = $request->informacion_contenido;
+                $inventario->nivel_confidencialidad = $request->nivel_confidencialidad;
+                $inventario->bloqueado_prestamo = $request->boolean('bloqueado_prestamo', false);
+                $inventario->razon_bloqueo = $request->razon_bloqueo;
+            } else {
+                // Limpiar campos si no es disco duro
+                $inventario->tiene_informacion = false;
+                $inventario->informacion_contenido = null;
+                $inventario->nivel_confidencialidad = null;
+                $inventario->bloqueado_prestamo = false;
+                $inventario->razon_bloqueo = null;
+            }
+
+            // Determinar si es edición múltiple o individual
+            $esMultiple = $request->filled('es_multiple');
+            
+            if ($esMultiple && $request->has('unidades') && is_array($request->unidades) && count($request->unidades) > 0) {
+                // Actualización de sistema múltiple con datos de unidades
                 $unidades = $request->unidades;
                 $cantidadTotal = count($unidades);
                 
@@ -341,19 +411,16 @@ class InventarioController extends Controller
                 
                 $inventario->observaciones = implode("\n", $observacionesCompletas);
             } else {
-                // Actualizar como unidad única
-                $inventario->cantidad = $request->cantidad;
-                $inventario->estado = $request->estado;
-                $inventario->observaciones = $request->observaciones;
-            }
-
-            // Campos específicos para computadoras
-            if ($request->categoria === 'computadoras') {
-                $inventario->password_computadora = $request->password_computadora;
-                $inventario->anos_uso = $request->anos_uso;
-            } else {
-                $inventario->password_computadora = null;
-                $inventario->anos_uso = null;
+                // Actualización simple - SIEMPRE actualizar estos campos cuando NO es múltiple
+                if ($request->has('cantidad')) {
+                    $inventario->cantidad = $request->cantidad;
+                }
+                if ($request->has('estado')) {
+                    $inventario->estado = $request->estado;
+                }
+                if ($request->has('observaciones')) {
+                    $inventario->observaciones = $request->observaciones;
+                }
             }
 
             // Procesar nuevas imágenes si se subieron

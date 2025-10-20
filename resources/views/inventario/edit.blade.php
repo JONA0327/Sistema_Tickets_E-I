@@ -207,8 +207,7 @@
                                                id="cantidad" 
                                                value="{{ old('cantidad', $inventario->cantidad) }}"
                                                min="1"
-                                               class="w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
-                                               :required="!esMultiple">
+                                               class="w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500">
                                         @if($inventario->cantidad_disponible != $inventario->cantidad)
                                             <p class="text-xs text-amber-600 mt-1">
                                                 💡 Disponible: {{ $inventario->cantidad_disponible }}/{{ $inventario->cantidad }}
@@ -219,8 +218,8 @@
                                     <div>
                                         <label for="estado" class="block text-sm font-medium text-gray-700 mb-1">Estado *</label>
                                         <select name="estado" id="estado" 
-                                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500" 
-                                                :required="!esMultiple">
+                                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
+                                                required>
                                             <option value="">Seleccionar estado</option>
                                             @foreach($estados as $key => $label)
                                                 <option value="{{ $key }}" {{ (old('estado', $inventario->estado) == $key) ? 'selected' : '' }}>{{ $label }}</option>
@@ -228,6 +227,21 @@
                                         </select>
                                     </div>
                                 </div>
+
+                                <!-- Campos ocultos para garantizar que siempre se envíen los datos básicos cuando es múltiple -->
+                                <template x-if="esMultiple">
+                                    <div>
+                                        <input type="hidden" name="cantidad" :value="unidades.length">
+                                        <input type="hidden" name="estado" x-bind:value="
+                                            (() => {
+                                                const estados = unidades.map(u => u.estado);
+                                                if (estados.includes('dañado')) return 'dañado';
+                                                if (estados.includes('usado')) return 'usado';
+                                                return 'nuevo';
+                                            })()
+                                        ">
+                                    </div>
+                                </template>
 
                                 <!-- Campos para múltiples unidades -->
                                 <div x-show="esMultiple" x-transition class="space-y-4">
@@ -330,6 +344,104 @@
                                         </div>
                                     </div>
                                 </div>
+
+                                <!-- Campos específicos para discos duros -->
+                                <div x-show="categoria === 'discos_duros'" x-transition class="space-y-4">
+                                    <div class="bg-orange-50 p-4 rounded-lg border border-orange-200">
+                                        <h4 class="text-md font-medium text-orange-800 mb-3">💾 Información del Disco Duro</h4>
+                                        
+                                        <div class="space-y-4">
+                                            <!-- Checkbox para marcar si tiene información -->
+                                            <div class="flex items-start space-x-3">
+                                                <input type="checkbox" 
+                                                       name="tiene_informacion" 
+                                                       id="tiene_informacion"
+                                                       value="1"
+                                                       x-model="tieneInfo"
+                                                       class="mt-1 rounded border-gray-300 text-orange-600 focus:border-orange-500 focus:ring-orange-500">
+                                                <div class="flex-1">
+                                                    <label for="tiene_informacion" class="text-sm font-medium text-gray-700">
+                                                        🔒 Este disco contiene información importante
+                                                    </label>
+                                                    <p class="text-xs text-gray-500 mt-1">
+                                                        Marca esta opción si el disco tiene datos, documentos o información que requiere protección especial
+                                                    </p>
+                                                </div>
+                                            </div>
+
+                                            <!-- Campos que aparecen cuando se marca "tiene información" -->
+                                            <div x-data="{ 
+                                                tieneInfo: {{ old('tiene_informacion', $inventario->tiene_informacion) ? 'true' : 'false' }},
+                                                bloqueado: {{ old('bloqueado_prestamo', $inventario->bloqueado_prestamo) ? 'true' : 'false' }}
+                                            }">
+                                                
+                                                <div x-show="tieneInfo" x-transition class="space-y-4 mt-4 p-3 bg-white rounded border border-orange-200">
+                                                    <!-- Nivel de confidencialidad -->
+                                                    <div>
+                                                        <label for="nivel_confidencialidad" class="block text-sm font-medium text-gray-700 mb-1">
+                                                            🛡️ Nivel de Confidencialidad
+                                                        </label>
+                                                        <select name="nivel_confidencialidad" 
+                                                                id="nivel_confidencialidad"
+                                                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500">
+                                                            <option value="">Seleccionar nivel</option>
+                                                            @foreach(\App\Models\Inventario::getNivelesConfidencialidad() as $key => $label)
+                                                                <option value="{{ $key }}" 
+                                                                        {{ (old('nivel_confidencialidad', $inventario->nivel_confidencialidad) == $key) ? 'selected' : '' }}>
+                                                                    {{ $label }}
+                                                                </option>
+                                                            @endforeach
+                                                        </select>
+                                                    </div>
+
+                                                    <!-- Descripción del contenido -->
+                                                    <div>
+                                                        <label for="informacion_contenido" class="block text-sm font-medium text-gray-700 mb-1">
+                                                            📄 Descripción del Contenido
+                                                        </label>
+                                                        <textarea name="informacion_contenido" 
+                                                                  id="informacion_contenido"
+                                                                  rows="3"
+                                                                  class="w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500"
+                                                                  placeholder="Describe qué tipo de información contiene (ej: Documentos financieros, bases de datos de clientes, código fuente, etc.)">{{ old('informacion_contenido', $inventario->informacion_contenido) }}</textarea>
+                                                    </div>
+
+                                                    <!-- Bloquear préstamos -->
+                                                    <div class="flex items-start space-x-3">
+                                                        <input type="checkbox" 
+                                                               name="bloqueado_prestamo" 
+                                                               id="bloqueado_prestamo"
+                                                               value="1"
+                                                               x-model="bloqueado"
+                                                               class="mt-1 rounded border-gray-300 text-red-600 focus:border-red-500 focus:ring-red-500">
+                                                        <div class="flex-1">
+                                                            <label for="bloqueado_prestamo" class="text-sm font-medium text-gray-700">
+                                                                🚫 Bloquear préstamos
+                                                            </label>
+                                                            <p class="text-xs text-gray-500 mt-1">
+                                                                Impide que este disco sea prestado a usuarios
+                                                            </p>
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- Razón del bloqueo -->
+                                                    <div x-show="bloqueado" x-transition>
+                                                        <div x-show="bloqueado" x-transition>
+                                                            <label for="razon_bloqueo" class="block text-sm font-medium text-gray-700 mb-1">
+                                                                📋 Razón del Bloqueo
+                                                            </label>
+                                                            <textarea name="razon_bloqueo" 
+                                                                      id="razon_bloqueo"
+                                                                      rows="2"
+                                                                      class="w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
+                                                                      placeholder="Explica por qué este disco no puede ser prestado (ej: Contiene información confidencial de la empresa)">{{ old('razon_bloqueo', $inventario->razon_bloqueo) }}</textarea>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
 
                             <!-- Columna derecha -->
@@ -363,7 +475,7 @@
                                         <div class="grid grid-cols-3 gap-2 mb-4">
                                             @foreach($inventario->imagenes as $index => $imagen)
                                                 <div class="relative border rounded-lg overflow-hidden bg-gray-50" x-data="{ showConfirm: false }">
-                                                    <img src="data:image/jpeg;base64,{{ $imagen }}" class="w-full h-20 object-cover" />
+                                                    <img src="{{ is_array($imagen) && isset($imagen['data']) ? $imagen['data'] : 'data:image/jpeg;base64,' . $imagen }}" class="w-full h-20 object-cover" />
                                                     <div class="absolute top-1 right-1">
                                                         <button type="button" 
                                                                 @click="showConfirm = true"
@@ -407,11 +519,11 @@
                                            name="imagenes[]" 
                                            id="nuevas_imagenes" 
                                            multiple
-                                           accept="image/*"
+                                           accept="image/jpeg,image/jpg,image/png"
                                            class="w-full border border-gray-300 rounded-md p-2 focus:border-green-500 focus:ring-green-500">
                                     <div class="mt-1 flex items-center space-x-4">
                                         <p class="text-xs text-gray-500">
-                                            <strong>💡 Tip:</strong> Mantén <kbd class="px-1 py-0.5 bg-gray-200 rounded text-xs">Ctrl</kbd> presionado para seleccionar múltiples archivos
+                                            <strong>📁 Formatos:</strong> Solo JPG, JPEG y PNG. <strong>💡 Tip:</strong> Mantén <kbd class="px-1 py-0.5 bg-gray-200 rounded text-xs">Ctrl</kbd> presionado para seleccionar múltiples archivos
                                         </p>
                                         <span id="image_count" class="text-xs text-green-600 font-medium"></span>
                                     </div>
@@ -455,6 +567,18 @@
                 previewContainer.innerHTML = '';
                 
                 const files = Array.from(e.target.files);
+                
+                // Validar tipos de archivo
+                const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+                const invalidFiles = files.filter(file => !validTypes.includes(file.type));
+                
+                if (invalidFiles.length > 0) {
+                    alert('❌ Solo se permiten archivos JPG, JPEG y PNG.\n\nArchivos no válidos detectados:\n' + 
+                          invalidFiles.map(f => f.name).join('\n'));
+                    e.target.value = '';
+                    counterSpan.textContent = '';
+                    return;
+                }
                 
                 // Actualizar contador
                 if (files.length > 0) {

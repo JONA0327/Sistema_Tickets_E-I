@@ -197,16 +197,74 @@
                                         @endif
                                     </div>
 
-                                    @if($inventario->cantidad_disponible != $inventario->cantidad)
-                                        <div>
-                                            <label class="block text-sm font-medium text-gray-700">En Préstamo</label>
-                                            <p class="mt-1 text-sm">
-                                                <span class="font-bold text-lg text-amber-600">
-                                                    {{ $inventario->cantidad - $inventario->cantidad_disponible }}
-                                                </span> 
-                                                <span class="text-gray-600">prestadas</span>
-                                            </p>
-                                        </div>
+                                    <!-- Información específica para discos duros en uso -->
+                                    @if($inventario->categoria === 'discos_duros')
+                                        @if($discoEnUso)
+                                            <div>
+                                                <label class="block text-sm font-medium text-orange-700">💾 Estado de Uso</label>
+                                                <div class="mt-1 space-y-2">
+                                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+                                                        🖥️ En uso
+                                                    </span>
+                                                    
+                                                    <div class="text-sm text-gray-700">
+                                                        <p><span class="font-medium">Computadora:</span> {{ $discoEnUso->computadora_ubicacion }}</p>
+                                                        <p><span class="font-medium">Responsable:</span> {{ $discoEnUso->usuario->name }}</p>
+                                                        <p><span class="font-medium">Desde:</span> {{ $discoEnUso->fecha_instalacion ? $discoEnUso->fecha_instalacion->format('d/m/Y') : 'No especificada' }}</p>
+                                                        @if($discoEnUso->razon_uso)
+                                                            <p><span class="font-medium">Razón:</span> {{ Str::limit($discoEnUso->razon_uso, 50) }}</p>
+                                                        @endif
+                                                    </div>
+                                                    
+                                                    <div class="flex space-x-2 mt-2">
+                                                        <a href="{{ route('discos-en-uso.show', $discoEnUso) }}" 
+                                                           class="inline-flex items-center px-2 py-1 text-xs font-medium text-orange-700 bg-orange-50 border border-orange-200 rounded hover:bg-orange-100 transition-colors">
+                                                            Ver detalles de uso
+                                                        </a>
+                                                        @if(auth()->user()->role === 'admin')
+                                                            <a href="{{ route('discos-en-uso.retirar', $discoEnUso) }}" 
+                                                               class="inline-flex items-center px-2 py-1 text-xs font-medium text-red-700 bg-red-50 border border-red-200 rounded hover:bg-red-100 transition-colors"
+                                                               onclick="return confirm('¿Está seguro de retirar este disco?')">
+                                                                Retirar disco
+                                                            </a>
+                                                        @endif
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @else
+                                            <div>
+                                                <label class="block text-sm font-medium text-green-700">💾 Estado de Uso</label>
+                                                <div class="mt-1 space-y-2">
+                                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                        ✅ Disponible para uso
+                                                    </span>
+                                                    
+                                                    @if(auth()->user()->role === 'admin' && $inventario->cantidad_disponible > 0)
+                                                        <div class="mt-2">
+                                                            <a href="{{ route('discos-en-uso.create', ['inventario_id' => $inventario->id]) }}" 
+                                                               class="inline-flex items-center px-3 py-1.5 text-sm font-medium text-white bg-orange-600 border border-transparent rounded hover:bg-orange-700 transition-colors">
+                                                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                                                </svg>
+                                                                Marcar como en uso
+                                                            </a>
+                                                        </div>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        @endif
+                                    @else
+                                        @if($inventario->cantidad_disponible != $inventario->cantidad)
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700">En Préstamo</label>
+                                                <p class="mt-1 text-sm">
+                                                    <span class="font-bold text-lg text-amber-600">
+                                                        {{ $inventario->cantidad - $inventario->cantidad_disponible }}
+                                                    </span> 
+                                                    <span class="text-gray-600">prestadas</span>
+                                                </p>
+                                            </div>
+                                        @endif
                                     @endif
 
                                     <div>
@@ -335,7 +393,7 @@
                                         $todasLasUnidades = $unidadesSimilares->push($inventario);
                                         $funcionalesGrupo = $inventario->funcionales_grupo;
                                         $disponiblesGrupo = $inventario->disponibles_grupo;
-                                        $totalGrupo = $inventario->grupo_completa;
+                                        $totalGrupo = $inventario->total_grupo;
                                     @endphp
                                     
                                     <div class="mt-4 bg-white border border-purple-200 rounded-lg p-3">
@@ -398,6 +456,61 @@
                                                 </p>
                                             </div>
                                         @endif
+                                    </div>
+                                </div>
+                            @endif
+
+                            <!-- Información específica para discos duros -->
+                            @if($inventario->categoria === 'discos_duros' && $inventario->tiene_informacion)
+                                <div class="mt-6 bg-orange-50 p-4 rounded-lg border border-orange-200">
+                                    <h4 class="text-md font-medium text-orange-800 mb-3">💾 Información del Disco Duro</h4>
+                                    
+                                    <div class="space-y-4">
+                                        <!-- Estado de información -->
+                                        <div class="flex items-center space-x-2">
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+                                                🔒 Contiene información importante
+                                            </span>
+                                            @if($inventario->bloqueado_prestamo)
+                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                                    🚫 Préstamos bloqueados
+                                                </span>
+                                            @endif
+                                        </div>
+
+                                        <div class="grid grid-cols-1 gap-4">
+                                            <!-- Nivel de confidencialidad -->
+                                            @if($inventario->nivel_confidencialidad)
+                                                <div>
+                                                    <label class="block text-sm font-medium text-orange-700">🛡️ Nivel de Confidencialidad</label>
+                                                    <div class="mt-1">
+                                                        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium {{ $inventario->color_confidencialidad }}">
+                                                            {{ \App\Models\Inventario::getNivelesConfidencialidad()[$inventario->nivel_confidencialidad] ?? 'No especificado' }}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            @endif
+
+                                            <!-- Descripción del contenido -->
+                                            @if($inventario->informacion_contenido)
+                                                <div>
+                                                    <label class="block text-sm font-medium text-orange-700">📄 Descripción del Contenido</label>
+                                                    <div class="mt-1 bg-white p-3 rounded border border-orange-200">
+                                                        <p class="text-sm text-gray-900 whitespace-pre-wrap">{{ $inventario->informacion_contenido }}</p>
+                                                    </div>
+                                                </div>
+                                            @endif
+
+                                            <!-- Razón del bloqueo -->
+                                            @if($inventario->bloqueado_prestamo && $inventario->razon_bloqueo)
+                                                <div>
+                                                    <label class="block text-sm font-medium text-red-700">📋 Razón del Bloqueo de Préstamos</label>
+                                                    <div class="mt-1 bg-red-50 p-3 rounded border border-red-200">
+                                                        <p class="text-sm text-red-900 whitespace-pre-wrap">{{ $inventario->razon_bloqueo }}</p>
+                                                    </div>
+                                                </div>
+                                            @endif
+                                        </div>
                                     </div>
                                 </div>
                             @endif
@@ -473,7 +586,7 @@
                                 <div class="grid grid-cols-1 gap-4" x-data="{ selectedImage: null }">
                                     @foreach($inventario->imagenes as $index => $imagen)
                                         <div class="relative group cursor-pointer" @click="selectedImage = {{ $index }}">
-                                            <img src="data:image/jpeg;base64,{{ $imagen }}" 
+                                            <img src="{{ is_array($imagen) && isset($imagen['data']) ? $imagen['data'] : 'data:image/jpeg;base64,' . $imagen }}" 
                                                  class="w-full h-32 object-cover rounded-lg border hover:shadow-md transition-all duration-200" />
                                             <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 rounded-lg transition-all duration-200 flex items-center justify-center">
                                                 <svg class="w-8 h-8 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -496,7 +609,7 @@
                                         <div class="relative max-w-4xl max-h-full p-4">
                                             <template x-for="(imagen, index) in {{ json_encode($inventario->imagenes) }}" :key="index">
                                                 <img x-show="selectedImage === index" 
-                                                     :src="'data:image/jpeg;base64,' + imagen"
+                                                     :src="typeof imagen === 'object' && imagen.data ? imagen.data : 'data:image/jpeg;base64,' + imagen"
                                                      class="max-w-full max-h-full object-contain rounded-lg" />
                                             </template>
                                             

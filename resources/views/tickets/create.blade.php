@@ -178,21 +178,41 @@
                         </h3>
                         
                         <div>
-                            <label for="imagenes" class="block text-sm font-medium text-gray-700 mb-2">
-                                Seleccionar Imágenes
-                            </label>
-                            <input type="file" 
-                                   name="imagenes[]" 
-                                   id="imagenes"
-                                   multiple
-                                   accept="image/*"
-                                   class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 transition-colors duration-200">
-                            <p class="mt-1 text-xs text-gray-500">
+                            <div class="flex items-center gap-4 mb-4">
+                                <label for="imagenes" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg cursor-pointer transition-colors duration-200 flex items-center">
+                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                    </svg>
+                                    Agregar Imágenes
+                                </label>
+                                <input type="file" 
+                                       id="imagenes"
+                                       multiple
+                                       accept="image/*"
+                                       class="hidden">
+                                <span id="imageCount" class="text-sm text-gray-600">
+                                    0 de 5 imágenes seleccionadas
+                                </span>
+                            </div>
+                            
+                            <p class="text-xs text-gray-500 mb-4">
                                 PNG, JPG, GIF hasta 2MB por imagen. Máximo 5 imágenes.
                             </p>
+                            
                             @error('imagenes.*')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
+                            
+                            <!-- Preview Container -->
+                            <div id="imagePreviewContainer" class="hidden">
+                                <h4 class="text-sm font-medium text-gray-700 mb-3">Imágenes seleccionadas:</h4>
+                                <div id="imagePreviewGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                                    <!-- Las previsualizaciones aparecerán aquí -->
+                                </div>
+                            </div>
+                            
+                            <!-- Hidden inputs para enviar los archivos -->
+                            <div id="hiddenInputsContainer"></div>
                         </div>
                     </div>
 
@@ -228,13 +248,152 @@
         </footer>
 
         <script>
-            // Limitar el número de archivos seleccionados
+            // Sistema de gestión de múltiples imágenes
+            let selectedImages = [];
+            const maxFiles = 5;
+            const maxSize = 2 * 1024 * 1024; // 2MB en bytes
+            
             document.getElementById('imagenes').addEventListener('change', function(e) {
-                if (e.target.files.length > 5) {
-                    alert('Máximo 5 imágenes permitidas');
+                const newFiles = Array.from(e.target.files);
+                
+                // Verificar si agregar estos archivos excedería el límite
+                if (selectedImages.length + newFiles.length > maxFiles) {
+                    alert(`Solo puedes subir un máximo de ${maxFiles} imágenes. Actualmente tienes ${selectedImages.length} imágenes seleccionadas.`);
                     e.target.value = '';
+                    return;
                 }
+                
+                // Validar cada archivo nuevo
+                for (let file of newFiles) {
+                    // Verificar tamaño
+                    if (file.size > maxSize) {
+                        alert(`La imagen "${file.name}" excede el tamaño máximo de 2MB`);
+                        e.target.value = '';
+                        return;
+                    }
+                    
+                    // Verificar si ya existe (por nombre y tamaño)
+                    const isDuplicate = selectedImages.some(img => 
+                        img.file.name === file.name && img.file.size === file.size
+                    );
+                    
+                    if (isDuplicate) {
+                        alert(`La imagen "${file.name}" ya está seleccionada`);
+                        continue;
+                    }
+                    
+                    // Agregar imagen con ID único
+                    const imageId = Date.now() + Math.random();
+                    selectedImages.push({
+                        id: imageId,
+                        file: file
+                    });
+                }
+                
+                // Limpiar el input para permitir seleccionar más archivos
+                e.target.value = '';
+                
+                // Actualizar la interfaz
+                updateImagePreviews();
+                updateImageCount();
+                updateHiddenInputs();
             });
+            
+            function removeImage(imageId) {
+                selectedImages = selectedImages.filter(img => img.id !== imageId);
+                updateImagePreviews();
+                updateImageCount();
+                updateHiddenInputs();
+            }
+            
+            function updateImageCount() {
+                const countElement = document.getElementById('imageCount');
+                countElement.textContent = `${selectedImages.length} de ${maxFiles} imágenes seleccionadas`;
+                
+                // Cambiar color basado en la cantidad
+                if (selectedImages.length === 0) {
+                    countElement.className = 'text-sm text-gray-600';
+                } else if (selectedImages.length >= maxFiles) {
+                    countElement.className = 'text-sm text-red-600 font-medium';
+                } else {
+                    countElement.className = 'text-sm text-blue-600 font-medium';
+                }
+            }
+            
+            function updateImagePreviews() {
+                const container = document.getElementById('imagePreviewContainer');
+                const grid = document.getElementById('imagePreviewGrid');
+                
+                if (selectedImages.length === 0) {
+                    container.classList.add('hidden');
+                    grid.innerHTML = '';
+                    return;
+                }
+                
+                container.classList.remove('hidden');
+                grid.innerHTML = '';
+                
+                selectedImages.forEach((imageObj, index) => {
+                    const reader = new FileReader();
+                    
+                    reader.onload = function(e) {
+                        const previewDiv = document.createElement('div');
+                        previewDiv.className = 'relative group';
+                        
+                        previewDiv.innerHTML = `
+                            <div class="aspect-square rounded-lg overflow-hidden border-2 border-gray-200 group-hover:border-blue-300 transition-colors relative">
+                                <img src="${e.target.result}" 
+                                     alt="Preview ${index + 1}" 
+                                     class="w-full h-full object-cover">
+                                <div class="absolute top-1 right-1 bg-black bg-opacity-50 text-white text-xs px-2 py-1 rounded">
+                                    ${index + 1}
+                                </div>
+                                <button type="button" 
+                                        onclick="removeImage(${imageObj.id})"
+                                        class="absolute top-1 left-1 bg-red-500 hover:bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold transition-colors duration-200 opacity-0 group-hover:opacity-100">
+                                    ×
+                                </button>
+                            </div>
+                            <div class="mt-1 text-xs text-gray-600 truncate" title="${imageObj.file.name}">
+                                ${imageObj.file.name}
+                            </div>
+                            <div class="text-xs text-gray-500">
+                                ${(imageObj.file.size / 1024 / 1024).toFixed(2)} MB
+                            </div>
+                        `;
+                        
+                        grid.appendChild(previewDiv);
+                    };
+                    
+                    reader.readAsDataURL(imageObj.file);
+                });
+            }
+            
+            function updateHiddenInputs() {
+                const container = document.getElementById('hiddenInputsContainer');
+                container.innerHTML = '';
+                
+                selectedImages.forEach((imageObj, index) => {
+                    // Crear un input file oculto para cada imagen
+                    const input = document.createElement('input');
+                    input.type = 'file';
+                    input.name = 'imagenes[]';
+                    input.style.display = 'none';
+                    
+                    // Crear un DataTransfer para asignar el archivo al input
+                    const dt = new DataTransfer();
+                    dt.items.add(imageObj.file);
+                    input.files = dt.files;
+                    
+                    container.appendChild(input);
+                });
+            }
+            
+            // Hacer la función removeImage global para que funcione desde el HTML
+            window.removeImage = removeImage;
+            
+            // Inicializar contador
+            updateImageCount();
         </script>
     </body>
 </html>

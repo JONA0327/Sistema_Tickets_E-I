@@ -233,19 +233,23 @@
             </div>
 
             <!-- Inventory Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                 @forelse($inventarios as $inventario)
                     @if($vistaAgrupada && isset($inventario['grupo']))
                         <!-- Grouped View Card -->
                         <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
                             <!-- Image -->
-                            <div class="h-48 bg-gray-100 flex items-center justify-center">
+                            <div class="h-32 bg-gray-100 flex items-center justify-center">
                                 @if($inventario['inventarios']->first()->imagenes && count($inventario['inventarios']->first()->imagenes) > 0)
-                                    <img src="{{ $inventario['inventarios']->first()->imagenes[0]['data'] }}" 
+                                    @php
+                                        $imagen = $inventario['inventarios']->first()->imagenes[0];
+                                        $imagenSrc = is_array($imagen) && isset($imagen['data']) ? $imagen['data'] : 'data:image/jpeg;base64,' . $imagen;
+                                    @endphp
+                                    <img src="{{ $imagenSrc }}" 
                                          alt="{{ $inventario['grupo'] }}" 
                                          class="h-full w-full object-cover">
                                 @else
-                                    <svg class="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
                                     </svg>
                                 @endif
@@ -256,10 +260,21 @@
                             </div>
 
                             <!-- Content -->
-                            <div class="p-6">
+                            <div class="p-4">
                                 <div class="flex justify-between items-start mb-2">
                                     <div>
                                         <h3 class="text-lg font-semibold text-gray-900">{{ $inventario['grupo'] }}</h3>
+                                        
+                                        <!-- Indicadores especiales para discos con información -->
+                                        @php
+                                            $tieneDiscosConInfo = $inventario['inventarios']->some(function($item) {
+                                                return $item->categoria === 'discos_duros' && $item->tiene_informacion;
+                                            });
+                                            $tieneDiscosBloqueados = $inventario['inventarios']->some(function($item) {
+                                                return $item->categoria === 'discos_duros' && $item->bloqueado_prestamo;
+                                            });
+                                        @endphp
+                                        
                                         <div class="flex flex-wrap gap-1 mt-1">
                                             @foreach($inventario['inventarios']->take(3) as $item)
                                                 <span class="inline-flex items-center px-2 py-1 text-xs font-mono font-medium bg-gray-100 text-gray-800 rounded border">
@@ -269,6 +284,18 @@
                                             @if($inventario['total'] > 3)
                                                 <span class="inline-flex items-center px-2 py-1 text-xs font-medium bg-purple-100 text-purple-800 rounded">
                                                     +{{ $inventario['total'] - 3 }} más
+                                                </span>
+                                            @endif
+                                            
+                                            <!-- Indicadores de discos con información -->
+                                            @if($tieneDiscosConInfo)
+                                                <span class="inline-flex items-center px-2 py-1 text-xs font-medium bg-orange-100 text-orange-800 rounded">
+                                                    🔒 Con información
+                                                </span>
+                                            @endif
+                                            @if($tieneDiscosBloqueados)
+                                                <span class="inline-flex items-center px-2 py-1 text-xs font-medium bg-red-100 text-red-800 rounded">
+                                                    🚫 Préstamos bloqueados
                                                 </span>
                                             @endif
                                         </div>
@@ -281,34 +308,41 @@
                                 </div>
 
                                 <p class="text-sm text-gray-600 mb-2">{{ $inventario['inventarios']->first()->modelo }}</p>
-                                <p class="text-sm font-medium text-gray-700 mb-2">{{ $inventario['inventarios']->first()->categoria_formateada }}</p>
+                                <p class="text-sm font-medium text-gray-700 mb-3">{{ $inventario['inventarios']->first()->categoria_formateada }}</p>
                                 
-                                <div class="grid grid-cols-2 gap-2 text-sm text-gray-600 mb-4">
+                                <div class="grid grid-cols-2 gap-2 text-sm text-gray-600 mb-3">
                                     <div class="bg-green-50 p-2 rounded">
                                         <span class="text-green-600 font-medium">Funcionales:</span>
-                                        <span class="block">{{ $inventario['inventarios']->whereIn('estado', ['nuevo', 'usado'])->count() }}</span>
+                                        <span class="block font-semibold">{{ $inventario['funcionales'] }}</span>
                                     </div>
                                     <div class="bg-red-50 p-2 rounded">
-                                        <span class="text-red-600 font-medium">Con Issues:</span>
-                                        <span class="block">{{ $inventario['inventarios']->where('estado', 'dañado')->count() }}</span>
+                                        <span class="text-red-600 font-medium">Dañadas:</span>
+                                        <span class="block font-semibold">{{ $inventario['danadas'] }}</span>
                                     </div>
                                 </div>
 
                                 <!-- Actions -->
-                                <div class="flex space-x-2">
-                                    <a href="{{ route('inventario.show', $inventario['inventarios']->first()->id) }}?ver_grupo=1" 
+                                <div class="flex space-x-2 mt-3">
+                                    <a href="{{ route('inventario.show', $inventario['inventarios']->first()->id) }}" 
                                        class="flex-1 bg-green-600 hover:bg-green-700 text-white text-center py-2 px-3 rounded text-sm font-medium transition-colors">
                                         Ver Grupo
                                     </a>
                                     
                                     @if(Auth::user()->isAdmin())
                                         @if($inventario['disponibles'] > 0)
-                                            <a href="{{ route('prestamos.create', ['inventario_id' => $inventario['inventarios']->where('esta_disponible', true)->first()->id]) }}" 
-                                               class="bg-blue-600 hover:bg-blue-700 text-white py-2 px-3 rounded text-sm font-medium transition-colors">
-                                                Prestar
-                                            </a>
+                                            @php
+                                                $unidadDisponible = $inventario['inventarios']->first(function($item) {
+                                                    return $item->esta_disponible;
+                                                });
+                                            @endphp
+                                            @if($unidadDisponible)
+                                                <a href="{{ route('prestamos.create', ['inventario_id' => $unidadDisponible->id]) }}" 
+                                                   class="bg-blue-600 hover:bg-blue-700 text-white py-2 px-3 rounded text-sm font-medium transition-colors">
+                                                    Prestar
+                                                </a>
+                                            @endif
                                         @endif
-                                        <a href="{{ route('inventario.create') }}?similar_a={{ $inventario['inventarios']->first()->id }}" 
+                                        <a href="{{ route('inventario.create', ['similar_to' => $inventario['inventarios']->first()->id]) }}" 
                                            class="bg-purple-600 hover:bg-purple-700 text-white py-2 px-3 rounded text-sm font-medium transition-colors">
                                             + Unidad
                                         </a>
@@ -320,20 +354,24 @@
                         <!-- Individual View Card -->
                         <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
                             <!-- Image -->
-                            <div class="h-48 bg-gray-100 flex items-center justify-center relative">
+                            <div class="h-32 bg-gray-100 flex items-center justify-center relative">
                                 @if($inventario->imagenes && count($inventario->imagenes) > 0)
-                                    <img src="{{ $inventario->imagenes[0]['data'] }}" 
+                                    @php
+                                        $imagen = $inventario->imagenes[0];
+                                        $imagenSrc = is_array($imagen) && isset($imagen['data']) ? $imagen['data'] : 'data:image/jpeg;base64,' . $imagen;
+                                    @endphp
+                                    <img src="{{ $imagenSrc }}" 
                                          alt="{{ $inventario->articulo }}" 
                                          class="h-full w-full object-cover">
                                 @else
-                                    <svg class="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
                                     </svg>
                                 @endif
                             </div>
 
                             <!-- Content -->
-                            <div class="p-6">
+                            <div class="p-4">
                                 <div class="flex justify-between items-start mb-2">
                                     <div>
                                         <h3 class="text-lg font-semibold text-gray-900">{{ $inventario->articulo }}</h3>
@@ -352,19 +390,19 @@
                                 </div>
 
                                 <p class="text-sm text-gray-600 mb-2">{{ $inventario->modelo }}</p>
-                                <p class="text-sm font-medium text-gray-700 mb-2">{{ $inventario->categoria_formateada }}</p>
+                                <p class="text-sm font-medium text-gray-700 mb-3">{{ $inventario->categoria_formateada }}</p>
                                 
-                                <div class="flex justify-between items-center text-sm text-gray-600 mb-4">
-                                    <span>Cantidad: {{ $inventario->cantidad }}</span>
-                                    <span>Disponible: {{ $inventario->cantidad_disponible }}</span>
+                                <div class="flex justify-between items-center text-sm text-gray-600 mb-3">
+                                    <span class="font-medium">Cantidad: <span class="font-semibold">{{ $inventario->cantidad }}</span></span>
+                                    <span class="font-medium">Disponible: <span class="font-semibold text-green-600">{{ $inventario->cantidad_disponible }}</span></span>
                                 </div>
 
                                 @if($inventario->observaciones)
-                                    <p class="text-xs text-gray-500 mb-4 line-clamp-2">{{ $inventario->observaciones }}</p>
+                                    <p class="text-xs text-gray-500 mb-3 line-clamp-2">{{ $inventario->observaciones }}</p>
                                 @endif
 
                                 <!-- Actions -->
-                                <div class="flex space-x-2">
+                                <div class="flex space-x-2 mt-3">
                                     <a href="{{ route('inventario.show', $inventario->id) }}" 
                                        class="flex-1 bg-green-600 hover:bg-green-700 text-white text-center py-2 px-3 rounded text-sm font-medium transition-colors">
                                         Ver Detalles

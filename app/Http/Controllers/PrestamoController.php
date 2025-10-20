@@ -52,10 +52,8 @@ class PrestamoController extends Controller
                                 ->whereMonth('fecha_devolucion', now()->month)
                                 ->whereYear('fecha_devolucion', now()->year)
                                 ->count(),
-            'vencidos' => PrestamoInventario::activos()
-                           ->whereNotNull('fecha_devolucion_estimada')
-                           ->where('fecha_devolucion_estimada', '<', now())
-                           ->count(),
+            // Eliminamos el conteo de vencidos ya que no hay fecha estimada
+            'vencidos' => 0,
             'total' => PrestamoInventario::count(),
         ];
 
@@ -97,6 +95,17 @@ class PrestamoController extends Controller
         ]);
 
         $inventario = Inventario::findOrFail($request->inventario_id);
+
+        // Verificar si el préstamo está bloqueado (específico para discos con información)
+        if ($inventario->bloqueado_prestamo) {
+            $mensaje = "Este artículo tiene préstamos bloqueados.";
+            if ($inventario->razon_bloqueo) {
+                $mensaje .= " Razón: " . $inventario->razon_bloqueo;
+            }
+            return redirect()->back()
+                           ->withInput()
+                           ->with('error', $mensaje);
+        }
 
         // Verificar disponibilidad
         if ($request->cantidad_prestada > $inventario->cantidad_disponible) {
@@ -213,6 +222,9 @@ class PrestamoController extends Controller
             'cantidad_total' => $inventario->cantidad,
             'cantidad_disponible' => $inventario->cantidad_disponible,
             'esta_disponible' => $inventario->esta_disponible,
+            'bloqueado_prestamo' => $inventario->bloqueado_prestamo,
+            'razon_bloqueo' => $inventario->razon_bloqueo,
+            'es_disco_con_informacion' => $inventario->es_disco_con_informacion,
         ]);
     }
 

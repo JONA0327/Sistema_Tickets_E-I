@@ -2,8 +2,13 @@
 
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ArchivoProblemasController;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\DiscoEnUsoController;
 use App\Http\Controllers\InventarioController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PrestamoController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\TicketController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -57,6 +62,15 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
     Route::delete('/users/{user}', [AdminController::class, 'destroyUser'])->name('users.destroy');
 });
 
+// API Routes for Notifications (Admin only)
+Route::middleware(['auth', 'admin'])->prefix('api')->group(function () {
+    Route::get('/notifications/count', [NotificationController::class, 'getUnreadCount']);
+    Route::get('/notifications/unread', [NotificationController::class, 'getUnreadTickets']);
+    Route::post('/notifications/{ticket}/read', [NotificationController::class, 'markAsRead']);
+    Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllAsRead']);
+    Route::get('/notifications/stats', [NotificationController::class, 'getStats']);
+});
+
 // Rutas de inventario - solo administradores (DEBEN IR PRIMERO para evitar conflictos)
 Route::middleware(['auth', 'admin'])->group(function () {
     // CRUD de inventario
@@ -78,6 +92,14 @@ Route::middleware(['auth', 'admin'])->group(function () {
     
     // AJAX routes
     Route::get('/api/inventario/{inventario}/disponibilidad', [PrestamoController::class, 'getDisponibilidad'])->name('inventario.disponibilidad');
+    
+    // Gestión de discos en uso
+    Route::get('/discos-en-uso', [DiscoEnUsoController::class, 'index'])->name('discos-en-uso.index');
+    Route::get('/discos-en-uso/crear', [DiscoEnUsoController::class, 'create'])->name('discos-en-uso.create');
+    Route::post('/discos-en-uso', [DiscoEnUsoController::class, 'store'])->name('discos-en-uso.store');
+    Route::get('/discos-en-uso/{discoEnUso}', [DiscoEnUsoController::class, 'show'])->name('discos-en-uso.show');
+    Route::get('/discos-en-uso/{discoEnUso}/retirar', [DiscoEnUsoController::class, 'retirar'])->name('discos-en-uso.retirar');
+    Route::put('/discos-en-uso/{discoEnUso}/retirar', [DiscoEnUsoController::class, 'procesarRetiro'])->name('discos-en-uso.procesar-retiro');
 });
 
 // Rutas de inventario (accesibles para usuarios autenticados - visualización)

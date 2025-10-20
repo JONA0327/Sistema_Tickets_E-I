@@ -22,13 +22,19 @@ class Ticket extends Model
         'fecha_cierre',
         'observaciones',
         'tipo_problema',
-        'prioridad'
+        'prioridad',
+        'is_read',
+        'notified_at',
+        'read_at'
     ];
 
     protected $casts = [
         'imagenes' => 'array',
         'fecha_apertura' => 'datetime',
         'fecha_cierre' => 'datetime',
+        'notified_at' => 'datetime',
+        'read_at' => 'datetime',
+        'is_read' => 'boolean',
     ];
 
     protected static function boot()

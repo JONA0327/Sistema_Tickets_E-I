@@ -9,9 +9,9 @@
         @vite(['resources/css/app.css', 'resources/js/app.js'])
         <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     </head>
-    <body class="min-h-screen bg-gradient-to-br from-green-50 to-green-100">
+    <body class="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100">
         <!-- Header -->
-        <header class="bg-white shadow-sm border-b border-green-100">
+        <header class="bg-white shadow-sm border-b border-blue-100">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex justify-between items-center h-16">
                     <div class="flex items-center">
@@ -20,7 +20,7 @@
                                 <img src="{{ asset('images/logo-ei.png') }}" alt="E&I Logo" class="h-12 w-auto mr-3">
                                 <div>
                                     <h1 class="text-xl font-bold text-gray-900">Gestión de Préstamos</h1>
-                                    <p class="text-sm text-gray-600">E&I - Sistema de Inventario</p>
+                                    <p class="text-sm text-gray-600">E&I - Sistema de Préstamos</p>
                                 </div>
                             </div>
                         </div>
@@ -31,8 +31,8 @@
                             <button 
                                 @click="open = !open" 
                                 @click.away="open = false"
-                                class="flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-green-50 transition-colors duration-200">
-                                <div class="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center">
+                                class="flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-blue-50 transition-colors duration-200">
+                                <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
                                     <span class="text-sm font-medium text-white">{{ substr(auth()->user()->name, 0, 1) }}</span>
                                 </div>
                                 <span class="text-sm font-medium text-gray-700">{{ auth()->user()->name }}</span>
@@ -129,16 +129,16 @@
                                 </div>
                             </div>
 
-                            <div class="bg-amber-50 p-4 rounded-lg border border-amber-200">
+                            <div class="bg-purple-50 p-4 rounded-lg border border-purple-200">
                                 <div class="flex items-center">
                                     <div class="flex-shrink-0">
-                                        <svg class="w-8 h-8 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16c-.77.833.192 2.5 1.732 2.5z"></path>
+                                        <svg class="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                         </svg>
                                     </div>
                                     <div class="ml-3">
-                                        <p class="text-sm font-medium text-amber-600">Vencidos</p>
-                                        <p class="text-2xl font-bold text-amber-900">{{ $stats['vencidos'] }}</p>
+                                        <p class="text-sm font-medium text-purple-600">Este Mes</p>
+                                        <p class="text-2xl font-bold text-purple-900">{{ $stats['devueltos_mes'] }}</p>
                                     </div>
                                 </div>
                             </div>
@@ -185,7 +185,6 @@
                                             <option value="">Todos los estados</option>
                                             <option value="activo" {{ request('estado') == 'activo' ? 'selected' : '' }}>Activo</option>
                                             <option value="devuelto" {{ request('estado') == 'devuelto' ? 'selected' : '' }}>Devuelto</option>
-                                            <option value="vencido" {{ request('estado') == 'vencido' ? 'selected' : '' }}>Vencido</option>
                                         </select>
                                     </div>
 
@@ -220,130 +219,119 @@
                 </div>
 
                 <!-- Lista de Préstamos -->
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                    <div class="p-6">
-                        @if($prestamos->count() > 0)
-                            <div class="overflow-x-auto">
-                                <table class="min-w-full divide-y divide-gray-200">
-                                    <thead class="bg-gray-50">
-                                        <tr>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Usuario</th>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Artículo</th>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cantidad</th>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha Préstamo</th>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha Est. Devolución</th>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="bg-white divide-y divide-gray-200">
-                                        @foreach($prestamos as $prestamo)
-                                            <tr class="hover:bg-gray-50">
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#{{ $prestamo->id }}</td>
-                                                <td class="px-6 py-4 whitespace-nowrap">
-                                                    <div class="flex items-center">
-                                                        <div class="flex-shrink-0 h-8 w-8">
-                                                            <div class="h-8 w-8 bg-blue-600 rounded-full flex items-center justify-center">
-                                                                <span class="text-xs font-medium text-white">
-                                                                    {{ substr($prestamo->usuario->name, 0, 1) }}
-                                                                </span>
-                                                            </div>
-                                                        </div>
-                                                        <div class="ml-3">
-                                                            <div class="text-sm font-medium text-gray-900">{{ $prestamo->usuario->name }}</div>
-                                                            <div class="text-sm text-gray-500">{{ $prestamo->usuario->email }}</div>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap">
-                                                    <div class="text-sm font-medium text-gray-900">{{ $prestamo->inventario->articulo }}</div>
-                                                    <div class="text-sm text-gray-500">{{ $prestamo->inventario->modelo }}</div>
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $prestamo->cantidad }}</td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                    {{ $prestamo->fecha_prestamo->format('d/m/Y') }}
-                                                    <div class="text-xs text-gray-500">{{ $prestamo->fecha_prestamo->format('H:i') }}</div>
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                    @if($prestamo->fecha_devolucion_estimada)
-                                                        {{ $prestamo->fecha_devolucion_estimada->format('d/m/Y') }}
-                                                        @php
-                                                            $diasVencimiento = now()->diffInDays($prestamo->fecha_devolucion_estimada, false);
-                                                        @endphp
-                                                        @if($prestamo->fecha_devolucion_real == null)
-                                                            <div class="text-xs {{ $diasVencimiento < 0 ? 'text-red-600' : ($diasVencimiento <= 2 ? 'text-amber-600' : 'text-green-600') }}">
-                                                                @if($diasVencimiento < 0)
-                                                                    Vencido hace {{ abs($diasVencimiento) }} día(s)
-                                                                @elseif($diasVencimiento == 0)
-                                                                    Vence hoy
-                                                                @elseif($diasVencimiento <= 2)
-                                                                    Vence en {{ $diasVencimiento }} día(s)
-                                                                @else
-                                                                    En {{ $diasVencimiento }} día(s)
-                                                                @endif
-                                                            </div>
-                                                        @endif
-                                                    @else
-                                                        <span class="text-gray-400">No definida</span>
-                                                    @endif
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap">
-                                                    @if($prestamo->fecha_devolucion_real)
-                                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                                            Devuelto
-                                                        </span>
-                                                        <div class="text-xs text-gray-500 mt-1">{{ $prestamo->fecha_devolucion_real->format('d/m/Y') }}</div>
-                                                    @else
-                                                        @php
-                                                            $esVencido = $prestamo->fecha_devolucion_estimada && now() > $prestamo->fecha_devolucion_estimada;
-                                                        @endphp
-                                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $esVencido ? 'bg-red-100 text-red-800' : 'bg-blue-100 text-blue-800' }}">
-                                                            {{ $esVencido ? 'Vencido' : 'Activo' }}
-                                                        </span>
-                                                    @endif
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-y-2">
-                                                    <div class="flex items-center space-x-2">
-                                                        <a href="{{ route('prestamos.show', $prestamo) }}" 
-                                                           class="text-blue-600 hover:text-blue-900 text-xs bg-blue-50 hover:bg-blue-100 px-2 py-1 rounded">
-                                                            Ver
-                                                        </a>
-                                                        @if(!$prestamo->fecha_devolucion_real)
-                                                            <a href="{{ route('prestamos.devolver', $prestamo) }}" 
-                                                               class="text-green-600 hover:text-green-900 text-xs bg-green-50 hover:bg-green-100 px-2 py-1 rounded">
-                                                                Devolver
-                                                            </a>
-                                                        @endif
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        @endforeach
-                                    </tbody>
-                                </table>
-                            </div>
-
-                            <!-- Paginación -->
-                            @if($prestamos->hasPages())
-                                <div class="mt-6">
-                                    {{ $prestamos->links() }}
+                @if($prestamos->count() > 0)
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                        @foreach($prestamos as $prestamo)
+                            <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow border border-gray-200">
+                                <!-- Header -->
+                                <div class="bg-gradient-to-r {{ $prestamo->fecha_devolucion_real ? 'from-green-500 to-green-600' : 'from-blue-500 to-blue-600' }} px-4 py-3">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center">
+                                            <div class="w-8 h-8 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
+                                                <span class="text-sm font-medium text-white">
+                                                    {{ substr($prestamo->usuario->name, 0, 1) }}
+                                                </span>
+                                            </div>
+                                            <div class="ml-3">
+                                                <h3 class="text-white font-medium text-sm">{{ $prestamo->usuario->name }}</h3>
+                                                <p class="text-white text-opacity-80 text-xs">ID: #{{ $prestamo->id }}</p>
+                                            </div>
+                                        </div>
+                                        <div class="text-right">
+                                            @if($prestamo->fecha_devolucion_real)
+                                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-white bg-opacity-20 text-white">
+                                                    ✅ Devuelto
+                                                </span>
+                                            @else
+                                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-white bg-opacity-20 text-white">
+                                                    🔄 Activo
+                                                </span>
+                                            @endif
+                                        </div>
+                                    </div>
                                 </div>
-                            @endif
-                        @else
-                            <div class="text-center py-12">
-                                <svg class="w-12 h-12 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                </svg>
-                                <h3 class="text-lg font-medium text-gray-900 mb-2">No hay préstamos</h3>
-                                <p class="text-gray-600 mb-4">No se encontraron préstamos con los filtros aplicados.</p>
-                                <a href="{{ route('prestamos.create') }}" 
-                                   class="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200">
-                                    Crear Primer Préstamo
-                                </a>
+
+                                <!-- Content -->
+                                <div class="p-4">
+                                    <!-- Artículo -->
+                                    <div class="mb-3">
+                                        <h4 class="font-semibold text-gray-900 text-sm">{{ $prestamo->inventario->articulo }}</h4>
+                                        <p class="text-xs text-gray-600">{{ $prestamo->inventario->modelo }}</p>
+                                        @if($prestamo->inventario->codigo_inventario)
+                                            <span class="inline-flex items-center px-2 py-1 text-xs font-mono font-medium bg-gray-100 text-gray-800 rounded border mt-1">
+                                                🏷️ {{ $prestamo->inventario->codigo_inventario }}
+                                            </span>
+                                        @endif
+                                    </div>
+
+                                    <!-- Información del Préstamo -->
+                                    <div class="space-y-2 text-xs text-gray-600 mb-3">
+                                        <div class="flex justify-between">
+                                            <span>Cantidad:</span>
+                                            <span class="font-semibold text-gray-900">{{ $prestamo->cantidad }}</span>
+                                        </div>
+                                        <div class="flex justify-between">
+                                            <span>Fecha préstamo:</span>
+                                            <span class="font-medium">{{ $prestamo->fecha_prestamo->format('d/m/Y') }}</span>
+                                        </div>
+
+                                        @if($prestamo->fecha_devolucion_real)
+                                            <div class="flex justify-between">
+                                                <span>Devuelto:</span>
+                                                <span class="font-medium text-green-600">{{ $prestamo->fecha_devolucion_real->format('d/m/Y') }}</span>
+                                            </div>
+                                        @endif
+                                    </div>
+
+                                    <!-- Descripción -->
+                                    @if($prestamo->descripcion)
+                                        <div class="mb-3">
+                                            <p class="text-xs text-gray-500 line-clamp-2">{{ $prestamo->descripcion }}</p>
+                                        </div>
+                                    @endif
+
+                                    <!-- Actions -->
+                                    <div class="flex space-x-2 mt-3">
+                                        <a href="{{ route('prestamos.show', $prestamo) }}" 
+                                           class="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-center py-2 px-3 rounded text-xs font-medium transition-colors">
+                                            Ver Detalles
+                                        </a>
+                                        @if(!$prestamo->fecha_devolucion_real)
+                                            <a href="{{ route('prestamos.devolver', $prestamo) }}" 
+                                               class="flex-1 bg-green-600 hover:bg-green-700 text-white text-center py-2 px-3 rounded text-xs font-medium transition-colors">
+                                                Devolver
+                                            </a>
+                                        @endif
+                                    </div>
+                                </div>
                             </div>
-                        @endif
+                        @endforeach
                     </div>
-                </div>
+
+                    <!-- Paginación -->
+                    @if($prestamos->hasPages())
+                        <div class="mt-6 flex justify-center">
+                            {{ $prestamos->links() }}
+                        </div>
+                    @endif
+                @else
+                    <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+                        <div class="text-center py-12">
+                            <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                            <h3 class="text-lg font-medium text-gray-900 mb-2">No hay préstamos registrados</h3>
+                            <p class="text-gray-600 mb-6">No se encontraron préstamos con los filtros aplicados.</p>
+                            <a href="{{ route('prestamos.create') }}" 
+                               class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors duration-200">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                </svg>
+                                Crear Primer Préstamo
+                            </a>
+                        </div>
+                    </div>
+                @endif
             </div>
         </main>
 

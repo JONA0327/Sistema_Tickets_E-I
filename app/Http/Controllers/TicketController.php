@@ -58,7 +58,9 @@ class TicketController extends Controller
             'descripcion_problema' => $request->descripcion_problema,
             'tipo_problema' => $request->tipo_problema,
             'imagenes' => $imagenes,
-            'estado' => 'abierto'
+            'estado' => 'abierto',
+            'is_read' => false,
+            'notified_at' => now()
         ]);
 
         return redirect()->route('tickets.mis-tickets')->with('success', 
