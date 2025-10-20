@@ -2,10 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ComputerProfile;
+use App\Models\MaintenanceBooking;
+use App\Models\MaintenanceSlot;
 use App\Models\Ticket;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class TicketController extends Controller
 {
@@ -28,11 +32,14 @@ class TicketController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'nombre_programa' => 'nullable|string|max:255',
             'descripcion_problema' => 'required|string',
             'tipo_problema' => 'required|in:software,hardware,mantenimiento',
-            'imagenes.*' => 'nullable|image|max:2048' // Máximo 2MB por imagen
+            'imagenes' => 'nullable|array|max:5',
+            'imagenes.*' => 'nullable|image|max:2048',
+            'maintenance_slot_id' => 'required_if:tipo_problema,mantenimiento|exists:maintenance_slots,id',
+            'maintenance_details' => 'required_if:tipo_problema,mantenimiento|string|max:1000',
         ]);
 
         // Manejar imágenes en base64
@@ -49,21 +56,57 @@ class TicketController extends Controller
             }
         }
 
-        // Crear ticket asociado al usuario autenticado
-        $ticket = Ticket::create([
-            'user_id' => auth()->id(),
-            'nombre_solicitante' => auth()->user()->name,
-            'correo_solicitante' => auth()->user()->email,
-            'nombre_programa' => $request->nombre_programa,
-            'descripcion_problema' => $request->descripcion_problema,
-            'tipo_problema' => $request->tipo_problema,
-            'imagenes' => $imagenes,
-            'estado' => 'abierto',
-            'is_read' => false,
-            'notified_at' => now()
-        ]);
+        $ticket = null;
 
-        return redirect()->route('tickets.mis-tickets')->with('success', 
+        DB::transaction(function () use ($request, $imagenes, &$ticket, $validated) {
+            $ticketData = [
+                'user_id' => auth()->id(),
+                'nombre_solicitante' => auth()->user()->name,
+                'correo_solicitante' => auth()->user()->email,
+                'nombre_programa' => $validated['nombre_programa'] ?? null,
+                'descripcion_problema' => $validated['descripcion_problema'],
+                'tipo_problema' => $validated['tipo_problema'],
+                'imagenes' => $imagenes,
+                'estado' => 'abierto',
+                'is_read' => false,
+                'notified_at' => now(),
+            ];
+
+            if ($validated['tipo_problema'] === 'mantenimiento') {
+                /** @var MaintenanceSlot|null $slot */
+                $slot = MaintenanceSlot::lockForUpdate()->find($validated['maintenance_slot_id'] ?? null);
+
+                if (!$slot || !$slot->is_active) {
+                    throw ValidationException::withMessages([
+                        'maintenance_slot_id' => 'El horario seleccionado ya no está disponible.',
+                    ]);
+                }
+
+                if ($slot->available_capacity <= 0) {
+                    throw ValidationException::withMessages([
+                        'maintenance_slot_id' => 'El horario seleccionado se encuentra lleno, por favor elige otro horario.',
+                    ]);
+                }
+
+                $ticketData['maintenance_slot_id'] = $slot->id;
+                $ticketData['maintenance_scheduled_at'] = $slot->start_date_time;
+                $ticketData['maintenance_details'] = $validated['maintenance_details'];
+
+                $ticket = Ticket::create($ticketData);
+
+                MaintenanceBooking::create([
+                    'maintenance_slot_id' => $slot->id,
+                    'ticket_id' => $ticket->id,
+                    'additional_details' => $validated['maintenance_details'],
+                ]);
+
+                $slot->increment('booked_count');
+            } else {
+                $ticket = Ticket::create($ticketData);
+            }
+        });
+
+        return redirect()->route('tickets.mis-tickets')->with('success',
             "¡Ticket creado exitosamente! Folio: {$ticket->folio}.");
     }
 
@@ -89,20 +132,115 @@ class TicketController extends Controller
      */
     public function update(Request $request, Ticket $ticket)
     {
-        $request->validate([
+        $rules = [
             'estado' => 'required|in:abierto,en_proceso,cerrado',
-            'prioridad' => 'nullable|in:baja,media,alta,critica',
-            'observaciones' => 'nullable|string'
-        ]);
+            'observaciones' => 'nullable|string',
+        ];
 
-        $data = $request->only(['estado', 'prioridad', 'observaciones']);
+        if ($ticket->tipo_problema === 'mantenimiento') {
+            $rules = array_merge($rules, [
+                'equipment_identifier' => 'nullable|string|max:255',
+                'equipment_brand' => 'nullable|string|max:255',
+                'equipment_model' => 'nullable|string|max:255',
+                'disk_type' => 'nullable|string|max:255',
+                'ram_capacity' => 'nullable|string|max:255',
+                'battery_status' => 'nullable|in:functional,partially_functional,damaged',
+                'aesthetic_observations' => 'nullable|string',
+                'maintenance_report' => 'nullable|string',
+                'closure_observations' => 'nullable|string',
+                'replacement_components' => 'nullable|array',
+                'replacement_components.*' => 'in:disco_duro,ram,bateria,pantalla,conectores,teclado,mousepad,cargador',
+                'mark_as_loaned' => 'nullable|boolean',
+            ]);
+        }
+
+        if ($ticket->tipo_problema !== 'mantenimiento') {
+            $rules['prioridad'] = 'nullable|in:baja,media,alta,critica';
+        }
+
+        $validated = $request->validate($rules);
+
+        $data = collect($validated)->only(['estado', 'observaciones', 'prioridad'])->toArray();
 
         // Si se cierra el ticket, agregar fecha de cierre
-        if ($request->estado === 'cerrado' && $ticket->estado !== 'cerrado') {
+        if ($validated['estado'] === 'cerrado' && $ticket->estado !== 'cerrado') {
             $data['fecha_cierre'] = now();
         }
 
+        $maintenanceData = [];
+
+        if ($ticket->tipo_problema === 'mantenimiento') {
+            $maintenanceFields = [
+                'equipment_identifier',
+                'equipment_brand',
+                'equipment_model',
+                'disk_type',
+                'ram_capacity',
+                'battery_status',
+                'aesthetic_observations',
+                'maintenance_report',
+                'closure_observations',
+            ];
+
+            foreach ($maintenanceFields as $field) {
+                if (array_key_exists($field, $validated)) {
+                    $maintenanceData[$field] = $validated[$field];
+                }
+            }
+
+            $maintenanceData['replacement_components'] = $request->has('replacement_components')
+                ? ($validated['replacement_components'] ?? [])
+                : [];
+
+            $data = array_merge($data, $maintenanceData);
+        }
+
         $ticket->update($data);
+
+        if ($ticket->tipo_problema === 'mantenimiento') {
+            $profileData = [
+                'identifier' => $ticket->equipment_identifier,
+                'brand' => $ticket->equipment_brand,
+                'model' => $ticket->equipment_model,
+                'disk_type' => $ticket->disk_type,
+                'ram_capacity' => $ticket->ram_capacity,
+                'battery_status' => $ticket->battery_status,
+                'aesthetic_observations' => $ticket->aesthetic_observations,
+                'replacement_components' => $ticket->replacement_components,
+                'last_ticket_id' => $ticket->id,
+            ];
+
+            if ($validated['estado'] === 'cerrado') {
+                $profileData['last_maintenance_at'] = now();
+            }
+
+            $profile = $ticket->computerProfile;
+
+            if (!$profile && $ticket->equipment_identifier) {
+                $profile = ComputerProfile::firstOrNew(['identifier' => $ticket->equipment_identifier]);
+            }
+
+            if (!$profile) {
+                $profile = new ComputerProfile();
+            }
+
+            $profile->fill($profileData);
+
+            $markAsLoaned = $request->boolean('mark_as_loaned');
+            $profile->is_loaned = $markAsLoaned;
+            if ($markAsLoaned) {
+                $profile->loaned_to_name = $ticket->nombre_solicitante;
+                $profile->loaned_to_email = $ticket->correo_solicitante;
+            } else {
+                $profile->loaned_to_name = null;
+                $profile->loaned_to_email = null;
+            }
+
+            $profile->save();
+
+            $ticket->computer_profile_id = $profile->id;
+            $ticket->save();
+        }
 
         return redirect()->route('admin.tickets.index')
             ->with('success', 'Ticket actualizado exitosamente');

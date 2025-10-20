@@ -9,6 +9,7 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PrestamoController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TicketController;
+use App\Http\Controllers\MaintenanceController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -28,6 +29,9 @@ Route::middleware('auth')->group(function () {
     Route::post('/ticket', [TicketController::class, 'store'])->name('tickets.store');
     Route::get('/mis-tickets', [TicketController::class, 'misTickets'])->name('tickets.mis-tickets');
     Route::delete('/ticket/{ticket}', [TicketController::class, 'destroy'])->name('tickets.destroy');
+
+    Route::get('/maintenance/availability', [MaintenanceController::class, 'availability'])->name('maintenance.availability');
+    Route::get('/maintenance/slots', [MaintenanceController::class, 'slots'])->name('maintenance.slots');
 
     Route::resource('prestamos', PrestamoController::class);
     
@@ -51,6 +55,13 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
     Route::patch('/tickets/{ticket}', [TicketController::class, 'update'])->name('tickets.update');
     Route::get('/inventory', [AdminController::class, 'inventory'])->name('inventory');
     Route::get('/inventory-requests', [AdminController::class, 'inventoryRequests'])->name('inventory-requests');
+
+    Route::get('/maintenance', [MaintenanceController::class, 'adminIndex'])->name('maintenance.index');
+    Route::post('/maintenance/slots', [MaintenanceController::class, 'storeSlot'])->name('maintenance.slots.store');
+    Route::put('/maintenance/slots/{slot}', [MaintenanceController::class, 'updateSlot'])->name('maintenance.slots.update');
+    Route::delete('/maintenance/slots/{slot}', [MaintenanceController::class, 'destroySlot'])->name('maintenance.slots.destroy');
+    Route::get('/maintenance/computers', [MaintenanceController::class, 'computersIndex'])->name('maintenance.computers.index');
+    Route::patch('/maintenance/computers/{profile}', [MaintenanceController::class, 'updateComputerLoan'])->name('maintenance.computers.update-loan');
     
     // Gestión de usuarios
     Route::get('/users', [AdminController::class, 'users'])->name('users');

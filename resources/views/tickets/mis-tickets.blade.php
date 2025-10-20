@@ -178,6 +178,20 @@
                                             {{ Str::limit($ticket->descripcion_problema, 150) }}
                                         </p>
 
+                                        @if($ticket->tipo_problema === 'mantenimiento')
+                                            <div class="mt-3 space-y-2">
+                                                <div class="flex items-center text-sm text-gray-600">
+                                                    <span class="font-semibold text-gray-700 mr-2">Fecha programada:</span>
+                                                    {{ optional($ticket->maintenance_scheduled_at)->format('d/m/Y H:i') ?? 'Por asignar' }}
+                                                </div>
+                                                @if($ticket->maintenance_details)
+                                                    <div class="p-3 bg-green-50 border border-green-200 rounded-lg text-sm text-gray-700">
+                                                        <strong>Detalles del equipo:</strong> {{ $ticket->maintenance_details }}
+                                                    </div>
+                                                @endif
+                                            </div>
+                                        @endif
+
                                         <div class="flex items-center space-x-4 text-sm text-gray-500">
                                             <span>📅 {{ $ticket->created_at->format('d/m/Y H:i') }}</span>
                                             @if($ticket->prioridad)
