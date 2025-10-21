@@ -14,14 +14,8 @@ class DatabaseSeeder extends Seeder
     {
         // User::factory(10)->create();
 
-        // Crear usuario administrador
-        User::factory()->create([
-            'name' => 'Administrador TI',
-            'email' => 'sistemas@estrategiaeinnovacion.com.mx',
-            'password' => bcrypt('Estrategias2025IT'),
-        ]);
-
         $this->call([
+            AdminUserSeeder::class,
             InventoryItemSeeder::class,
         ]);
     }
