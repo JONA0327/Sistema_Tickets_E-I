@@ -32,8 +32,6 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/maintenance/availability', [MaintenanceController::class, 'availability'])->name('maintenance.availability');
     Route::get('/maintenance/slots', [MaintenanceController::class, 'slots'])->name('maintenance.slots');
-
-    Route::resource('prestamos', PrestamoController::class);
     
     // Rutas del archivo de problemas
     Route::get('/archivo-problemas', [ArchivoProblemasController::class, 'index'])->name('archivo-problemas.index');
