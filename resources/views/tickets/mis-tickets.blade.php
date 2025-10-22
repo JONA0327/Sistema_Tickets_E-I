@@ -377,32 +377,101 @@
             </div>
         </footer>
 
+        <!-- Modal de confirmación -->
+        <div id="cancelModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black bg-opacity-40 backdrop-blur-sm">
+            <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 transform transition-all">
+                <div class="px-6 py-5">
+                    <div class="flex items-center space-x-3 mb-4">
+                        <div class="flex items-center justify-center w-12 h-12 rounded-full bg-red-100 text-red-600">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M5.64 5.64l12.72 12.72M7.757 17.657A8 8 0 017.757 6.343 8 8 0 0116.243 6.343a8 8 0 010 11.314 8 8 0 01-8.486 0z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="text-sm font-semibold text-gray-500">Confirmar cancelación</p>
+                            <h3 class="text-lg font-bold text-gray-900">Cancelar ticket</h3>
+                        </div>
+                    </div>
+                    <p id="cancelModalMessage" class="text-gray-600 leading-relaxed"></p>
+                </div>
+                <div class="bg-gray-50 px-6 py-4 flex justify-end space-x-3 rounded-b-2xl">
+                    <button type="button" id="cancelModalClose" class="px-4 py-2 rounded-lg border border-gray-200 text-gray-700 hover:bg-gray-100 transition-colors duration-200">Cancelar</button>
+                    <button type="button" id="cancelModalConfirm" class="px-4 py-2 rounded-lg bg-red-600 text-white font-semibold hover:bg-red-700 transition-colors duration-200">Aceptar</button>
+                </div>
+            </div>
+        </div>
+
         <!-- Scripts -->
         <script>
-            function confirmCancel(ticketId, folio) {
-                if (confirm(`¿Estás seguro de que quieres cancelar el ticket ${folio}? Esta acción no se puede deshacer.`)) {
-                    // Crear y enviar formulario de cancelación
-                    const form = document.createElement('form');
-                    form.method = 'POST';
-                    form.action = '/ticket/' + ticketId;
-                    
-                    const csrfToken = document.createElement('input');
-                    csrfToken.type = 'hidden';
-                    csrfToken.name = '_token';
-                    csrfToken.value = '{{ csrf_token() }}';
-                    
-                    const methodField = document.createElement('input');
-                    methodField.type = 'hidden';
-                    methodField.name = '_method';
-                    methodField.value = 'DELETE';
-                    
-                    form.appendChild(csrfToken);
-                    form.appendChild(methodField);
-                    document.body.appendChild(form);
-                    form.submit();
-                }
+            const cancelModal = document.getElementById('cancelModal');
+            const cancelModalMessage = document.getElementById('cancelModalMessage');
+            const cancelModalClose = document.getElementById('cancelModalClose');
+            const cancelModalConfirm = document.getElementById('cancelModalConfirm');
+
+            function openCancelModal() {
+                cancelModal.classList.remove('hidden');
+                cancelModal.classList.add('flex');
+                document.body.classList.add('overflow-hidden');
             }
 
+            function closeCancelModal() {
+                cancelModal.classList.add('hidden');
+                cancelModal.classList.remove('flex');
+                document.body.classList.remove('overflow-hidden');
+                cancelModal.removeAttribute('data-ticket-id');
+            }
+
+            function confirmCancel(ticketId, folio) {
+                cancelModalMessage.textContent = `¿Estás seguro de que quieres cancelar el ticket ${folio}? Esta acción no se puede deshacer.`;
+                cancelModal.setAttribute('data-ticket-id', ticketId);
+                openCancelModal();
+            }
+
+            function submitCancelForm() {
+                const ticketId = cancelModal.getAttribute('data-ticket-id');
+                if (!ticketId) {
+                    return;
+                }
+
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '/ticket/' + ticketId;
+
+                const csrfToken = document.createElement('input');
+                csrfToken.type = 'hidden';
+                csrfToken.name = '_token';
+                csrfToken.value = '{{ csrf_token() }}';
+
+                const methodField = document.createElement('input');
+                methodField.type = 'hidden';
+                methodField.name = '_method';
+                methodField.value = 'DELETE';
+
+                form.appendChild(csrfToken);
+                form.appendChild(methodField);
+                document.body.appendChild(form);
+                form.submit();
+            }
+
+            cancelModalClose.addEventListener('click', () => {
+                closeCancelModal();
+            });
+
+            cancelModalConfirm.addEventListener('click', () => {
+                submitCancelForm();
+            });
+
+            cancelModal.addEventListener('click', (event) => {
+                if (event.target === cancelModal) {
+                    closeCancelModal();
+                }
+            });
+
+            window.addEventListener('keydown', (event) => {
+                if (event.key === 'Escape' && !cancelModal.classList.contains('hidden')) {
+                    closeCancelModal();
+                }
+            });
         </script>
 
         <script>
