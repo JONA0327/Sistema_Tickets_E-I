@@ -49,7 +49,7 @@
 @auth
 <div {{ $attributes->merge(['class' => 'w-full']) }}>
     <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-end lg:gap-6">
-        <x-nav-links :theme="$theme" class="w-full justify-center lg:w-auto lg:justify-end" />
+        <x-nav-links :theme="$theme" class="w-full justify-center lg:w-auto lg:justify-end lg:ml-6" />
 
         <div class="flex flex-wrap items-center justify-center gap-3 lg:justify-end lg:gap-4">
             <!-- Notifications -->
