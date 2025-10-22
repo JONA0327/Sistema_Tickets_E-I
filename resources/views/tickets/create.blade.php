@@ -17,7 +17,7 @@
         <!-- Header -->
         <header class="bg-white shadow-sm border-b border-blue-100">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex justify-between items-center h-16">
+                <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 py-4">
                     <div class="flex items-center">
                         <div class="flex-shrink-0">
                             <div class="flex items-center">
@@ -29,7 +29,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="flex items-center">
+                    <div class="flex items-center justify-center sm:justify-end">
                         <!-- Placeholder for consistency -->
                     </div>
                 </div>
@@ -39,7 +39,7 @@
         <!-- Back to Home Button -->
         <div class="bg-white border-b border-gray-200">
             <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
-                <div class="flex items-center">
+                <div class="flex items-center justify-center sm:justify-start">
                     <a href="{{ route('welcome') }}" 
                        class="inline-flex items-center text-blue-600 hover:text-blue-800 text-sm font-medium transition-colors duration-200 group">
                         <svg class="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -52,7 +52,7 @@
         </div>
 
         <!-- Main Content -->
-        <main class="max-w-4xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+        <main class="max-w-4xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
             <!-- Hero Section -->
             <div class="text-center mb-8">
                 @php

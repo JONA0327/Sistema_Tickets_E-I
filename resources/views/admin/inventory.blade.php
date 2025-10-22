@@ -20,7 +20,7 @@
         <!-- Header -->
         <header class="bg-white shadow-sm border-b border-blue-100">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex justify-between items-center h-16">
+                <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 py-4">
                     <div class="flex items-center">
                         <div class="flex-shrink-0">
                             <div class="flex items-center">
@@ -32,7 +32,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="flex items-center space-x-6">
+                    <div class="flex flex-col items-center md:flex-row md:items-center md:justify-end gap-4 md:gap-6">
                         @include('components.nav-links', ['theme' => 'blue'])
 
                         <a href="{{ route('admin.dashboard') }}" class="hidden sm:inline-flex items-center text-sm text-blue-600 hover:text-blue-800 font-medium">
@@ -84,9 +84,9 @@
             </div>
         </header>
 
-        <main class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8 space-y-10">
+        <main class="max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8 space-y-10">
             <div class="text-center">
-                <h2 class="text-4xl font-bold text-gray-900 mb-4">
+                <h2 class="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
                     Control de <span class="text-blue-600">Inventario</span>
                 </h2>
                 <p class="text-lg text-gray-600 max-w-2xl mx-auto">

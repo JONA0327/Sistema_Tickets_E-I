@@ -14,7 +14,7 @@
     <body class="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100">
         <header class="bg-white shadow-sm border-b border-blue-100">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex justify-between items-center h-16">
+                <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 py-4">
                     <div class="flex items-center">
                         <img src="{{ asset('images/logo-ei.png') }}" alt="E&I Logo" class="h-12 w-auto mr-3">
                         <div>
@@ -34,7 +34,7 @@
             </div>
         </header>
 
-        <main class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+        <main class="max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between mb-8">
                 <div>
                     <h2 class="text-3xl font-bold text-gray-900">Horarios de mantenimiento</h2>
