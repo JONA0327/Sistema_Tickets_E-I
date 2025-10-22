@@ -203,6 +203,11 @@ class TicketController extends Controller
 
         $data = collect($validated)->only(['estado', 'observaciones', 'prioridad'])->toArray();
 
+        $originalEstado = $ticket->estado;
+        $originalObservaciones = $ticket->observaciones;
+        $originalMaintenanceReport = $ticket->maintenance_report;
+        $originalClosureObservations = $ticket->closure_observations;
+
         // Si se cierra el ticket, agregar fecha de cierre
         if ($validated['estado'] === 'cerrado' && $ticket->estado !== 'cerrado') {
             $data['fecha_cierre'] = now();
@@ -262,7 +267,8 @@ class TicketController extends Controller
             $data = array_merge($data, $maintenanceData);
         }
 
-        $ticket->update($data);
+        $ticket->fill($data);
+        $ticket->save();
 
         if ($ticket->tipo_problema === 'mantenimiento') {
             $profileData = [
@@ -309,6 +315,39 @@ class TicketController extends Controller
             $ticket->save();
         }
 
+        $userNotificationMessages = [];
+
+        if ($originalEstado !== $ticket->estado) {
+            $estadoLabel = ucfirst(str_replace('_', ' ', $ticket->estado));
+            if ($ticket->estado === 'cerrado') {
+                $userNotificationMessages[] = 'Tu ticket fue marcado como cerrado por el equipo de TI.';
+            } else {
+                $userNotificationMessages[] = "El estado del ticket cambió a \"{$estadoLabel}\".";
+            }
+        }
+
+        if (!empty($ticket->observaciones) && $ticket->observaciones !== $originalObservaciones) {
+            $userNotificationMessages[] = 'El administrador dejó un nuevo comentario en tu ticket.';
+        }
+
+        if ($ticket->tipo_problema === 'mantenimiento') {
+            if (!empty($ticket->maintenance_report) && $ticket->maintenance_report !== $originalMaintenanceReport) {
+                $userNotificationMessages[] = 'Se actualizó el reporte de mantenimiento del equipo.';
+            }
+
+            if (!empty($ticket->closure_observations) && $ticket->closure_observations !== $originalClosureObservations) {
+                $userNotificationMessages[] = 'Se agregaron nuevas observaciones de cierre.';
+            }
+        }
+
+        if (!empty($userNotificationMessages)) {
+            $ticket->forceFill([
+                'user_has_updates' => true,
+                'user_notified_at' => now(),
+                'user_notification_summary' => implode(' ', $userNotificationMessages),
+            ])->save();
+        }
+
         return redirect()->route('admin.tickets.index')
             ->with('success', 'Ticket actualizado exitosamente');
     }
@@ -321,8 +360,39 @@ class TicketController extends Controller
         $tickets = Ticket::where('user_id', auth()->id())
                         ->orderBy('created_at', 'desc')
                         ->get();
-        
-        return view('tickets.mis-tickets', compact('tickets'));
+
+        $notificationsCount = $tickets->where('user_has_updates', true)->count();
+        $supportEmail = config('support.contact_email');
+        $supportTeamsUrl = config('support.teams_url');
+
+        return view('tickets.mis-tickets', compact(
+            'tickets',
+            'notificationsCount',
+            'supportEmail',
+            'supportTeamsUrl'
+        ));
+    }
+
+    /**
+     * Marcar una actualización de ticket como revisada por el usuario
+     */
+    public function acknowledgeUpdate(Request $request, Ticket $ticket)
+    {
+        abort_if($ticket->user_id !== auth()->id(), 403);
+
+        $ticket->forceFill([
+            'user_has_updates' => false,
+            'user_last_read_at' => now(),
+        ])->save();
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Actualización marcada como revisada.',
+            ]);
+        }
+
+        return redirect()->route('tickets.mis-tickets')->with('success', 'Actualización marcada como revisada.');
     }
 
     /**
