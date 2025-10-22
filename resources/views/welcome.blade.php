@@ -92,15 +92,6 @@
                                     </div>
                                 </div>
                             </div>
-                        @else
-                            <div class="flex space-x-3">
-                                <a href="{{ route('login') }}" class="text-blue-600 hover:text-blue-800 px-3 py-2 text-sm font-medium transition-colors duration-200">
-                                    Iniciar Sesión
-                                </a>
-                                <a href="{{ route('register') }}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200">
-                                    Registrarse
-                                </a>
-                            </div>
                         @endif
                     </div>
                     <div class="md:hidden flex items-center">
@@ -137,15 +128,6 @@
                                 <span>Cerrar Sesión</span>
                             </button>
                         </form>
-                    @else
-                        <div class="flex flex-col gap-3">
-                            <a href="{{ route('login') }}" class="w-full text-center bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200">
-                                Iniciar Sesión
-                            </a>
-                            <a href="{{ route('register') }}" class="w-full text-center border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200">
-                                Registrarse
-                            </a>
-                        </div>
                     @endif
                 </div>
             </div>
@@ -246,7 +228,7 @@
                             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
                             </svg>
-                            Crear Cuenta
+                            Registrarse
                         </a>
                     </div>
                 </div>
