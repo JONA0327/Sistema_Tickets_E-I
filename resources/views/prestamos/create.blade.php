@@ -154,7 +154,7 @@
                                         class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" 
                                         required>
                                     <option value="">Seleccionar artículo</option>
-                                    @foreach(\App\Models\Inventario::where('cantidad_disponible', '>', 0)->where('bloqueado_prestamo', false)->orderBy('articulo')->get() as $item)
+                                    @foreach(\App\Models\Inventario::disponibles()->where('bloqueado_prestamo', false)->orderBy('articulo')->get() as $item)
                                         <option value="{{ $item->id }}" 
                                                 data-disponible="{{ $item->cantidad_disponible }}"
                                                 {{ (old('inventario_id') == $item->id) ? 'selected' : '' }}>
