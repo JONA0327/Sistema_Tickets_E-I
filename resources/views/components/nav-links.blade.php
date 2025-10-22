@@ -5,30 +5,30 @@
 @php
     $themes = [
         'blue' => [
-            'hover_bg' => 'hover:bg-blue-50',
-            'hover_text' => 'hover:text-blue-800',
+            'hover_text' => 'hover:text-blue-600',
+            'hover_border' => 'hover:border-blue-400',
             'focus_ring' => 'focus-visible:ring-blue-500',
         ],
         'green' => [
-            'hover_bg' => 'hover:bg-green-50',
-            'hover_text' => 'hover:text-green-800',
+            'hover_text' => 'hover:text-green-600',
+            'hover_border' => 'hover:border-green-400',
             'focus_ring' => 'focus-visible:ring-green-500',
         ],
         'orange' => [
-            'hover_bg' => 'hover:bg-orange-50',
-            'hover_text' => 'hover:text-orange-800',
+            'hover_text' => 'hover:text-orange-600',
+            'hover_border' => 'hover:border-orange-400',
             'focus_ring' => 'focus-visible:ring-orange-500',
         ],
         'purple' => [
-            'hover_bg' => 'hover:bg-purple-50',
-            'hover_text' => 'hover:text-purple-800',
+            'hover_text' => 'hover:text-purple-600',
+            'hover_border' => 'hover:border-purple-400',
             'focus_ring' => 'focus-visible:ring-purple-500',
         ],
     ];
 
     $styles = $themes[$theme] ?? $themes['blue'];
-    $linkBase = 'flex items-center space-x-1 px-3 py-2 rounded-lg transition-colors duration-200 text-gray-600 '
-        . $styles['hover_bg'] . ' ' . $styles['hover_text']
+    $linkBase = 'flex items-center gap-1 px-1 py-1 border-b-2 border-transparent text-sm font-medium text-gray-600 transition-colors duration-200'
+        . ' ' . $styles['hover_text'] . ' ' . $styles['hover_border']
         . ' focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 '
         . $styles['focus_ring'] . ' focus-visible:ring-offset-white';
 @endphp
