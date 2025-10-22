@@ -3,6 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="csrf-token" content="{{ csrf_token() }}">
 
         <title>Expedientes de Equipos - Panel Administrativo</title>
 
@@ -22,10 +23,11 @@
                             <p class="text-sm text-gray-600">Consulta y gestiona el historial de mantenimiento de cada equipo</p>
                         </div>
                     </div>
-                    <div class="flex items-center space-x-4">
+                    <div class="flex flex-wrap items-center justify-center sm:justify-end gap-4">
                         <a href="{{ route('admin.maintenance.index') }}" class="text-sm text-blue-600 hover:text-blue-800 font-medium">Horarios</a>
                         <a href="{{ route('admin.tickets.index') }}" class="text-sm text-blue-600 hover:text-blue-800 font-medium">Tickets</a>
                         <a href="{{ route('admin.dashboard') }}" class="text-sm text-blue-600 hover:text-blue-800 font-medium">Panel Admin</a>
+                        <x-admin.notification-center />
                     </div>
                 </div>
             </div>
