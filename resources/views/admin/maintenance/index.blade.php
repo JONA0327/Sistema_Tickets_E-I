@@ -3,6 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="csrf-token" content="{{ csrf_token() }}">
 
         <title>Configuración de Mantenimientos - Panel Administrativo</title>
 
@@ -22,10 +23,13 @@
                             <p class="text-sm text-gray-600">Gestiona horarios y disponibilidad de mantenimientos</p>
                         </div>
                     </div>
-                    <div class="flex items-center space-x-4">
+                    <div class="flex flex-wrap items-center justify-center sm:justify-end gap-4">
                         <a href="{{ route('admin.tickets.index') }}" class="text-sm text-blue-600 hover:text-blue-800 font-medium">Tickets</a>
                         <a href="{{ route('admin.dashboard') }}" class="text-sm text-blue-600 hover:text-blue-800 font-medium">Panel Admin</a>
-                        <form method="POST" action="{{ route('logout') }}">
+
+                        <x-admin.notification-center />
+
+                        <form method="POST" action="{{ route('logout') }}" class="flex items-center">
                             @csrf
                             <button type="submit" class="text-sm text-red-600 hover:text-red-800 font-medium">Cerrar sesión</button>
                         </form>
