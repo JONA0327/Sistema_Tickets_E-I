@@ -109,6 +109,21 @@
                 </div>
             @endif
 
+            @if(session('info'))
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-8">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <svg class="h-5 w-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-blue-800 font-medium">{{ session('info') }}</p>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
             <!-- Error Message -->
             @if(session('error'))
                 <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-8">
@@ -176,6 +191,11 @@
                                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $ticket->estado_badge }}">
                                                 {{ ucfirst(str_replace('_', ' ', $ticket->estado)) }}
                                             </span>
+                                            @if($ticket->closed_by_user)
+                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-100 text-red-700">
+                                                    Cancelado por ti
+                                                </span>
+                                            @endif
                                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
                                                 @if($ticket->tipo_problema === 'software') bg-blue-100 text-blue-800
                                                 @elseif($ticket->tipo_problema === 'hardware') bg-orange-100 text-orange-800
@@ -348,15 +368,21 @@
 
                                         @if($ticket->estado !== 'cerrado')
                                         <button type="button"
-                                                onclick="confirmDelete('{{ $ticket->id }}', '{{ $ticket->folio }}')"
+                                                onclick="confirmCancel('{{ $ticket->id }}', '{{ $ticket->folio }}')"
                                                 class="bg-red-50 hover:bg-red-100 text-red-700 font-medium py-2 px-4 rounded-lg transition-colors duration-200 flex items-center text-sm border border-red-200">
                                             <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                                             </svg>
-                                            Eliminar
+                                            Cancelar
                                         </button>
                                         @else
-                                        <span class="text-xs text-gray-500 italic">Ticket cerrado</span>
+                                        <span class="text-xs text-gray-500 italic">
+                                            @if($ticket->closed_by_user)
+                                                Ticket cancelado por ti
+                                            @else
+                                                Ticket cerrado
+                                            @endif
+                                        </span>
                                         @endif
                                     </div>
                                 </div>
@@ -395,9 +421,9 @@
 
         <!-- Scripts -->
         <script>
-            function confirmDelete(ticketId, folio) {
-                if (confirm(`¿Estás seguro de que quieres eliminar el ticket ${folio}? Esta acción no se puede deshacer.`)) {
-                    // Crear y enviar formulario de eliminación
+            function confirmCancel(ticketId, folio) {
+                if (confirm(`¿Estás seguro de que quieres cancelar el ticket ${folio}? Esta acción no se puede deshacer.`)) {
+                    // Crear y enviar formulario de cancelación
                     const form = document.createElement('form');
                     form.method = 'POST';
                     form.action = '/ticket/' + ticketId;

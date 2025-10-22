@@ -31,12 +31,16 @@ class NotificationController extends Controller
             ->select(['id', 'folio', 'nombre_solicitante', 'tipo_problema', 'descripcion_problema', 'created_at'])
             ->get()
             ->map(function ($ticket) {
+                $descripcion = $ticket->closed_by_user
+                    ? 'Ticket cerrado por el usuario.'
+                    : \Str::limit($ticket->descripcion_problema, 50);
+
                 return [
                     'id' => $ticket->id,
                     'folio' => $ticket->folio,
                     'solicitante' => $ticket->nombre_solicitante,
                     'tipo' => ucfirst($ticket->tipo_problema),
-                    'descripcion' => \Str::limit($ticket->descripcion_problema, 50),
+                    'descripcion' => $descripcion,
                     'fecha' => $ticket->created_at->diffForHumans(),
                     'url' => route('admin.tickets.show', $ticket)
                 ];

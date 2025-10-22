@@ -140,6 +140,24 @@
                                 @endif
                             </div>
                         </div>
+                        @if($ticket->closed_by_user)
+                            <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start space-x-3">
+                                <svg class="w-5 h-5 text-red-500 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <div class="text-sm text-red-800">
+                                    <p class="font-semibold">Ticket cancelado por el usuario.</p>
+                                    <p class="mt-1">
+                                        {{ $ticket->nombre_solicitante }} cerró el folio {{ $ticket->folio }}
+                                        @if($ticket->closed_by_user_at)
+                                            el {{ $ticket->closed_by_user_at->format('d/m/Y \a \l\a\s H:i') }}.
+                                        @else
+                                            recientemente.
+                                        @endif
+                                    </p>
+                                </div>
+                            </div>
+                        @endif
 
                         <!-- Información del Solicitante -->
                         <div class="bg-blue-50 p-6 rounded-lg border border-blue-100 mb-6">

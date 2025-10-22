@@ -288,6 +288,9 @@
                                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $ticket->estado_badge }}">
                                         {{ ucfirst(str_replace('_', ' ', $ticket->estado)) }}
                                     </span>
+                                    @if($ticket->closed_by_user)
+                                        <p class="text-xs text-red-600 mt-1 font-medium">Cancelado por el usuario</p>
+                                    @endif
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     @if($ticket->prioridad)

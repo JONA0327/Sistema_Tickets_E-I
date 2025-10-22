@@ -334,8 +334,8 @@
                 Por favor, conserva este correo para tu referencia. 
                 El folio <strong>{{ $ticket->folio }}</strong> te permitirá hacer seguimiento de tu solicitud.
                 <br><br>
-                <strong style="color: #dc2626;">IMPORTANTE:</strong> El código de seguridad <strong>{{ $ticket->codigo_seguridad }}</strong> 
-                es necesario si deseas eliminar este ticket. Manténlo en un lugar seguro.
+                <strong style="color: #dc2626;">IMPORTANTE:</strong> El código de seguridad <strong>{{ $ticket->codigo_seguridad }}</strong>
+                es necesario si deseas cancelar este ticket. Manténlo en un lugar seguro.
             </p>
         </div>
     </div>
