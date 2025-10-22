@@ -25,7 +25,9 @@
                             </div>
                         </div>
                     </div>
-                    <div class="flex items-center space-x-4" x-data="{ open: false }">
+                    <div class="flex items-center space-x-6" x-data="{ open: false }">
+                        @include('components.nav-links', ['theme' => 'orange'])
+
                         <!-- User Profile Dropdown -->
                         <div class="relative">
                             <button 

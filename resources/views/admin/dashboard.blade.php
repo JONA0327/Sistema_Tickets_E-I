@@ -33,7 +33,9 @@
                             </div>
                         </div>
                     </div>
-                    <div class="flex items-center space-x-4">
+                    <div class="flex items-center space-x-6">
+                        @include('components.nav-links', ['theme' => 'blue'])
+
                         <!-- Notifications Dropdown -->
                         <div class="relative" x-data="notificationDropdown()" x-init="init()">
                             <button @click="toggleDropdown()" 
