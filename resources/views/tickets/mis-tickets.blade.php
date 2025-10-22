@@ -128,7 +128,7 @@
             <!-- Información del Usuario -->
             <div class="bg-white shadow-xl rounded-lg border border-blue-100 p-8 mb-8">
                 <h2 class="text-2xl font-bold text-gray-900 mb-6">Mis Tickets</h2>
-                
+
                 <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
                     <div class="flex items-center">
                         <svg class="w-5 h-5 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -142,6 +142,20 @@
                 </div>
             </div>
 
+            @if(($notificationsCount ?? 0) > 0)
+                <div class="bg-blue-50 border border-blue-200 text-blue-900 rounded-lg p-5 mb-8 shadow-sm">
+                    <div class="flex items-start">
+                        <svg class="w-6 h-6 text-blue-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <div>
+                            <p class="font-semibold">Tienes {{ $notificationsCount }} ticket(s) con nuevas actualizaciones del equipo de TI.</p>
+                            <p class="text-sm mt-1 text-blue-800">Revisa los tickets marcados para conocer el progreso y confirmar que recibiste la información.</p>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
             <!-- Tickets del Usuario -->
             @if(count($tickets) > 0)
                     <div class="bg-white shadow-xl rounded-lg border border-blue-100">
@@ -154,10 +168,10 @@
 
                         <div class="divide-y divide-gray-200">
                             @foreach($tickets as $ticket)
-                            <div class="p-6 hover:bg-gray-50 transition-colors duration-200">
+                            <div class="p-6 transition-colors duration-200 {{ $ticket->user_has_updates ? 'bg-blue-50/70 hover:bg-blue-100/70 border-l-4 border-blue-400' : 'hover:bg-gray-50' }}">
                                 <div class="flex justify-between items-start">
                                     <div class="flex-1">
-                                        <div class="flex items-center space-x-3 mb-2">
+                                        <div class="flex flex-wrap items-center gap-2 mb-2">
                                             <h4 class="text-lg font-semibold text-blue-600">{{ $ticket->folio }}</h4>
                                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $ticket->estado_badge }}">
                                                 {{ ucfirst(str_replace('_', ' ', $ticket->estado)) }}
@@ -168,6 +182,11 @@
                                                 @else bg-green-100 text-green-800 @endif">
                                                 {{ ucfirst($ticket->tipo_problema) }}
                                             </span>
+                                            @if($ticket->user_has_updates)
+                                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-blue-600 text-white shadow-sm">
+                                                    Actualización
+                                                </span>
+                                            @endif
                                         </div>
 
                                         @if($ticket->nombre_programa)
@@ -215,6 +234,37 @@
                                             <p class="text-sm text-yellow-800">
                                                 <strong>Observaciones:</strong> {{ $ticket->observaciones }}
                                             </p>
+                                        </div>
+                                        @endif
+
+                                        @if($ticket->user_notification_summary)
+                                        <div class="mt-4">
+                                            <div class="p-4 rounded-lg border {{ $ticket->user_has_updates ? 'border-blue-300 bg-blue-50' : 'border-gray-200 bg-gray-50' }}">
+                                                <div class="flex items-start">
+                                                    <svg class="w-6 h-6 text-blue-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                                    </svg>
+                                                    <div class="flex-1">
+                                                        <p class="text-sm text-gray-800 leading-relaxed">{{ $ticket->user_notification_summary }}</p>
+                                                        @if($ticket->user_notified_at)
+                                                            <p class="text-xs text-gray-500 mt-2">Actualizado {{ $ticket->user_notified_at->diffForHumans() }}</p>
+                                                        @endif
+                                                        @if($ticket->user_has_updates)
+                                                            <form method="POST" action="{{ route('tickets.acknowledge', $ticket) }}" class="mt-3">
+                                                                @csrf
+                                                                <button type="submit" class="inline-flex items-center px-3 py-2 rounded-md text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200">
+                                                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                                                    </svg>
+                                                                    Marcar como revisado
+                                                                </button>
+                                                            </form>
+                                                        @elseif($ticket->user_last_read_at)
+                                                            <p class="text-xs text-gray-500 mt-2">Última revisión: {{ $ticket->user_last_read_at->diffForHumans() }}</p>
+                                                        @endif
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
                                         @endif
 
@@ -267,9 +317,37 @@
                                     </div>
 
                                     <!-- Acciones -->
-                                    <div class="ml-6 flex flex-col space-y-2">
+                                    <div class="ml-6 flex flex-col space-y-3 w-full max-w-xs">
+                                        @if(($supportEmail ?? null) || ($supportTeamsUrl ?? null))
+                                            <div class="flex flex-col space-y-2">
+                                                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Contacto rápido</p>
+                                                @if(!empty($supportEmail))
+                                                    <a href="mailto:{{ $supportEmail }}?subject={{ urlencode('Consulta sobre el ticket ' . $ticket->folio) }}"
+                                                       class="inline-flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 text-sm shadow-sm"
+                                                       title="Enviar correo al administrador">
+                                                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12H8m8 0l-3-3m3 3l-3 3m7-6V5a2 2 0 00-2-2H6a2 2 0 00-2 2v14a2 2 0 002 2h12a2 2 0 002-2v-1"></path>
+                                                        </svg>
+                                                        Contactar por correo
+                                                    </a>
+                                                @endif
+                                                @if(!empty($supportTeamsUrl))
+                                                    <a href="{{ $supportTeamsUrl }}"
+                                                       target="_blank"
+                                                       rel="noopener noreferrer"
+                                                       class="inline-flex items-center justify-center bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 text-sm shadow-sm"
+                                                       title="Abrir chat en Microsoft Teams">
+                                                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                                        </svg>
+                                                        Contactar por Teams (Urgente)
+                                                    </a>
+                                                @endif
+                                            </div>
+                                        @endif
+
                                         @if($ticket->estado !== 'cerrado')
-                                        <button type="button" 
+                                        <button type="button"
                                                 onclick="confirmDelete('{{ $ticket->id }}', '{{ $ticket->folio }}')"
                                                 class="bg-red-50 hover:bg-red-100 text-red-700 font-medium py-2 px-4 rounded-lg transition-colors duration-200 flex items-center text-sm border border-red-200">
                                             <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">

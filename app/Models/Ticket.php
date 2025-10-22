@@ -44,6 +44,10 @@ class Ticket extends Model
         'replacement_components',
         'computer_profile_id',
         'imagenes_admin',
+        'user_has_updates',
+        'user_notified_at',
+        'user_last_read_at',
+        'user_notification_summary',
     ];
 
     protected $casts = [
@@ -53,6 +57,9 @@ class Ticket extends Model
         'notified_at' => 'datetime',
         'read_at' => 'datetime',
         'is_read' => 'boolean',
+        'user_has_updates' => 'boolean',
+        'user_notified_at' => 'datetime',
+        'user_last_read_at' => 'datetime',
         'maintenance_scheduled_at' => 'datetime',
         'replacement_components' => 'array',
         'imagenes_admin' => 'array',
