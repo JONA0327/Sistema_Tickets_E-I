@@ -9,6 +9,7 @@ use App\Models\Ticket;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
 class TicketController extends Controller
@@ -40,9 +41,18 @@ class TicketController extends Controller
         ]);
 
         $validated = $request->validate([
-            'nombre_programa' => 'nullable|string|max:255',
+            'nombre_programa' => [
+                Rule::requiredIf(fn () => $request->input('tipo_problema') === 'hardware'),
+                'nullable',
+                'string',
+                'max:255',
+            ],
             'otro_programa_nombre' => 'nullable|string|max:255',
-            'descripcion_problema' => 'nullable|string',
+            'descripcion_problema' => [
+                Rule::requiredIf(fn () => $request->input('tipo_problema') === 'hardware'),
+                'nullable',
+                'string',
+            ],
             'tipo_problema' => 'required|in:software,hardware,mantenimiento',
             'imagenes' => 'nullable|array|max:5',
             'imagenes.*' => 'nullable|image|max:2048',

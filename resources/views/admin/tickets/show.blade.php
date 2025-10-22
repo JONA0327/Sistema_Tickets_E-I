@@ -184,8 +184,15 @@
                                 </div>
 
                                 @if($ticket->nombre_programa)
+                                @php
+                                    $programLabel = match ($ticket->tipo_problema) {
+                                        'hardware' => 'Tipo de equipo',
+                                        'software' => 'Programa/Software',
+                                        default => 'Programa/Equipo',
+                                    };
+                                @endphp
                                 <div>
-                                    <p class="text-sm font-medium text-gray-500">Programa/Software</p>
+                                    <p class="text-sm font-medium text-gray-500">{{ $programLabel }}</p>
                                     <p class="text-lg text-gray-900">{{ $ticket->nombre_programa }}</p>
                                 </div>
                                 @endif

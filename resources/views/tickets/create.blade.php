@@ -179,30 +179,53 @@
                                     @enderror
                                 </div>
                             </div>
+                        @elseif($tipo === 'hardware')
+                            <div class="mb-6">
+                                <label for="tipo_equipo" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Tipo de equipo
+                                </label>
+                                <select name="nombre_programa"
+                                        id="tipo_equipo"
+                                        required
+                                        class="block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200">
+                                    <option value="">Selecciona el tipo de equipo</option>
+                                    <option value="Computadora" {{ old('nombre_programa') === 'Computadora' ? 'selected' : '' }}>Computadora</option>
+                                    <option value="Impresora" {{ old('nombre_programa') === 'Impresora' ? 'selected' : '' }}>Impresora</option>
+                                </select>
+                                @error('nombre_programa')
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
+                            </div>
                         @endif
 
                         <div>
                             <label for="descripcion_problema" class="block text-sm font-medium text-gray-700 mb-2">
                                 @if($tipo === 'mantenimiento')
                                     Añadir detalles de problemas presentados en el equipo (Opcional)
+                                @elseif($tipo === 'hardware')
+                                    Descripción de la falla del equipo <span class="text-red-600">*</span>
                                 @else
                                     Descripción de la falla del programa (Opcional)
                                 @endif
                             </label>
-                            <textarea name="descripcion_problema" 
+                            <textarea name="descripcion_problema"
                                       id="descripcion_problema"
                                       rows="5"
-                                      class="block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200" 
-                                      placeholder="{{ $tipo === 'mantenimiento' ? 
-                                        'Describe qué tipo de mantenimiento necesitas, cuándo y cualquier detalle importante...' : 
-                                        'Describe la falla del programa con el mayor detalle posible. ¿Qué estabas haciendo cuando ocurrió? ¿Qué mensajes de error aparecen?' }}">{{ old('descripcion_problema') }}</textarea>
+                                      @if($tipo === 'hardware') required @endif
+                                      class="block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+                                      placeholder="{{ $tipo === 'mantenimiento' ?
+                                        'Describe qué tipo de mantenimiento necesitas, cuándo y cualquier detalle importante...'
+ : ($tipo === 'hardware' ?
+                                        'Describe la falla del equipo con el mayor detalle posible. ¿Qué estaba ocurriendo cuando falló? ¿Se muestran luces o mensajes en el dispositivo?'
+ :
+                                        'Describe la falla del programa con el mayor detalle posible. ¿Qué estabas haciendo cuando ocurrió? ¿Qué mensajes de error aparecen?' ) }}">{{ old('descripcion_problema') }}</textarea>
                         @error('descripcion_problema')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
                     </div>
 
-                    @if($tipo === 'software')
-                        <!-- Sección de imágenes solo para tickets de software -->
+                    @if(in_array($tipo, ['software', 'hardware']))
+                        <!-- Sección de imágenes para tickets de software y hardware -->
                         <div class="mt-6">
                             <label class="block text-sm font-medium text-gray-700 mb-2">
                                 Imágenes del problema (Opcional)
@@ -545,8 +568,8 @@
                 }
             }
 
-            // Sistema de imágenes para tickets de software
-            @if($tipo === 'software')
+            // Sistema de imágenes para tickets de software y hardware
+            @if(in_array($tipo, ['software', 'hardware']))
             initImageUpload();
 
             function initImageUpload() {
@@ -655,7 +678,24 @@
                 }
                 console.log('Slot seleccionado:', slotId);
                 @endif
-                
+
+                @if($tipo === 'hardware')
+                const equipmentType = document.getElementById('tipo_equipo');
+                const descriptionField = document.getElementById('descripcion_problema');
+
+                if (!equipmentType.value) {
+                    alert('Selecciona el tipo de equipo que presenta la falla.');
+                    equipmentType.focus();
+                    return false;
+                }
+
+                if (!descriptionField.value.trim()) {
+                    alert('Describe la falla del equipo para poder atender tu solicitud.');
+                    descriptionField.focus();
+                    return false;
+                }
+                @endif
+
                 console.log('Formulario validado correctamente');
                 return true;
             }
