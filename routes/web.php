@@ -33,7 +33,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/maintenance/availability', [MaintenanceController::class, 'availability'])->name('maintenance.availability');
     Route::get('/maintenance/slots', [MaintenanceController::class, 'slots'])->name('maintenance.slots');
     
-    // Rutas del archivo de problemas
+});
+
+// Rutas del archivo de problemas (solo administradores)
+Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/archivo-problemas', [ArchivoProblemasController::class, 'index'])->name('archivo-problemas.index');
     Route::get('/archivo-problemas/crear/{ticket?}', [ArchivoProblemasController::class, 'create'])->name('archivo-problemas.create');
     Route::post('/archivo-problemas', [ArchivoProblemasController::class, 'store'])->name('archivo-problemas.store');
