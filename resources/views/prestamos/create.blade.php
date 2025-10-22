@@ -13,7 +13,7 @@
         <!-- Header -->
         <header class="bg-white shadow-sm border-b border-blue-100">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex justify-between items-center h-16">
+                <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 py-4">
                     <div class="flex items-center">
                         <div class="flex-shrink-0">
                             <div class="flex items-center">
@@ -25,7 +25,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="flex items-center space-x-6" x-data="{ open: false }">
+                    <div class="flex flex-col items-center md:flex-row md:items-center md:justify-end gap-4 md:gap-6" x-data="{ open: false }">
                         @include('components.nav-links', ['theme' => 'blue'])
 
                         <!-- User Profile Dropdown -->

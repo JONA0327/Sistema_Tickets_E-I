@@ -12,27 +12,31 @@
 
         <!-- Styles / Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+        <style>
+            [x-cloak] { display: none !important; }
+        </style>
         
         <!-- Alpine.js -->
         <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     </head>
     <body class="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100">
         <!-- Header -->
-        <header class="bg-white shadow-sm border-b border-blue-100">
+        <header x-data="{ mobileOpen: false }" class="bg-white shadow-sm border-b border-blue-100">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex justify-between items-center h-16">
-                    <div class="flex items-center">
+                <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 py-4">
+                    <div class="flex items-center min-w-0">
                         <div class="flex-shrink-0">
                             <div class="flex items-center">
                                 <img src="{{ asset('images/logo-ei.png') }}" alt="E&I Logo" class="h-12 w-auto mr-3">
-                                <div>
-                                    <h1 class="text-xl font-bold text-gray-900">Sistema de Tickets</h1>
-                                    <p class="text-sm text-gray-600">E&I - Tecnología</p>
+                                <div class="min-w-0">
+                                    <h1 class="text-lg sm:text-xl font-bold text-gray-900 leading-tight">Sistema de Tickets</h1>
+                                    <p class="text-xs sm:text-sm text-gray-600">E&I - Tecnología</p>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="flex items-center space-x-4">
+                    <div class="hidden md:flex items-center space-x-4">
                         @if (Auth::check())
                             @if (Auth::user()->isAdmin())
                                 <a href="{{ route('admin.dashboard') }}" class="text-sm text-blue-600 hover:text-blue-800 font-medium mr-4">
@@ -99,12 +103,56 @@
                             </div>
                         @endif
                     </div>
+                    <div class="md:hidden flex items-center">
+                        <button @click="mobileOpen = !mobileOpen" class="inline-flex items-center justify-center p-2 rounded-md text-gray-500 hover:text-gray-700 hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <span class="sr-only">Abrir menú principal</span>
+                            <svg class="h-6 w-6" x-show="!mobileOpen" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                            </svg>
+                            <svg class="h-6 w-6" x-show="mobileOpen" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div x-cloak x-show="mobileOpen" x-transition class="md:hidden border-t border-blue-100 bg-white">
+                <div class="px-4 py-4 space-y-4">
+                    @if (Auth::check())
+                        @if (Auth::user()->isAdmin())
+                            <a href="{{ route('admin.dashboard') }}" class="block text-sm font-medium text-blue-600 hover:text-blue-800">
+                                Panel Admin
+                            </a>
+                        @else
+                            <a href="{{ route('tickets.mis-tickets') }}" class="block text-sm font-medium text-blue-600 hover:text-blue-800">
+                                Mis Tickets
+                            </a>
+                        @endif
+                        <form method="POST" action="{{ route('logout') }}" class="pt-2 border-t border-blue-50">
+                            @csrf
+                            <button type="submit" class="w-full text-left text-sm font-medium text-red-600 hover:text-red-700 flex items-center space-x-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                                </svg>
+                                <span>Cerrar Sesión</span>
+                            </button>
+                        </form>
+                    @else
+                        <div class="flex flex-col gap-3">
+                            <a href="{{ route('login') }}" class="w-full text-center bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200">
+                                Iniciar Sesión
+                            </a>
+                            <a href="{{ route('register') }}" class="w-full text-center border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200">
+                                Registrarse
+                            </a>
+                        </div>
+                    @endif
                 </div>
             </div>
         </header>
 
         <!-- Main Content -->
-        <main class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+        <main class="max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
             <!-- Success Message -->
             @if(session('success'))
                 <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-8 mx-auto max-w-4xl">
@@ -143,10 +191,10 @@
 
             <!-- Hero Section -->
             <div class="text-center mb-12">
-                <h2 class="text-4xl font-bold text-gray-900 mb-4">
+                <h2 class="text-3xl sm:text-4xl font-bold text-gray-900 mb-4 leading-tight">
                     Centro de <span class="text-blue-600">Soporte Técnico</span>
                 </h2>
-                <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+                <p class="text-base sm:text-xl text-gray-600 max-w-2xl mx-auto">
                     Gestiona tus solicitudes de soporte técnico de manera rápida y eficiente
                 </p>
             </div>
@@ -154,17 +202,17 @@
             @auth
             <!-- Quick Access Section -->
             <div class="text-center mb-12">
-                <div class="bg-white rounded-xl shadow-lg border border-blue-100 p-6 max-w-md mx-auto">
-                    <div class="flex items-center justify-center w-12 h-12 bg-blue-100 rounded-lg mb-4 mx-auto">
+                <div class="bg-white rounded-xl shadow-lg border border-blue-100 p-6 sm:p-8 max-w-md mx-auto">
+                    <div class="flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 bg-blue-100 rounded-lg mb-4 mx-auto">
                         <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
                         </svg>
                     </div>
-                    <h3 class="text-lg font-semibold text-gray-900 mb-2">¿Ya tienes un ticket?</h3>
-                    <p class="text-gray-600 mb-4">Consulta el estado de tus tickets existentes</p>
-                    <a href="{{ route('tickets.mis-tickets') }}" 
-                       class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-lg transition-colors duration-200 inline-flex items-center">
+                    <h3 class="text-lg sm:text-xl font-semibold text-gray-900 mb-2">¿Ya tienes un ticket?</h3>
+                    <p class="text-gray-600 mb-4 text-sm sm:text-base">Consulta el estado de tus tickets existentes</p>
+                    <a href="{{ route('tickets.mis-tickets') }}"
+                       class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-lg transition-colors duration-200 inline-flex items-center justify-center">
                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                         </svg>
@@ -175,26 +223,26 @@
             @else
             <!-- Login/Register Section for Non-Authenticated Users -->
             <div class="text-center mb-12">
-                <div class="bg-white rounded-xl shadow-lg border border-blue-100 p-8 max-w-2xl mx-auto">
-                    <div class="flex items-center justify-center w-16 h-16 bg-blue-100 rounded-lg mb-6 mx-auto">
+                <div class="bg-white rounded-xl shadow-lg border border-blue-100 p-6 sm:p-8 max-w-2xl mx-auto">
+                    <div class="flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 bg-blue-100 rounded-lg mb-6 mx-auto">
                         <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                         </svg>
                     </div>
-                    <h3 class="text-2xl font-semibold text-gray-900 mb-4">¡Bienvenido al Sistema de Tickets!</h3>
-                    <p class="text-gray-600 mb-6 leading-relaxed">
+                    <h3 class="text-xl sm:text-2xl font-semibold text-gray-900 mb-4">¡Bienvenido al Sistema de Tickets!</h3>
+                    <p class="text-gray-600 mb-6 leading-relaxed text-sm sm:text-base">
                         Para crear y gestionar tus tickets de soporte técnico, necesitas iniciar sesión o crear una cuenta.
                     </p>
-                    <div class="flex justify-center space-x-4">
-                        <a href="{{ route('login') }}" 
-                           class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg transition-colors duration-200 inline-flex items-center">
+                    <div class="flex flex-col sm:flex-row justify-center gap-3 sm:space-x-4">
+                        <a href="{{ route('login') }}"
+                           class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg transition-colors duration-200 inline-flex items-center justify-center">
                             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>
                             </svg>
                             Iniciar Sesión
                         </a>
-                        <a href="{{ route('register') }}" 
-                           class="border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white font-medium py-3 px-6 rounded-lg transition-colors duration-200 inline-flex items-center">
+                        <a href="{{ route('register') }}"
+                           class="border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white font-medium py-3 px-6 rounded-lg transition-colors duration-200 inline-flex items-center justify-center">
                             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
                             </svg>
