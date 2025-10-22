@@ -61,18 +61,19 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         $credentials = $request->validate([
-            'email' => ['required', 'email'],
+            'email' => ['required', 'email', 'ends_with:estrategiaeinnovacion.com.mx'],
             'password' => ['required'],
         ], [
             'email.required' => 'El correo electrónico es obligatorio.',
             'email.email' => 'El formato del correo no es válido.',
+            'email.ends_with' => 'Solo se permiten correos con el dominio estrategiaeinnovacion.com.mx.',
             'password.required' => 'La contraseña es obligatoria.',
         ]);
 
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
 
-            return redirect()->intended(route('welcome'))->with('success', '¡Bienvenido de vuelta!');
+            return redirect()->route('welcome')->with('success', '¡Bienvenido de vuelta!');
         }
 
         return back()->withErrors([

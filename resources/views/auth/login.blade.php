@@ -98,17 +98,18 @@
                     <!-- Email Address -->
                     <div class="mb-4">
                         <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
-                            Correo Electrónico
+                            Correo Electrónico Corporativo
                         </label>
-                        <input type="email" 
-                               id="email" 
-                               name="email" 
-                               value="{{ old('email') }}" 
-                               required 
-                               autofocus 
+                        <input type="email"
+                               id="email"
+                               name="email"
+                               value="{{ old('email') }}"
+                               required
+                               autofocus
                                autocomplete="username"
-                               placeholder="tu@correo.com"
+                               placeholder="nombre.apellido@estrategiaeinnovacion.com.mx"
                                class="block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 @error('email') border-red-300 @enderror">
+                        <p class="mt-1 text-sm text-gray-500">Solo se aceptan correos con el dominio &#64;estrategiaeinnovacion.com.mx.</p>
                     </div>
 
                     <!-- Password -->
@@ -138,12 +139,8 @@
                         </div>
                     </div>
 
-                    <div class="flex items-center justify-between">
-                        <a href="{{ route('register') }}" class="text-sm text-blue-600 hover:text-blue-800 transition-colors duration-200">
-                            ¿No tienes cuenta? Regístrate
-                        </a>
-                        
-                        <button type="submit" 
+                    <div class="flex items-center justify-end">
+                        <button type="submit"
                                 class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 flex items-center">
                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>

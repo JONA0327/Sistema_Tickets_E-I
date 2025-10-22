@@ -123,9 +123,9 @@
                     </div>
                     <h3 class="text-xl sm:text-2xl font-semibold text-gray-900 mb-4">¡Bienvenido al Sistema de Tickets!</h3>
                     <p class="text-gray-600 mb-6 leading-relaxed text-sm sm:text-base">
-                        Para crear y gestionar tus tickets de soporte técnico, necesitas iniciar sesión o crear una cuenta.
+                        Para crear y gestionar tus tickets de soporte técnico, inicia sesión con tu correo corporativo.
                     </p>
-                    <div class="flex flex-col sm:flex-row justify-center gap-3 sm:space-x-4">
+                    <div class="flex flex-col sm:flex-row justify-center gap-3">
                         <a href="{{ route('login') }}"
                            class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg transition-colors duration-200 inline-flex items-center justify-center">
                             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -133,14 +133,8 @@
                             </svg>
                             Iniciar Sesión
                         </a>
-                        <a href="{{ route('register') }}"
-                           class="border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white font-medium py-3 px-6 rounded-lg transition-colors duration-200 inline-flex items-center justify-center">
-                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
-                            </svg>
-                            Registrarse
-                        </a>
                     </div>
+                    <p class="mt-4 text-xs sm:text-sm text-gray-500">Si necesitas una cuenta nueva, contacta al administrador del sistema.</p>
                 </div>
             </div>
             @endauth
