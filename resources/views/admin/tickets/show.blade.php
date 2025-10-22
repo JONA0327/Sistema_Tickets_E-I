@@ -32,13 +32,13 @@
                             </div>
                         </div>
                     </div>
-                    <div class="flex items-center space-x-4">
+                    <div class="flex items-center space-x-6">
+                        @include('components.nav-links', ['theme' => 'blue'])
+
                         <a href="{{ route('admin.tickets.index') }}" class="text-sm text-blue-600 hover:text-blue-800 font-medium">
                             Lista de Tickets
                         </a>
-                        <a href="{{ route('admin.dashboard') }}" class="text-sm text-blue-600 hover:text-blue-800 font-medium">
-                            Panel Admin
-                        </a>
+
                         <!-- Profile Dropdown -->
                         <div class="relative" x-data="{ open: false }">
                             <button @click="open = !open" 

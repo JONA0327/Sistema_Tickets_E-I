@@ -32,7 +32,9 @@
                             </div>
                         </div>
                     </div>
-                    <div class="flex items-center space-x-4">
+                    <div class="flex items-center space-x-6">
+                        @include('components.nav-links', ['theme' => 'blue'])
+
                         <a href="{{ route('admin.dashboard') }}" class="hidden sm:inline-flex items-center text-sm text-blue-600 hover:text-blue-800 font-medium">
                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>

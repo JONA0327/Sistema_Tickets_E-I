@@ -32,10 +32,9 @@
                             </div>
                         </div>
                     </div>
-                    <div class="flex items-center space-x-4">
-                        <a href="{{ route('admin.dashboard') }}" class="text-sm text-blue-600 hover:text-blue-800 font-medium">
-                            Panel Admin
-                        </a>
+                    <div class="flex items-center space-x-6">
+                        @include('components.nav-links', ['theme' => 'blue'])
+
                         <!-- Profile Dropdown -->
                         <div class="relative" x-data="{ open: false }">
                             <button @click="open = !open" 
