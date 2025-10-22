@@ -396,6 +396,33 @@ class TicketController extends Controller
     }
 
     /**
+     * Marcar todas las actualizaciones como revisadas por el usuario
+     */
+    public function acknowledgeAllUpdates(Request $request)
+    {
+        $updated = Ticket::where('user_id', auth()->id())
+            ->where('user_has_updates', true)
+            ->update([
+                'user_has_updates' => false,
+                'user_last_read_at' => now(),
+            ]);
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Todas las actualizaciones fueron marcadas como revisadas.',
+                'updated' => $updated,
+            ]);
+        }
+
+        return redirect()
+            ->back()
+            ->with('success', $updated > 0
+                ? 'Todas las notificaciones fueron marcadas como revisadas.'
+                : 'No tienes notificaciones pendientes.');
+    }
+
+    /**
      * Eliminar ticket
      */
     public function destroy(Ticket $ticket)
