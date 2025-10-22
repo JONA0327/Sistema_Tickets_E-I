@@ -127,7 +127,14 @@ class AdminController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
+            'email' => [
+                'required',
+                'string',
+                'email',
+                'max:255',
+                'unique:users',
+                'ends_with:estrategiaeinnovacion.com.mx',
+            ],
             'password' => 'required|string|min:8|confirmed',
             'role' => 'required|in:user,admin',
         ], [
@@ -135,6 +142,7 @@ class AdminController extends Controller
             'email.required' => 'El correo electrónico es obligatorio.',
             'email.email' => 'Debe ser un correo electrónico válido.',
             'email.unique' => 'Este correo electrónico ya está registrado.',
+            'email.ends_with' => 'El correo debe pertenecer al dominio estrategiaeinnovacion.com.mx.',
             'password.required' => 'La contraseña es obligatoria.',
             'password.min' => 'La contraseña debe tener al menos 8 caracteres.',
             'password.confirmed' => 'La confirmación de contraseña no coincide.',
@@ -176,7 +184,14 @@ class AdminController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
+            'email' => [
+                'required',
+                'string',
+                'email',
+                'max:255',
+                'unique:users,email,' . $user->id,
+                'ends_with:estrategiaeinnovacion.com.mx',
+            ],
             'role' => 'required|in:user,admin',
             'password' => 'nullable|string|min:8|confirmed',
         ], [
@@ -184,6 +199,7 @@ class AdminController extends Controller
             'email.required' => 'El correo electrónico es obligatorio.',
             'email.email' => 'Debe ser un correo electrónico válido.',
             'email.unique' => 'Este correo electrónico ya está registrado.',
+            'email.ends_with' => 'El correo debe pertenecer al dominio estrategiaeinnovacion.com.mx.',
             'password.min' => 'La contraseña debe tener al menos 8 caracteres.',
             'password.confirmed' => 'La confirmación de contraseña no coincide.',
             'role.required' => 'Debe seleccionar un rol.',
