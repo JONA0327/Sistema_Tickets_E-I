@@ -203,13 +203,13 @@
                                 @elseif($tipo === 'hardware')
                                     Descripción de la falla del equipo <span class="text-red-600">*</span>
                                 @else
-                                    Descripción de la falla del programa (Opcional)
+                                    Descripción de la falla del programa <span class="text-red-600">*</span>
                                 @endif
                             </label>
                             <textarea name="descripcion_problema"
                                       id="descripcion_problema"
                                       rows="5"
-                                      @if($tipo === 'hardware') required @endif
+                                      @if($tipo !== 'mantenimiento') required @endif
                                       class="block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
                                       placeholder="{{ $tipo === 'mantenimiento' ?
                                         'Describe qué tipo de mantenimiento necesitas, cuándo y cualquier detalle importante...'

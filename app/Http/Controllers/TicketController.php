@@ -49,8 +49,7 @@ class TicketController extends Controller
             ],
             'otro_programa_nombre' => 'nullable|string|max:255',
             'descripcion_problema' => [
-                Rule::requiredIf(fn () => $request->input('tipo_problema') === 'hardware'),
-                'nullable',
+                Rule::requiredIf(fn () => $request->input('tipo_problema') !== 'mantenimiento'),
                 'string',
             ],
             'tipo_problema' => 'required|in:software,hardware,mantenimiento',
