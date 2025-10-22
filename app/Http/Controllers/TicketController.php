@@ -213,6 +213,14 @@ class TicketController extends Controller
             $data['fecha_cierre'] = now();
         }
 
+        if ($validated['estado'] !== 'cerrado') {
+            $data['closed_by_user'] = false;
+            $data['closed_by_user_at'] = null;
+        } elseif ($originalEstado !== 'cerrado') {
+            $data['closed_by_user'] = false;
+            $data['closed_by_user_at'] = null;
+        }
+
         $maintenanceData = [];
 
         if ($ticket->tipo_problema === 'mantenimiento') {
@@ -427,30 +435,44 @@ class TicketController extends Controller
      */
     public function destroy(Ticket $ticket)
     {
+        $user = auth()->user();
         $folio = $ticket->folio;
         $solicitante = $ticket->nombre_solicitante;
-        
-        // Detectar desde dónde viene la eliminación
-        $referrer = request()->headers->get('referer');
-        $isAdmin = str_contains($referrer, 'admin');
-        
-        // Si no es admin, verificar que el usuario sea el propietario del ticket
-        if (!$isAdmin && $ticket->user_id !== auth()->id()) {
-            return redirect()->back()->with('error', 'No tienes permiso para eliminar este ticket.');
-        }
-        
-        $ticket->delete();
-        
-        // Mensaje personalizado según el origen
-        $message = "Ticket {$folio}";
-        
+        $isAdmin = $user && method_exists($user, 'isAdmin') ? $user->isAdmin() : false;
+
         if ($isAdmin) {
-            $message .= " de {$solicitante} eliminado exitosamente desde el panel administrativo.";
-        } else {
-            $message .= " eliminado exitosamente.";
+            $ticket->delete();
+
+            return redirect()->back()->with(
+                'success',
+                "Ticket {$folio} de {$solicitante} eliminado exitosamente desde el panel administrativo."
+            );
         }
-        
-        return redirect()->back()->with('success', $message);
+
+        if (!$user || $ticket->user_id !== $user->id) {
+            return redirect()->back()->with('error', 'No tienes permiso para cancelar este ticket.');
+        }
+
+        if ($ticket->estado === 'cerrado' && $ticket->closed_by_user) {
+            return redirect()->back()->with(
+                'info',
+                "El ticket {$folio} ya había sido cancelado anteriormente."
+            );
+        }
+
+        $ticket->forceFill([
+            'estado' => 'cerrado',
+            'fecha_cierre' => now(),
+            'closed_by_user' => true,
+            'closed_by_user_at' => now(),
+            'is_read' => false,
+            'notified_at' => now(),
+        ])->save();
+
+        return redirect()->back()->with(
+            'success',
+            "Ticket {$folio} cancelado exitosamente. El equipo de TI ha sido notificado."
+        );
     }
 
     /**
