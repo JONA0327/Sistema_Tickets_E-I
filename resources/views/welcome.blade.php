@@ -91,28 +91,7 @@
                 </p>
             </div>
 
-            @auth
-            <!-- Quick Access Section -->
-            <div class="text-center mb-12">
-                <div class="bg-white rounded-xl shadow-lg border border-blue-100 p-6 sm:p-8 max-w-md mx-auto">
-                    <div class="flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 bg-blue-100 rounded-lg mb-4 mx-auto">
-                        <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
-                        </svg>
-                    </div>
-                    <h3 class="text-lg sm:text-xl font-semibold text-gray-900 mb-2">¿Ya tienes un ticket?</h3>
-                    <p class="text-gray-600 mb-4 text-sm sm:text-base">Consulta el estado de tus tickets existentes</p>
-                    <a href="{{ route('tickets.mis-tickets') }}"
-                       class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-lg transition-colors duration-200 inline-flex items-center justify-center">
-                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                        </svg>
-                        Ver Mis Tickets
-                    </a>
-                </div>
-            </div>
-            @else
+            @guest
             <!-- Login/Register Section for Non-Authenticated Users -->
             <div class="text-center mb-12">
                 <div class="bg-white rounded-xl shadow-lg border border-blue-100 p-6 sm:p-8 max-w-2xl mx-auto">
@@ -137,7 +116,7 @@
                     <p class="mt-4 text-xs sm:text-sm text-gray-500">Si necesitas una cuenta nueva, contacta al administrador del sistema.</p>
                 </div>
             </div>
-            @endauth
+            @endguest
 
             @auth
             <!-- Cards Grid -->
