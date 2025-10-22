@@ -29,9 +29,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="flex items-center justify-center sm:justify-end">
-                        <!-- Placeholder for consistency -->
-                    </div>
+                    <x-authenticated-actions theme="blue" />
                 </div>
             </div>
         </header>

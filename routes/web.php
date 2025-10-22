@@ -30,6 +30,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/mis-tickets', [TicketController::class, 'misTickets'])->name('tickets.mis-tickets');
     Route::delete('/ticket/{ticket}', [TicketController::class, 'destroy'])->name('tickets.destroy');
     Route::post('/ticket/{ticket}/acknowledge-update', [TicketController::class, 'acknowledgeUpdate'])->name('tickets.acknowledge');
+    Route::post('/tickets/acknowledge-all', [TicketController::class, 'acknowledgeAllUpdates'])->name('tickets.acknowledge-all');
 
     Route::get('/maintenance/availability', [MaintenanceController::class, 'availability'])->name('maintenance.availability');
     Route::get('/maintenance/slots', [MaintenanceController::class, 'slots'])->name('maintenance.slots');
