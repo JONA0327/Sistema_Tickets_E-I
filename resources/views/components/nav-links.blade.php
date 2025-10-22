@@ -49,8 +49,10 @@
         <span>Mis Tickets</span>
     </a>
 
-    <a href="{{ route('archivo-problemas.index') }}" class="{{ $linkBase }}">
-        <span>📚</span>
-        <span>Archivo Problemas</span>
-    </a>
+    @if (auth()->check() && auth()->user()->isAdmin())
+        <a href="{{ route('archivo-problemas.index') }}" class="{{ $linkBase }}">
+            <span>📚</span>
+            <span>Archivo Problemas</span>
+        </a>
+    @endif
 </nav>

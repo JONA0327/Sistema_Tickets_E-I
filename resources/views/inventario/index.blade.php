@@ -56,7 +56,9 @@
                                     <a href="{{ route('admin.dashboard') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">⚙️ Panel Admin</a>
                                 @endif
                                 <a href="{{ route('tickets.mis-tickets') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">📋 Mis Tickets</a>
-                                <a href="{{ route('archivo-problemas.index') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">📚 Archivo Problemas</a>
+                                @if (Auth::user()->isAdmin())
+                                    <a href="{{ route('archivo-problemas.index') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">📚 Archivo Problemas</a>
+                                @endif
                                 <form method="POST" action="{{ route('logout') }}" class="block">
                                     @csrf
                                     <button type="submit" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">🚪 Cerrar Sesión</button>

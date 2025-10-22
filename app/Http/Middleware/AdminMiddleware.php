@@ -22,7 +22,7 @@ class AdminMiddleware
 
         // Verificar si el usuario es administrador (por rol)
         if (!auth()->user()->isAdmin()) {
-            return redirect()->route('welcome')->with('info', 'Esta sección es solo para administradores. Desde aquí puedes crear y gestionar tus tickets.');
+            abort(403, 'Esta sección es solo para administradores.');
         }
 
         return $next($request);
