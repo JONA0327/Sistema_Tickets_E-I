@@ -1,6 +1,8 @@
-@php
-    $theme = $theme ?? 'blue';
+@props([
+    'theme' => 'blue',
+])
 
+@php
     $themes = [
         'blue' => [
             'hover_bg' => 'hover:bg-blue-50',
@@ -31,7 +33,9 @@
         . $styles['focus_ring'] . ' focus-visible:ring-offset-white';
 @endphp
 
-<nav class="flex flex-wrap items-center gap-2 text-sm font-medium text-gray-600">
+<nav {{ $attributes->merge([
+    'class' => 'flex flex-wrap items-center justify-center lg:justify-start gap-2 lg:gap-3 text-sm font-medium text-gray-600',
+]) }}>
     <a href="{{ route('welcome') }}" class="{{ $linkBase }}">
         <span>🏠</span>
         <span>Inicio</span>
