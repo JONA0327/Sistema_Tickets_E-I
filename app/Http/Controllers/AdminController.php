@@ -254,6 +254,30 @@ class AdminController extends Controller
     }
 
     /**
+     * Eliminar registro de un usuario rechazado.
+     */
+    public function destroyRejectedUser(User $user)
+    {
+        if ($user->status !== User::STATUS_REJECTED) {
+            return redirect()->route('admin.users')->with('error', 'Solo puedes eliminar solicitudes rechazadas.');
+        }
+
+        $user->delete();
+
+        return redirect()->route('admin.users')->with('success', 'Solicitud rechazada eliminada correctamente.');
+    }
+
+    /**
+     * Eliminar correo bloqueado de la lista.
+     */
+    public function destroyBlockedEmail(BlockedEmail $blockedEmail)
+    {
+        $blockedEmail->delete();
+
+        return redirect()->route('admin.users')->with('success', 'Correo desbloqueado correctamente.');
+    }
+
+    /**
      * Aprobar una solicitud de usuario pendiente.
      */
     public function approveUser(User $user)

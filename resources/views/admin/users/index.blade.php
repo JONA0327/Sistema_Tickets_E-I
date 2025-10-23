@@ -336,13 +336,23 @@
                     </div>
                     <div class="divide-y divide-gray-200">
                         @foreach($rejectedUsers as $user)
-                            <div class="px-6 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between">
-                                <div class="mb-3 sm:mb-0">
+                            <div class="px-6 py-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                                <div>
                                     <p class="text-sm font-semibold text-gray-900">{{ $user->name }}</p>
                                     <p class="text-sm text-gray-500">{{ $user->email }}</p>
                                 </div>
-                                <div class="text-sm text-gray-500">
-                                    Rechazado el {{ optional($user->rejected_at)->format('d/m/Y H:i') ?? $user->updated_at->format('d/m/Y H:i') }}
+                                <div class="flex flex-col sm:flex-row sm:items-center sm:gap-4 text-sm text-gray-500">
+                                    <span>
+                                        Rechazado el {{ optional($user->rejected_at)->format('d/m/Y H:i') ?? $user->updated_at->format('d/m/Y H:i') }}
+                                    </span>
+                                    <form method="POST" action="{{ route('admin.users.rejections.destroy', $user) }}" class="sm:ml-4"
+                                          onsubmit="return confirm('¿Deseas eliminar esta solicitud rechazada? Esta acción no se puede deshacer.');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="inline-flex items-center px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white text-xs font-semibold rounded-md transition-colors duration-200">
+                                            Eliminar solicitud
+                                        </button>
+                                    </form>
                                 </div>
                             </div>
                         @endforeach
@@ -368,6 +378,7 @@
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Correo</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Motivo</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Registrado</th>
+                                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
@@ -376,6 +387,16 @@
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $blocked->email }}</td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $blocked->reason ?? 'Sin especificar' }}</td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $blocked->created_at->format('d/m/Y H:i') }}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-right">
+                                            <form method="POST" action="{{ route('admin.blocked-emails.destroy', $blocked) }}"
+                                                  onsubmit="return confirm('¿Deseas quitar este correo de la lista de no permitidos?');">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="inline-flex items-center px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-md transition-colors duration-200">
+                                                    Quitar bloqueo
+                                                </button>
+                                            </form>
+                                        </td>
                                     </tr>
                                 @endforeach
                             </tbody>
