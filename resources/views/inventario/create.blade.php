@@ -129,10 +129,36 @@
                     @endif
 
                     <!-- Form -->
-                    <form action="{{ route('inventario.store') }}" method="POST" enctype="multipart/form-data" 
-                          x-data="{ 
+                    @php
+                        $defaultColorPrimario = old('color_primario', isset($similarItem) ? $similarItem->color_primario : '');
+                        $defaultColorSecundario = old('color_secundario', isset($similarItem) ? $similarItem->color_secundario : '');
+                        $oldUnits = old('unidades');
+
+                        if (is_array($oldUnits) && count($oldUnits) > 0) {
+                            $unidadesIniciales = array_map(function ($unidad) {
+                                return [
+                                    'estado' => $unidad['estado'] ?? 'nuevo',
+                                    'observaciones' => $unidad['observaciones'] ?? '',
+                                    'color_primario' => $unidad['color_primario'] ?? '',
+                                    'color_secundario' => $unidad['color_secundario'] ?? '',
+                                ];
+                            }, $oldUnits);
+                        } else {
+                            $unidadesIniciales = [[
+                                'estado' => 'nuevo',
+                                'observaciones' => '',
+                                'color_primario' => '',
+                                'color_secundario' => '',
+                            ]];
+                        }
+                    @endphp
+
+                    <form action="{{ route('inventario.store') }}" method="POST" enctype="multipart/form-data"
+                          x-data="{
                               categoria: '{{ isset($similarItem) ? $similarItem->categoria : old('categoria') }}',
-                              tipoCreacion: '{{ old('crear_como', 'unidad_unica') }}'
+                              tipoCreacion: '{{ old('crear_como', 'unidad_unica') }}',
+                              colorPrimario: @js($defaultColorPrimario),
+                              colorSecundario: @js($defaultColorSecundario)
                           }">
                         @csrf
                         
@@ -186,12 +212,70 @@
 
                                 <div>
                                     <label for="modelo" class="block text-sm font-medium text-gray-700 mb-1">Modelo *</label>
-                                    <input type="text" 
-                                           name="modelo" 
-                                           id="modelo" 
+                                    <input type="text"
+                                           name="modelo"
+                                           id="modelo"
                                            value="{{ old('modelo', isset($similarItem) ? $similarItem->modelo : '') }}"
                                            class="w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
                                            required>
+                                </div>
+
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Color primario</label>
+                                        <input type="hidden" name="color_primario" x-model="colorPrimario">
+                                        <div class="flex items-center gap-3">
+                                            <input type="color"
+                                                   class="h-10 w-16 border border-gray-300 rounded cursor-pointer"
+                                                   x-bind:value="colorPrimario || '#000000'"
+                                                   @input="colorPrimario = $event.target.value">
+                                            <button type="button"
+                                                    class="text-xs text-gray-600 hover:text-gray-800"
+                                                    @click="colorPrimario = ''">
+                                                Sin color
+                                            </button>
+                                        </div>
+                                        <p class="text-[11px] text-gray-500 mt-1">
+                                            <template x-if="colorPrimario">
+                                                <span class="inline-flex items-center px-2 py-0.5 rounded bg-gray-100 text-gray-700">
+                                                    <span class="w-3 h-3 rounded-full border border-gray-300 mr-2"
+                                                          x-bind:style="colorPrimario ? `background-color: ${colorPrimario}` : ''"></span>
+                                                    <span x-text="colorPrimario.toUpperCase()"></span>
+                                                </span>
+                                            </template>
+                                            <template x-if="!colorPrimario">
+                                                <span>Sin color seleccionado</span>
+                                            </template>
+                                        </p>
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Color secundario</label>
+                                        <input type="hidden" name="color_secundario" x-model="colorSecundario">
+                                        <div class="flex items-center gap-3">
+                                            <input type="color"
+                                                   class="h-10 w-16 border border-gray-300 rounded cursor-pointer"
+                                                   x-bind:value="colorSecundario || '#000000'"
+                                                   @input="colorSecundario = $event.target.value">
+                                            <button type="button"
+                                                    class="text-xs text-gray-600 hover:text-gray-800"
+                                                    @click="colorSecundario = ''">
+                                                Sin color
+                                            </button>
+                                        </div>
+                                        <p class="text-[11px] text-gray-500 mt-1">
+                                            <template x-if="colorSecundario">
+                                                <span class="inline-flex items-center px-2 py-0.5 rounded bg-gray-100 text-gray-700">
+                                                    <span class="w-3 h-3 rounded-full border border-gray-300 mr-2"
+                                                          x-bind:style="colorSecundario ? `background-color: ${colorSecundario}` : ''"></span>
+                                                    <span x-text="colorSecundario.toUpperCase()"></span>
+                                                </span>
+                                            </template>
+                                            <template x-if="!colorSecundario">
+                                                <span>Sin color seleccionado</span>
+                                            </template>
+                                        </p>
+                                    </div>
                                 </div>
 
                                 <div class="grid grid-cols-2 gap-4">
@@ -263,14 +347,24 @@
                                     </div>
 
                                     <!-- Sección dinámica para múltiples unidades -->
-                                    <div x-show="tipoCreacion === 'multiples_unidades'" 
+                                    <div x-show="tipoCreacion === 'multiples_unidades'"
                                          x-transition
                                          x-data="{
-                                             unidades: [
-                                                 { estado: 'nuevo', observaciones: '', color: '' }
-                                             ],
+                                             unidades: @js($unidadesIniciales),
+                                             aplicarColoresGenerales() {
+                                                 this.unidades = this.unidades.map((unidad) => ({
+                                                     ...unidad,
+                                                     color_primario: unidad.color_primario || this.$root.colorPrimario || '',
+                                                     color_secundario: unidad.color_secundario || this.$root.colorSecundario || ''
+                                                 }));
+                                             },
                                              agregarUnidad() {
-                                                 this.unidades.push({ estado: 'nuevo', observaciones: '', color: '' });
+                                                 this.unidades.push({
+                                                     estado: 'nuevo',
+                                                     observaciones: '',
+                                                     color_primario: this.$root.colorPrimario || '',
+                                                     color_secundario: this.$root.colorSecundario || ''
+                                                 });
                                              },
                                              eliminarUnidad(index) {
                                                  if (this.unidades.length > 1) {
@@ -278,21 +372,29 @@
                                                  }
                                              }
                                          }"
+                                         x-init="aplicarColoresGenerales()"
                                          class="mt-4 space-y-4">
-                                        
+
                                         <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                                            <div class="flex items-start justify-between mb-3">
+                                            <div class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between mb-3">
                                                 <div>
                                                     <h4 class="text-sm font-medium text-blue-800 mb-1">🏷️ Configurar Unidades Individuales</h4>
                                                     <p class="text-xs text-blue-600">
                                                         Cada unidad tendrá su propio código único. Solo configura los campos que pueden variar.
                                                     </p>
                                                 </div>
-                                                <button type="button" 
-                                                        @click="agregarUnidad()"
-                                                        class="bg-blue-600 hover:bg-blue-700 text-white text-xs px-3 py-1 rounded-md transition-colors">
-                                                    + Agregar Unidad
-                                                </button>
+                                                <div class="flex items-center gap-2">
+                                                    <button type="button"
+                                                            @click="aplicarColoresGenerales()"
+                                                            class="px-3 py-1 text-xs font-medium text-blue-700 bg-white border border-blue-200 rounded-md hover:bg-blue-100 transition-colors">
+                                                        Aplicar colores generales
+                                                    </button>
+                                                    <button type="button"
+                                                            @click="agregarUnidad()"
+                                                            class="bg-blue-600 hover:bg-blue-700 text-white text-xs px-3 py-1 rounded-md transition-colors">
+                                                        + Agregar Unidad
+                                                    </button>
+                                                </div>
                                             </div>
 
                                             <div class="space-y-3 max-h-64 overflow-y-auto">
@@ -313,11 +415,11 @@
                                                             </button>
                                                         </div>
 
-                                                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                                        <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
                                                             <!-- Estado -->
                                                             <div>
                                                                 <label class="block text-xs font-medium text-gray-700 mb-1">Estado</label>
-                                                                <select x-model="unidad.estado" 
+                                                                <select x-model="unidad.estado"
                                                                         :name="'unidades[' + index + '][estado]'"
                                                                         class="w-full text-sm rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
                                                                         required>
@@ -327,18 +429,66 @@
                                                                 </select>
                                                             </div>
 
-                                                            <!-- Color (opcional) -->
+                                                            <!-- Color primario -->
                                                             <div>
-                                                                <label class="block text-xs font-medium text-gray-700 mb-1">Color (opcional)</label>
-                                                                <input type="text" 
-                                                                       x-model="unidad.color"
-                                                                       :name="'unidades[' + index + '][color]'"
-                                                                       class="w-full text-sm rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
-                                                                       placeholder="Ej: Negro, Blanco, Azul">
+                                                                <label class="block text-xs font-medium text-gray-700 mb-1">Color primario</label>
+                                                                <input type="hidden" :name="'unidades[' + index + '][color_primario]'" x-model="unidad.color_primario">
+                                                                <div class="flex items-center gap-2">
+                                                                    <input type="color"
+                                                                           class="h-9 w-14 border border-gray-300 rounded cursor-pointer"
+                                                                           x-bind:value="unidad.color_primario || $root.colorPrimario || '#000000'"
+                                                                           @input="unidad.color_primario = $event.target.value">
+                                                                    <button type="button"
+                                                                            class="text-[11px] text-gray-600 hover:text-gray-800"
+                                                                            @click="unidad.color_primario = ''">
+                                                                        Sin color
+                                                                    </button>
+                                                                </div>
+                                                                <p class="text-[11px] text-gray-500 mt-1">
+                                                                    <template x-if="unidad.color_primario">
+                                                                        <span class="inline-flex items-center px-2 py-0.5 rounded bg-gray-100 text-gray-700">
+                                                                            <span class="w-3 h-3 rounded-full border border-gray-300 mr-1"
+                                                                                  x-bind:style="unidad.color_primario ? `background-color: ${unidad.color_primario}` : ''"></span>
+                                                                            <span x-text="unidad.color_primario.toUpperCase()"></span>
+                                                                        </span>
+                                                                    </template>
+                                                                    <template x-if="!unidad.color_primario">
+                                                                        <span>Sin color</span>
+                                                                    </template>
+                                                                </p>
+                                                            </div>
+
+                                                            <!-- Color secundario -->
+                                                            <div>
+                                                                <label class="block text-xs font-medium text-gray-700 mb-1">Color secundario</label>
+                                                                <input type="hidden" :name="'unidades[' + index + '][color_secundario]'" x-model="unidad.color_secundario">
+                                                                <div class="flex items-center gap-2">
+                                                                    <input type="color"
+                                                                           class="h-9 w-14 border border-gray-300 rounded cursor-pointer"
+                                                                           x-bind:value="unidad.color_secundario || $root.colorSecundario || '#000000'"
+                                                                           @input="unidad.color_secundario = $event.target.value">
+                                                                    <button type="button"
+                                                                            class="text-[11px] text-gray-600 hover:text-gray-800"
+                                                                            @click="unidad.color_secundario = ''">
+                                                                        Sin color
+                                                                    </button>
+                                                                </div>
+                                                                <p class="text-[11px] text-gray-500 mt-1">
+                                                                    <template x-if="unidad.color_secundario">
+                                                                        <span class="inline-flex items-center px-2 py-0.5 rounded bg-gray-100 text-gray-700">
+                                                                            <span class="w-3 h-3 rounded-full border border-gray-300 mr-1"
+                                                                                  x-bind:style="unidad.color_secundario ? `background-color: ${unidad.color_secundario}` : ''"></span>
+                                                                            <span x-text="unidad.color_secundario.toUpperCase()"></span>
+                                                                        </span>
+                                                                    </template>
+                                                                    <template x-if="!unidad.color_secundario">
+                                                                        <span>Sin color</span>
+                                                                    </template>
+                                                                </p>
                                                             </div>
 
                                                             <!-- Observaciones específicas -->
-                                                            <div>
+                                                            <div class="md:col-span-2">
                                                                 <label class="block text-xs font-medium text-gray-700 mb-1">Observaciones específicas</label>
                                                                 <textarea x-model="unidad.observaciones"
                                                                           :name="'unidades[' + index + '][observaciones]'"
