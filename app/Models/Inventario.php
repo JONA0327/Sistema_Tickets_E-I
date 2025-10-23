@@ -14,6 +14,8 @@ class Inventario extends Model
         'categoria',
         'articulo',
         'modelo',
+        'color_primario',
+        'color_secundario',
         'cantidad',
         'estado',
         'observaciones',

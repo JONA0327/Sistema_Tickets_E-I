@@ -132,10 +132,38 @@
                                                     'dañado' => 'bg-red-100 text-red-800'
                                                 ];
                                             @endphp
-                                            
+
                                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $estado_colors[$inventario->estado] ?? 'bg-gray-100 text-gray-800' }}">
                                                 {{ $estados[$inventario->estado] }}
                                             </span>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700">Colores</label>
+                                        <div class="mt-1 space-y-1 text-sm">
+                                            <div class="flex items-center gap-3">
+                                                <span class="text-xs uppercase tracking-wide text-gray-500">Primario</span>
+                                                @if($inventario->color_primario)
+                                                    <span class="inline-flex items-center gap-2 px-2 py-0.5 rounded bg-gray-100 text-gray-700">
+                                                        <span class="w-4 h-4 rounded border border-gray-300" style="background-color: {{ $inventario->color_primario }}"></span>
+                                                        <span class="font-mono text-xs">{{ strtoupper($inventario->color_primario) }}</span>
+                                                    </span>
+                                                @else
+                                                    <span class="text-xs text-gray-500">Sin asignar</span>
+                                                @endif
+                                            </div>
+                                            <div class="flex items-center gap-3">
+                                                <span class="text-xs uppercase tracking-wide text-gray-500">Secundario</span>
+                                                @if($inventario->color_secundario)
+                                                    <span class="inline-flex items-center gap-2 px-2 py-0.5 rounded bg-gray-100 text-gray-700">
+                                                        <span class="w-4 h-4 rounded border border-gray-300" style="background-color: {{ $inventario->color_secundario }}"></span>
+                                                        <span class="font-mono text-xs">{{ strtoupper($inventario->color_secundario) }}</span>
+                                                    </span>
+                                                @else
+                                                    <span class="text-xs text-gray-500">Sin asignar</span>
+                                                @endif
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -285,31 +313,59 @@
                                                 <span class="bg-purple-600 text-white text-xs px-2 py-1 rounded-full font-medium">ACTUAL</span>
                                             </div>
                                             
-                                            <div class="space-y-2">
-                                                <div class="flex items-center justify-between text-xs">
-                                                    <span class="text-purple-700">Estado:</span>
-                                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full font-medium
-                                                        @if($inventario->estado == 'nuevo') bg-green-100 text-green-800
-                                                        @elseif($inventario->estado == 'usado') bg-blue-100 text-blue-800
-                                                        @else bg-red-100 text-red-800 @endif">
-                                                        {{ ucfirst($inventario->estado) }}
-                                                    </span>
-                                                </div>
-                                                
-                                                <div class="flex items-center justify-between text-xs">
-                                                    <span class="text-purple-700">Disponibilidad:</span>
-                                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full font-medium
-                                                        @if($inventario->cantidad_disponible > 0 && $inventario->estado != 'dañado') bg-green-100 text-green-800
-                                                        @else bg-red-100 text-red-800 @endif">
-                                                        @if($inventario->cantidad_disponible > 0 && $inventario->estado != 'dañado') Disponible
-                                                        @else No Disponible @endif
-                                                    </span>
-                                                </div>
-                                                
-                                                @if($inventario->observaciones && !str_contains($inventario->observaciones, '--- DETALLES POR UNIDAD ---'))
-                                                    <div class="text-xs">
-                                                        <span class="text-purple-700">Notas:</span>
-                                                        <p class="text-gray-700 mt-1 bg-white p-2 rounded text-xs">{{ Str::limit($inventario->observaciones, 60) }}</p>
+                                                <div class="space-y-2">
+                                                    <div class="flex items-center justify-between text-xs">
+                                                        <span class="text-purple-700">Estado:</span>
+                                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full font-medium
+                                                            @if($inventario->estado == 'nuevo') bg-green-100 text-green-800
+                                                            @elseif($inventario->estado == 'usado') bg-blue-100 text-blue-800
+                                                            @else bg-red-100 text-red-800 @endif">
+                                                            {{ ucfirst($inventario->estado) }}
+                                                        </span>
+                                                    </div>
+
+                                                    <div class="flex items-center justify-between text-xs">
+                                                        <span class="text-purple-700">Disponibilidad:</span>
+                                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full font-medium
+                                                            @if($inventario->cantidad_disponible > 0 && $inventario->estado != 'dañado') bg-green-100 text-green-800
+                                                            @else bg-red-100 text-red-800 @endif">
+                                                            @if($inventario->cantidad_disponible > 0 && $inventario->estado != 'dañado') Disponible
+                                                            @else No Disponible @endif
+                                                        </span>
+                                                    </div>
+
+                                                    <div class="flex items-start justify-between text-xs">
+                                                        <span class="text-purple-700">Colores:</span>
+                                                        <div class="flex flex-col items-end gap-1">
+                                                            <div class="flex items-center gap-2">
+                                                                <span class="text-[11px] text-gray-500">Primario</span>
+                                                                @if($inventario->color_primario)
+                                                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-gray-100 text-gray-700">
+                                                                        <span class="w-3 h-3 rounded border border-gray-300" style="background-color: {{ $inventario->color_primario }}"></span>
+                                                                        <span class="font-mono">{{ strtoupper($inventario->color_primario) }}</span>
+                                                                    </span>
+                                                                @else
+                                                                    <span class="text-gray-400">—</span>
+                                                                @endif
+                                                            </div>
+                                                            <div class="flex items-center gap-2">
+                                                                <span class="text-[11px] text-gray-500">Secundario</span>
+                                                                @if($inventario->color_secundario)
+                                                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-gray-100 text-gray-700">
+                                                                        <span class="w-3 h-3 rounded border border-gray-300" style="background-color: {{ $inventario->color_secundario }}"></span>
+                                                                        <span class="font-mono">{{ strtoupper($inventario->color_secundario) }}</span>
+                                                                    </span>
+                                                                @else
+                                                                    <span class="text-gray-400">—</span>
+                                                                @endif
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    @if($inventario->observaciones && !str_contains($inventario->observaciones, '--- DETALLES POR UNIDAD ---'))
+                                                        <div class="text-xs">
+                                                            <span class="text-purple-700">Notas:</span>
+                                                            <p class="text-gray-700 mt-1 bg-white p-2 rounded text-xs">{{ Str::limit($inventario->observaciones, 60) }}</p>
                                                     </div>
                                                 @endif
                                             </div>
@@ -334,7 +390,7 @@
                                                             {{ ucfirst($unidad->estado) }}
                                                         </span>
                                                     </div>
-                                                    
+
                                                     <div class="flex items-center justify-between text-xs">
                                                         <span class="text-gray-600">Disponibilidad:</span>
                                                         <span class="inline-flex items-center px-2 py-0.5 rounded-full font-medium
@@ -344,7 +400,35 @@
                                                             @else No Disponible @endif
                                                         </span>
                                                     </div>
-                                                    
+
+                                                    <div class="flex items-start justify-between text-xs">
+                                                        <span class="text-gray-600">Colores:</span>
+                                                        <div class="flex flex-col items-end gap-1">
+                                                            <div class="flex items-center gap-2">
+                                                                <span class="text-[11px] text-gray-500">Primario</span>
+                                                                @if($unidad->color_primario)
+                                                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-gray-100 text-gray-700">
+                                                                        <span class="w-3 h-3 rounded border border-gray-300" style="background-color: {{ $unidad->color_primario }}"></span>
+                                                                        <span class="font-mono">{{ strtoupper($unidad->color_primario) }}</span>
+                                                                    </span>
+                                                                @else
+                                                                    <span class="text-gray-400">—</span>
+                                                                @endif
+                                                            </div>
+                                                            <div class="flex items-center gap-2">
+                                                                <span class="text-[11px] text-gray-500">Secundario</span>
+                                                                @if($unidad->color_secundario)
+                                                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-gray-100 text-gray-700">
+                                                                        <span class="w-3 h-3 rounded border border-gray-300" style="background-color: {{ $unidad->color_secundario }}"></span>
+                                                                        <span class="font-mono">{{ strtoupper($unidad->color_secundario) }}</span>
+                                                                    </span>
+                                                                @else
+                                                                    <span class="text-gray-400">—</span>
+                                                                @endif
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
                                                     @if($unidad->observaciones && !str_contains($unidad->observaciones, '--- DETALLES POR UNIDAD ---'))
                                                         <div class="text-xs">
                                                             <span class="text-gray-600">Notas:</span>

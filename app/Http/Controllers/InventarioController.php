@@ -156,6 +156,8 @@ class InventarioController extends Controller
             'categoria' => 'required|in:mouse,discos_duros,memorias_ram,cargadores,baterias,computadoras,otros',
             'articulo' => 'required|string|max:255',
             'modelo' => 'required|string|max:255',
+            'color_primario' => 'nullable|regex:/^#[0-9A-Fa-f]{6}$/',
+            'color_secundario' => 'nullable|regex:/^#[0-9A-Fa-f]{6}$/',
             'imagenes.*' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
             'crear_como' => 'required|in:unidad_unica,multiples_unidades',
             // Campos específicos para computadoras
@@ -168,7 +170,8 @@ class InventarioController extends Controller
             $rules['unidades'] = 'required|array|min:1|max:50';
             $rules['unidades.*.estado'] = 'required|in:nuevo,usado,dañado';
             $rules['unidades.*.observaciones'] = 'nullable|string';
-            $rules['unidades.*.color'] = 'nullable|string|max:255';
+            $rules['unidades.*.color_primario'] = 'nullable|regex:/^#[0-9A-Fa-f]{6}$/';
+            $rules['unidades.*.color_secundario'] = 'nullable|regex:/^#[0-9A-Fa-f]{6}$/';
         } else {
             $rules['cantidad'] = 'required|integer|min:1|max:50';
             $rules['estado'] = 'required|in:nuevo,usado,dañado';
@@ -178,11 +181,16 @@ class InventarioController extends Controller
         $request->validate($rules);
 
         try {
+            $colorPrimarioBase = $request->input('color_primario') ?: null;
+            $colorSecundarioBase = $request->input('color_secundario') ?: null;
+
             // Preparar datos base compartidos
             $datosBase = [
                 'categoria' => $request->categoria,
                 'articulo' => $request->articulo,
                 'modelo' => $request->modelo,
+                'color_primario' => $colorPrimarioBase,
+                'color_secundario' => $colorSecundarioBase,
                 'created_by' => Auth::id(),
             ];
 
@@ -220,19 +228,22 @@ class InventarioController extends Controller
                     $unidad = new Inventario($datosBase);
                     $unidad->cantidad = 1; // Cada unidad individual
                     $unidad->estado = $datosUnidad['estado'];
-                    
+
+                    $colorPrimarioUnidad = $datosUnidad['color_primario'] ?? null;
+                    $colorSecundarioUnidad = $datosUnidad['color_secundario'] ?? null;
+
+                    $unidad->color_primario = $colorPrimarioUnidad ?: $colorPrimarioBase;
+                    $unidad->color_secundario = $colorSecundarioUnidad ?: $colorSecundarioBase;
+
                     // Combinar observaciones generales con las específicas de la unidad
                     $observacionesCompletas = [];
                     if (!empty($request->observaciones)) {
                         $observacionesCompletas[] = $request->observaciones;
                     }
-                    if (!empty($datosUnidad['color'])) {
-                        $observacionesCompletas[] = "Color: " . $datosUnidad['color'];
-                    }
                     if (!empty($datosUnidad['observaciones'])) {
                         $observacionesCompletas[] = $datosUnidad['observaciones'];
                     }
-                    
+
                     $unidad->observaciones = implode(' | ', $observacionesCompletas);
                     $unidad->save();
                     $codigosGenerados[] = $unidad->codigo_inventario;
@@ -246,8 +257,10 @@ class InventarioController extends Controller
                 $inventario->cantidad = $request->cantidad;
                 $inventario->estado = $request->estado;
                 $inventario->observaciones = $request->observaciones;
+                $inventario->color_primario = $colorPrimarioBase;
+                $inventario->color_secundario = $colorSecundarioBase;
                 $inventario->save();
-                
+
                 $mensaje = "Artículo creado como unidad única: {$inventario->codigo_inventario} (Cantidad: {$request->cantidad})";
             }
 
@@ -302,6 +315,8 @@ class InventarioController extends Controller
             'articulo' => 'required|string|max:255',
             'modelo' => 'required|string|max:255',
             'imagenes.*' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'color_primario' => 'nullable|regex:/^#[0-9A-Fa-f]{6}$/',
+            'color_secundario' => 'nullable|regex:/^#[0-9A-Fa-f]{6}$/',
             // Campos específicos para computadoras
             'password_computadora' => 'nullable|string|max:255',
             'anos_uso' => 'nullable|integer|min:0|max:50',
@@ -320,7 +335,8 @@ class InventarioController extends Controller
                 $rules['unidades'] = 'array|min:1';
                 $rules['unidades.*.estado'] = 'required|in:nuevo,usado,dañado';
                 $rules['unidades.*.observaciones'] = 'nullable|string';
-                $rules['unidades.*.color'] = 'nullable|string|max:255';
+                $rules['unidades.*.color_primario'] = 'nullable|regex:/^#[0-9A-Fa-f]{6}$/';
+                $rules['unidades.*.color_secundario'] = 'nullable|regex:/^#[0-9A-Fa-f]{6}$/';
             }
         } else {
             // Solo requerir estos campos si no es múltiple
@@ -397,11 +413,15 @@ class InventarioController extends Controller
                     $detallesUnidad = [];
                     $detallesUnidad[] = "UNIDAD " . ($index + 1);
                     $detallesUnidad[] = "Estado: " . ucfirst($datosUnidad['estado']);
-                    
-                    if (!empty($datosUnidad['color'])) {
-                        $detallesUnidad[] = "Color: " . $datosUnidad['color'];
+
+                    if (!empty($datosUnidad['color_primario'])) {
+                        $detallesUnidad[] = "Color primario: " . strtoupper($datosUnidad['color_primario']);
                     }
-                    
+
+                    if (!empty($datosUnidad['color_secundario'])) {
+                        $detallesUnidad[] = "Color secundario: " . strtoupper($datosUnidad['color_secundario']);
+                    }
+
                     if (!empty($datosUnidad['observaciones'])) {
                         $detallesUnidad[] = "Notas: " . $datosUnidad['observaciones'];
                     }
@@ -422,6 +442,9 @@ class InventarioController extends Controller
                     $inventario->observaciones = $request->observaciones;
                 }
             }
+
+            $inventario->color_primario = $request->input('color_primario') ?: null;
+            $inventario->color_secundario = $request->input('color_secundario') ?: null;
 
             // Procesar nuevas imágenes si se subieron
             if ($request->hasFile('imagenes')) {
