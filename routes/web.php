@@ -81,6 +81,8 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
     Route::get('/users/{user}/edit', [AdminController::class, 'editUser'])->name('users.edit');
     Route::put('/users/{user}', [AdminController::class, 'updateUser'])->name('users.update');
     Route::delete('/users/{user}', [AdminController::class, 'destroyUser'])->name('users.destroy');
+    Route::delete('/users/{user}/rejection', [AdminController::class, 'destroyRejectedUser'])->name('users.rejections.destroy');
+    Route::delete('/blocked-emails/{blockedEmail}', [AdminController::class, 'destroyBlockedEmail'])->name('blocked-emails.destroy');
 });
 
 // API Routes for Notifications (Admin only)
