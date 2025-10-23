@@ -116,9 +116,9 @@
                         </div>
                     @endif
 
-                    <form action="{{ route('discos-en-uso.store') }}" method="POST" x-data="{ 
-                        selectedInventario: '{{ request('inventario_id') }}',
-                        inventarios: {{ json_encode($inventarios->map(fn($inv) => ['id' => $inv->id, 'codigo' => $inv->codigo_inventario, 'modelo' => $inv->modelo, 'disponible' => $inv->cantidad_disponible > 0])) }}
+                    <form action="{{ route('discos-en-uso.store') }}" method="POST" x-data="{
+                        selectedInventario: @json(request('inventario_id')),
+                        inventarios: @json($inventariosData)
                     }">
                         @csrf
 
@@ -149,27 +149,32 @@
 
                                 <!-- Información de la Computadora -->
                                 <div>
-                                    <label for="computadora_ubicacion" class="block text-sm font-medium text-gray-700 mb-2">
+                                    <label for="nombre_computadora" class="block text-sm font-medium text-gray-700 mb-2">
                                         🖥️ Computadora de Destino *
                                     </label>
-                                    <input type="text" name="computadora_ubicacion" id="computadora_ubicacion" 
-                                           value="{{ old('computadora_ubicacion') }}" required
+                                    <input type="text" name="nombre_computadora" id="nombre_computadora"
+                                           value="{{ old('nombre_computadora') }}" required
                                            placeholder="Ej: PC-Oficina-001, Laptop-Desarrollo-005"
                                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500">
-                                    @error('computadora_ubicacion')
+                                    @error('nombre_computadora')
                                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                     @enderror
                                 </div>
 
                                 <div>
-                                    <label for="area_computadora" class="block text-sm font-medium text-gray-700 mb-2">
-                                        🏢 Área/Departamento
+                                    <label for="computadora_inventario_id" class="block text-sm font-medium text-gray-700 mb-2">
+                                        🗂️ Vincular computadora del inventario (opcional)
                                     </label>
-                                    <input type="text" name="area_computadora" id="area_computadora" 
-                                           value="{{ old('area_computadora') }}"
-                                           placeholder="Ej: Desarrollo, Contabilidad, Gerencia"
-                                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500">
-                                    @error('area_computadora')
+                                    <select name="computadora_inventario_id" id="computadora_inventario_id"
+                                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500">
+                                        <option value="">No vincular computadora del inventario</option>
+                                        @foreach($computadoras as $computadora)
+                                            <option value="{{ $computadora->id }}" {{ old('computadora_inventario_id') == $computadora->id ? 'selected' : '' }}>
+                                                {{ $computadora->codigo_inventario }} - {{ $computadora->articulo }} {{ $computadora->modelo }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    @error('computadora_inventario_id')
                                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                     @enderror
                                 </div>
@@ -212,32 +217,38 @@
                                             <label for="disco_reemplazado" class="block text-xs font-medium text-gray-600 mb-1">
                                                 💾 Disco que será reemplazado
                                             </label>
-                                            <input type="text" name="disco_reemplazado" id="disco_reemplazado" 
+                                            <input type="text" name="disco_reemplazado" id="disco_reemplazado"
                                                    value="{{ old('disco_reemplazado') }}"
                                                    placeholder="Ej: HDD 500GB Kingston"
                                                    class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500">
+                                            @error('disco_reemplazado')
+                                                <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                                            @enderror
                                         </div>
 
                                         <div>
-                                            <label for="motivo_reemplazo" class="block text-xs font-medium text-gray-600 mb-1">
+                                            <label for="detalles_reemplazo" class="block text-xs font-medium text-gray-600 mb-1">
                                                 📝 Motivo del reemplazo
                                             </label>
-                                            <textarea name="motivo_reemplazo" id="motivo_reemplazo" rows="3"
+                                            <textarea name="detalles_reemplazo" id="detalles_reemplazo" rows="3"
                                                       placeholder="Ej: Disco anterior dañado, upgrade de capacidad"
-                                                      class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500">{{ old('motivo_reemplazo') }}</textarea>
+                                                      class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500">{{ old('detalles_reemplazo') }}</textarea>
+                                            @error('detalles_reemplazo')
+                                                <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                                            @enderror
                                         </div>
                                     </div>
                                 </div>
 
                                 <!-- Observaciones adicionales -->
                                 <div>
-                                    <label for="observaciones_instalacion" class="block text-sm font-medium text-gray-700 mb-2">
+                                    <label for="observaciones" class="block text-sm font-medium text-gray-700 mb-2">
                                         📝 Observaciones de Instalación
                                     </label>
-                                    <textarea name="observaciones_instalacion" id="observaciones_instalacion" rows="3"
+                                    <textarea name="observaciones" id="observaciones" rows="3"
                                               placeholder="Observaciones adicionales sobre la instalación..."
-                                              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500">{{ old('observaciones_instalacion') }}</textarea>
-                                    @error('observaciones_instalacion')
+                                              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500">{{ old('observaciones') }}</textarea>
+                                    @error('observaciones')
                                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                     @enderror
                                 </div>
