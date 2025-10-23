@@ -86,7 +86,17 @@ class DiscoEnUsoController extends Controller
                                      ->orderBy('articulo')
                                      ->get();
 
-        return view('discos-en-uso.create', compact('disco', 'computadoras', 'discosDisponibles'));
+        $inventarios = $discosDisponibles;
+        $inventariosData = $inventarios->map(function ($inv) {
+            return [
+                'id' => $inv->id,
+                'codigo' => $inv->codigo_inventario,
+                'modelo' => $inv->modelo,
+                'disponible' => $inv->cantidad_disponible > 0,
+            ];
+        })->values();
+
+        return view('discos-en-uso.create', compact('disco', 'computadoras', 'inventarios', 'inventariosData'));
     }
 
     /**
