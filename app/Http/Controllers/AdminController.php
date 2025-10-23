@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\BlockedEmail;
 use App\Models\InventoryItem;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
@@ -108,8 +109,21 @@ class AdminController extends Controller
      */
     public function users()
     {
-        $users = User::orderBy('created_at', 'desc')->paginate(15);
-        return view('admin.users.index', compact('users'));
+        $approvedUsers = User::where('status', User::STATUS_APPROVED)
+            ->orderBy('created_at', 'desc')
+            ->paginate(15, ['*'], 'approved_page');
+
+        $pendingUsers = User::where('status', User::STATUS_PENDING)
+            ->orderBy('created_at')
+            ->get();
+
+        $rejectedUsers = User::where('status', User::STATUS_REJECTED)
+            ->orderByDesc('rejected_at')
+            ->get();
+
+        $blockedEmails = BlockedEmail::orderByDesc('created_at')->get();
+
+        return view('admin.users.index', compact('approvedUsers', 'pendingUsers', 'rejectedUsers', 'blockedEmails'));
     }
 
     /**
@@ -156,6 +170,8 @@ class AdminController extends Controller
             'password' => Hash::make($request->password),
             'role' => $request->role,
             'email_verified_at' => now(),
+            'status' => User::STATUS_APPROVED,
+            'approved_at' => now(),
         ]);
 
         return redirect()->route('admin.users')->with('success', 'Usuario creado exitosamente.');
@@ -235,5 +251,55 @@ class AdminController extends Controller
         $user->delete();
 
         return redirect()->route('admin.users')->with('success', 'Usuario eliminado exitosamente.');
+    }
+
+    /**
+     * Aprobar una solicitud de usuario pendiente.
+     */
+    public function approveUser(User $user)
+    {
+        if ($user->status !== User::STATUS_PENDING) {
+            return redirect()->route('admin.users')->with('info', 'Este usuario ya fue procesado.');
+        }
+
+        $user->update([
+            'status' => User::STATUS_APPROVED,
+            'approved_at' => now(),
+            'rejected_at' => null,
+            'email_verified_at' => $user->email_verified_at ?? now(),
+        ]);
+
+        return redirect()->route('admin.users')->with('success', 'Usuario aprobado y habilitado para acceder al sistema.');
+    }
+
+    /**
+     * Rechazar una solicitud de usuario pendiente.
+     */
+    public function rejectUser(Request $request, User $user)
+    {
+        if ($user->status !== User::STATUS_PENDING) {
+            return redirect()->route('admin.users')->with('info', 'Este usuario ya fue procesado.');
+        }
+
+        $data = $request->validate([
+            'reason' => 'nullable|string|max:255',
+        ]);
+
+        BlockedEmail::updateOrCreate(
+            ['email' => $user->email],
+            [
+                'reason' => $data['reason'] ?? null,
+                'blocked_by' => auth()->id(),
+            ]
+        );
+
+        $user->update([
+            'status' => User::STATUS_REJECTED,
+            'rejected_at' => now(),
+            'approved_at' => null,
+            'email_verified_at' => null,
+        ]);
+
+        return redirect()->route('admin.users')->with('success', 'Solicitud rechazada y correo marcado como no permitido.');
     }
 }
