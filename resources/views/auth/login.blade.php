@@ -148,6 +148,9 @@
                             Iniciar Sesión
                         </button>
                     </div>
+                    <div class="mt-4 text-center text-sm text-gray-600">
+                        <p>¿Aún no tienes acceso? <a href="{{ route('register') }}" class="text-blue-600 hover:text-blue-800 font-medium">Solicita tu registro</a> y espera la aprobación del administrador.</p>
+                    </div>
                 </form>
             </div>
         </div>

@@ -112,8 +112,15 @@
                             </svg>
                             Iniciar Sesión
                         </a>
+                        <a href="{{ route('register') }}"
+                           class="bg-white border border-blue-200 hover:border-blue-400 hover:bg-blue-50 text-blue-700 font-medium py-3 px-6 rounded-lg transition-colors duration-200 inline-flex items-center justify-center">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                            </svg>
+                            Solicitar Registro
+                        </a>
                     </div>
-                    <p class="mt-4 text-xs sm:text-sm text-gray-500">Si necesitas una cuenta nueva, contacta al administrador del sistema.</p>
+                    <p class="mt-4 text-xs sm:text-sm text-gray-500">Las nuevas cuentas deben ser aprobadas por el administrador para garantizar que pertenezcan a la organización.</p>
                 </div>
             </div>
             @endguest

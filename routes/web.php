@@ -17,9 +17,14 @@ Route::get('/', function () {
 })->name('welcome');
 
 // Rutas de autenticación
-Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
-Route::post('/login', [AuthController::class, 'login']);
-Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+Route::middleware('guest')->group(function () {
+    Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
+    Route::post('/login', [AuthController::class, 'login']);
+    Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
+    Route::post('/register', [AuthController::class, 'register'])->name('register.store');
+});
+
+Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->name('logout');
 
 // Rutas protegidas de tickets (requieren autenticación)
 Route::middleware('auth')->group(function () {
@@ -70,6 +75,8 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
     Route::get('/users', [AdminController::class, 'users'])->name('users');
     Route::get('/users/create', [AdminController::class, 'createUser'])->name('users.create');
     Route::post('/users', [AdminController::class, 'storeUser'])->name('users.store');
+    Route::post('/users/{user}/approve', [AdminController::class, 'approveUser'])->name('users.approve');
+    Route::post('/users/{user}/reject', [AdminController::class, 'rejectUser'])->name('users.reject');
     Route::get('/users/{user}', [AdminController::class, 'showUser'])->name('users.show');
     Route::get('/users/{user}/edit', [AdminController::class, 'editUser'])->name('users.edit');
     Route::put('/users/{user}', [AdminController::class, 'updateUser'])->name('users.update');

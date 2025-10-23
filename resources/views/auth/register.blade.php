@@ -85,7 +85,7 @@
                     </div>
                 @endif
 
-                <form method="POST" action="{{ route('register') }}">
+                <form method="POST" action="{{ route('register.store') }}">
                     @csrf
 
                     <!-- Name -->
@@ -116,6 +116,7 @@
                                autocomplete="username"
                                placeholder="tu@correo.com"
                                class="block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 @error('email') border-red-300 @enderror">
+                        <p class="mt-1 text-xs text-gray-500">Utiliza tu correo corporativo con el dominio @estrategiaeinnovacion.com.mx.</p>
                     </div>
 
                     <!-- Password -->
@@ -123,13 +124,14 @@
                         <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
                             Contraseña
                         </label>
-                        <input type="password" 
-                               id="password" 
-                               name="password" 
-                               required 
+                        <input type="password"
+                               id="password"
+                               name="password"
+                               required
                                autocomplete="new-password"
                                placeholder="Mínimo 8 caracteres"
                                class="block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 @error('password') border-red-300 @enderror">
+                        <p class="mt-1 text-xs text-gray-500">Debe tener entre 8 y 16 caracteres e incluir números y símbolos.</p>
                     </div>
 
                     <!-- Confirm Password -->
@@ -156,6 +158,7 @@
                             Crear Cuenta
                         </button>
                     </div>
+                    <p class="mt-4 text-xs text-gray-500 text-center">Tu solicitud será revisada por un administrador antes de habilitar el acceso.</p>
                 </form>
             </div>
         </div>

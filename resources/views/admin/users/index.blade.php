@@ -124,13 +124,28 @@
                 </div>
             @endif
 
+            @if(session('info'))
+                <div class="mb-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <svg class="h-5 w-5 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-4a1 1 0 00-1 1v3a1 1 0 002 0V7a1 1 0 00-1-1zm0 8a1.25 1.25 0 100-2.5 1.25 1.25 0 000 2.5z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-blue-800 font-medium">{{ session('info') }}</p>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
             <!-- Header with Create Button -->
             <div class="flex justify-between items-center mb-8">
                 <div>
                     <h2 class="text-3xl font-bold text-gray-900">Usuarios del Sistema</h2>
                     <p class="text-gray-600 mt-2">Administra usuarios y administradores del sistema</p>
                 </div>
-                <a href="{{ route('admin.users.create') }}" 
+                <a href="{{ route('admin.users.create') }}"
                    class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 inline-flex items-center">
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
@@ -139,20 +154,87 @@
                 </a>
             </div>
 
+            @if($pendingUsers->count() > 0)
+                <div class="bg-white shadow-xl rounded-lg border border-yellow-200 mb-10">
+                    <div class="px-6 py-4 border-b border-yellow-100 bg-yellow-50 flex items-center justify-between">
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-900">Solicitudes Pendientes</h3>
+                            <p class="text-sm text-gray-600">{{ $pendingUsers->count() }} usuario(s) esperan aprobación</p>
+                        </div>
+                        <svg class="w-8 h-8 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M12 18a9 9 0 110-18 9 9 0 010 18z"></path>
+                        </svg>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Usuario</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Correo</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Solicitado</th>
+                                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                @foreach($pendingUsers as $user)
+                                    <tr class="hover:bg-yellow-50">
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $user->name }}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $user->email }}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $user->created_at->format('d/m/Y H:i') }}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                            <div class="flex flex-col lg:flex-row lg:justify-end lg:items-center gap-3">
+                                                <form method="POST" action="{{ route('admin.users.approve', $user) }}">
+                                                    @csrf
+                                                    <button type="submit" class="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-lg transition-colors duration-200">
+                                                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                                        </svg>
+                                                        Aprobar
+                                                    </button>
+                                                </form>
+
+                                                <form method="POST" action="{{ route('admin.users.reject', $user) }}" class="flex flex-col sm:flex-row sm:items-center sm:justify-end gap-2">
+                                                    @csrf
+                                                    <input type="text"
+                                                           name="reason"
+                                                           placeholder="Motivo (opcional)"
+                                                           class="w-full sm:w-48 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-400 focus:border-red-400"
+                                                           maxlength="255">
+                                                    <button type="submit" class="inline-flex items-center px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold rounded-lg transition-colors duration-200">
+                                                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                                        </svg>
+                                                        Rechazar
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            @endif
+
             <!-- Users Table -->
             <div class="bg-white shadow-xl rounded-lg border border-blue-100">
                 <div class="px-6 py-4 border-b border-gray-200">
-                    <h3 class="text-lg font-semibold text-gray-900">Lista de Usuarios</h3>
-                    <p class="text-sm text-gray-600">{{ $users->total() }} usuario(s) registrado(s)</p>
+                    <h3 class="text-lg font-semibold text-gray-900">Usuarios Aprobados</h3>
+                    <p class="text-sm text-gray-600">{{ $approvedUsers->total() }} usuario(s) con acceso</p>
                 </div>
 
-                @if($users->count() > 0)
+                @if($approvedUsers->count() > 0)
                     <div class="overflow-x-auto">
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50">
                                 <tr>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Usuario
+                                    </th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Estado
                                     </th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Rol
@@ -169,7 +251,7 @@
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
-                                @foreach($users as $user)
+                                @foreach($approvedUsers as $user)
                                     <tr class="hover:bg-gray-50">
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             <div class="flex items-center">
@@ -181,6 +263,11 @@
                                                     <div class="text-sm text-gray-500">{{ $user->email }}</div>
                                                 </div>
                                             </div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                                                Aprobado
+                                            </span>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full {{ $user->role === 'admin' ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800' }}">
@@ -218,9 +305,9 @@
                     </div>
 
                     <!-- Pagination -->
-                    @if($users->hasPages())
+                    @if($approvedUsers->hasPages())
                         <div class="px-6 py-4 border-t border-gray-200">
-                            {{ $users->links() }}
+                            {{ $approvedUsers->links() }}
                         </div>
                     @endif
                 @else
@@ -228,9 +315,9 @@
                         <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
                         </svg>
-                        <h3 class="text-lg font-semibold text-gray-900 mb-2">No hay usuarios registrados</h3>
-                        <p class="text-gray-600 mb-4">Comienza creando el primer usuario del sistema.</p>
-                        <a href="{{ route('admin.users.create') }}" 
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2">No hay usuarios aprobados</h3>
+                        <p class="text-gray-600 mb-4">Aprueba las solicitudes pendientes o crea el primer usuario del sistema.</p>
+                        <a href="{{ route('admin.users.create') }}"
                            class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 inline-flex items-center">
                             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
@@ -240,6 +327,62 @@
                     </div>
                 @endif
             </div>
+
+            @if($rejectedUsers->count() > 0)
+                <div class="bg-white shadow-xl rounded-lg border border-red-100 mt-10">
+                    <div class="px-6 py-4 border-b border-red-100 bg-red-50">
+                        <h3 class="text-lg font-semibold text-gray-900">Solicitudes Rechazadas Recientemente</h3>
+                        <p class="text-sm text-gray-600">Se mantiene un registro de usuarios marcados como externos a la organización.</p>
+                    </div>
+                    <div class="divide-y divide-gray-200">
+                        @foreach($rejectedUsers as $user)
+                            <div class="px-6 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                                <div class="mb-3 sm:mb-0">
+                                    <p class="text-sm font-semibold text-gray-900">{{ $user->name }}</p>
+                                    <p class="text-sm text-gray-500">{{ $user->email }}</p>
+                                </div>
+                                <div class="text-sm text-gray-500">
+                                    Rechazado el {{ optional($user->rejected_at)->format('d/m/Y H:i') ?? $user->updated_at->format('d/m/Y H:i') }}
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            @endif
+
+            @if($blockedEmails->count() > 0)
+                <div class="bg-white shadow-xl rounded-lg border border-gray-200 mt-10">
+                    <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-900">Correos No Permitidos</h3>
+                            <p class="text-sm text-gray-600">Listado de correos identificados como ajenos a la organización.</p>
+                        </div>
+                        <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-12.728 12.728M5.636 5.636l12.728 12.728"></path>
+                        </svg>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Correo</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Motivo</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Registrado</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                @foreach($blockedEmails as $blocked)
+                                    <tr>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $blocked->email }}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $blocked->reason ?? 'Sin especificar' }}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $blocked->created_at->format('d/m/Y H:i') }}</td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            @endif
         </main>
 
         <!-- Footer -->

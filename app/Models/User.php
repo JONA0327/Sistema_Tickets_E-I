@@ -17,11 +17,18 @@ class User extends Authenticatable
      *
      * @var list<string>
      */
+    public const STATUS_PENDING = 'pending';
+    public const STATUS_APPROVED = 'approved';
+    public const STATUS_REJECTED = 'rejected';
+
     protected $fillable = [
         'name',
         'email',
         'password',
         'role',
+        'status',
+        'approved_at',
+        'rejected_at',
     ];
 
     /**
@@ -44,7 +51,17 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'approved_at' => 'datetime',
+            'rejected_at' => 'datetime',
         ];
+    }
+
+    /**
+     * Determina si el usuario está aprobado para acceder al sistema.
+     */
+    public function isApproved(): bool
+    {
+        return $this->status === self::STATUS_APPROVED;
     }
 
     /**
