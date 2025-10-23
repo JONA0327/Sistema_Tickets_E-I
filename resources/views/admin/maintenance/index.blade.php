@@ -29,6 +29,14 @@
 
                         <x-admin.notification-center />
 
+                        <form method="POST" action="{{ route('admin.maintenance.slots.destroy-past') }}" class="flex items-center" onsubmit="return confirm('¿Eliminar todos los horarios pasados? Esta acción cancelará las reservaciones asociadas.');">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="inline-flex items-center px-4 py-2 rounded-lg border border-red-200 bg-red-50 text-red-600 hover:bg-red-100 text-sm font-medium transition-colors">
+                                Eliminar horarios pasados
+                            </button>
+                        </form>
+
                         <form method="POST" action="{{ route('logout') }}" class="flex items-center">
                             @csrf
                             <button type="submit" class="text-sm text-red-600 hover:text-red-800 font-medium">Cerrar sesión</button>
