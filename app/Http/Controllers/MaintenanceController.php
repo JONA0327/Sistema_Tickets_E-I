@@ -5,9 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\ComputerProfile;
 use App\Models\MaintenanceSlot;
 use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class MaintenanceController extends Controller
@@ -273,15 +274,81 @@ class MaintenanceController extends Controller
 
     public function destroySlot(MaintenanceSlot $slot): RedirectResponse
     {
-        if ($slot->booked_count > 0) {
-            $slot->update(['is_active' => false]);
+        $result = $this->cancelBookingsAndDeleteSlot($slot);
 
-            return redirect()->back()->with('success', 'El horario tiene reservaciones activas. Se deshabilitó en lugar de eliminarse.');
+        $message = 'Horario eliminado correctamente.';
+        if ($result['cancelled_bookings'] > 0) {
+            $message .= ' Se cancelaron ' . $result['cancelled_bookings'] . ' reservación(es) asociada(s).';
         }
 
-        $slot->delete();
+        return redirect()->back()->with('success', $message);
+    }
 
-        return redirect()->back()->with('success', 'Horario eliminado correctamente.');
+    public function destroyPastSlots(): RedirectResponse
+    {
+        $today = Carbon::now('America/Mexico_City')->toDateString();
+
+        $slots = MaintenanceSlot::whereDate('date', '<', $today)
+            ->orderBy('date')
+            ->get();
+
+        if ($slots->isEmpty()) {
+            return redirect()->back()->with('success', 'No hay horarios pasados para eliminar.');
+        }
+
+        $deletedSlots = 0;
+        $cancelledBookings = 0;
+
+        foreach ($slots as $slot) {
+            $result = $this->cancelBookingsAndDeleteSlot($slot);
+            $deletedSlots++;
+            $cancelledBookings += $result['cancelled_bookings'];
+        }
+
+        $message = 'Se eliminaron ' . $deletedSlots . ' horario(s) pasado(s).';
+        if ($cancelledBookings > 0) {
+            $message .= ' Se cancelaron ' . $cancelledBookings . ' reservación(es) asociada(s).';
+        }
+
+        return redirect()->back()->with('success', $message);
+    }
+
+    private function cancelBookingsAndDeleteSlot(MaintenanceSlot $slot): array
+    {
+        return DB::transaction(function () use ($slot) {
+            $slot->loadMissing(['bookings.ticket']);
+
+            $cancelledBookings = 0;
+
+            foreach ($slot->bookings as $booking) {
+                $ticket = $booking->ticket;
+
+                if ($ticket) {
+                    $updates = [
+                        'maintenance_slot_id' => null,
+                        'maintenance_scheduled_at' => null,
+                    ];
+
+                    if ($ticket->tipo_problema === 'mantenimiento') {
+                        $updates = array_merge($updates, [
+                            'user_has_updates' => true,
+                            'user_notified_at' => now(),
+                            'user_notification_summary' => 'El horario reservado para tu mantenimiento fue cancelado por el equipo de TI.',
+                        ]);
+                    }
+
+                    $ticket->forceFill($updates)->save();
+                }
+
+                $cancelledBookings++;
+            }
+
+            $slot->delete();
+
+            return [
+                'cancelled_bookings' => $cancelledBookings,
+            ];
+        });
     }
 
     public function computersIndex(): View
