@@ -23,18 +23,28 @@ class MaintenanceController extends Controller
 
         $end = $start->copy()->endOfMonth();
 
+        $now = Carbon::now('America/Mexico_City');
+
         $slots = MaintenanceSlot::active()
             ->whereBetween('date', [$start->toDateString(), $end->toDateString()])
             ->orderBy('date')
             ->get()
             ->groupBy(fn ($slot) => $slot->date->toDateString())
-            ->map(function ($daySlots) {
-                $totalCapacity = $daySlots->sum('capacity');
-                $booked = $daySlots->sum('booked_count');
-                $available = max(0, $totalCapacity - $booked);
+            ->map(function ($daySlots) use ($now) {
+                $date = $daySlots->first()->date->toDateString();
+                $dayDate = Carbon::parse($date, 'America/Mexico_City');
 
-                if ($totalCapacity === 0) {
-                    $status = 'empty';
+                // Mantener únicamente los horarios futuros respecto a la hora de México
+                $futureSlots = $daySlots->filter(fn (MaintenanceSlot $slot) => $slot->start_date_time->greaterThan($now));
+
+                $totalCapacity = $futureSlots->sum('capacity');
+                $booked = $futureSlots->sum('booked_count');
+                $available = max(0, $totalCapacity - $booked);
+                $availableSlots = $futureSlots->filter(fn (MaintenanceSlot $slot) => $slot->available_capacity > 0)->count();
+
+                if ($dayDate->copy()->endOfDay()->lessThanOrEqualTo($now) || $futureSlots->isEmpty()) {
+                    $status = 'past';
+                    $available = 0;
                 } elseif ($available === 0) {
                     $status = 'full';
                 } elseif ($booked === 0) {
@@ -44,11 +54,13 @@ class MaintenanceController extends Controller
                 }
 
                 return [
-                    'date' => $daySlots->first()->date->toDateString(),
+                    'date' => $date,
                     'total_slots' => $daySlots->count(),
                     'total_capacity' => $totalCapacity,
                     'booked' => $booked,
                     'available' => $available,
+                    'available_slots' => $availableSlots,
+                    'is_past' => $status === 'past',
                     'status' => $status,
                 ];
             })
@@ -66,22 +78,38 @@ class MaintenanceController extends Controller
             'date' => 'required|date_format:Y-m-d',
         ]);
 
+        $now = Carbon::now('America/Mexico_City');
+
         $slots = MaintenanceSlot::active()
             ->whereDate('date', $request->query('date'))
             ->orderBy('start_time')
             ->get()
-            ->map(function (MaintenanceSlot $slot) {
-                $start = Carbon::parse($slot->start_time instanceof Carbon ? $slot->start_time->format('H:i:s') : $slot->start_time);
-                $end = Carbon::parse($slot->end_time instanceof Carbon ? $slot->end_time->format('H:i:s') : $slot->end_time);
+            ->map(function (MaintenanceSlot $slot) use ($now) {
+                $start = $slot->start_date_time;
+                $end = $slot->end_date_time;
+
+                $isPast = $start->lessThanOrEqualTo($now);
+                $availableCapacity = $isPast ? 0 : $slot->available_capacity;
+
+                if ($isPast) {
+                    $status = 'past';
+                } elseif ($availableCapacity === 0) {
+                    $status = 'full';
+                } elseif ($availableCapacity === $slot->capacity) {
+                    $status = 'available';
+                } else {
+                    $status = 'partial';
+                }
 
                 return [
                     'id' => $slot->id,
                     'start' => $start->format('H:i'),
                     'end' => $end->format('H:i'),
                     'label' => $start->format('H:i') . ' - ' . $end->format('H:i'),
-                    'available' => $slot->available_capacity,
+                    'available' => $availableCapacity,
                     'capacity' => $slot->capacity,
-                    'status' => $slot->available_capacity === 0 ? 'full' : ($slot->available_capacity === $slot->capacity ? 'available' : 'partial'),
+                    'status' => $status,
+                    'is_past' => $isPast,
                 ];
             });
 

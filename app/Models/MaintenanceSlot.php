@@ -35,13 +35,21 @@ class MaintenanceSlot extends Model
     public function getStartDateTimeAttribute(): Carbon
     {
         $start = $this->start_time instanceof Carbon ? $this->start_time->format('H:i:s') : $this->start_time;
-        return Carbon::parse($this->date->format('Y-m-d').' '.$start);
+
+        return Carbon::parse(
+            $this->date->format('Y-m-d') . ' ' . $start,
+            'America/Mexico_City'
+        )->setTimezone('America/Mexico_City');
     }
 
     public function getEndDateTimeAttribute(): Carbon
     {
         $end = $this->end_time instanceof Carbon ? $this->end_time->format('H:i:s') : $this->end_time;
-        return Carbon::parse($this->date->format('Y-m-d').' '.$end);
+
+        return Carbon::parse(
+            $this->date->format('Y-m-d') . ' ' . $end,
+            'America/Mexico_City'
+        )->setTimezone('America/Mexico_City');
     }
 
     public function getAvailableCapacityAttribute(): int
