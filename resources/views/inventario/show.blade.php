@@ -574,11 +574,32 @@
                                 </div>
                             @endif
 
-                            @if($inventario->observaciones)
-                                <div class="mt-6">
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Observaciones</label>
-                                    <div class="bg-gray-50 p-4 rounded-lg border">
-                                        <p class="text-sm text-gray-900 whitespace-pre-wrap">{{ $inventario->observaciones }}</p>
+                            @php
+                                $observacionesSeparadas = $inventario->observaciones_separadas;
+                            @endphp
+                            @if($observacionesSeparadas['general'] || count($observacionesSeparadas['detalles']) > 0)
+                                <div class="mt-6 space-y-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">Observaciones</label>
+                                        <div class="bg-gray-50 p-4 rounded-lg border space-y-3">
+                                            @if($observacionesSeparadas['general'])
+                                                <div>
+                                                    <h4 class="text-sm font-semibold text-gray-800 mb-1">Generales</h4>
+                                                    <p class="text-sm text-gray-900 whitespace-pre-wrap">{{ $observacionesSeparadas['general'] }}</p>
+                                                </div>
+                                            @endif
+
+                                            @if(count($observacionesSeparadas['detalles']) > 0)
+                                                <div>
+                                                    <h4 class="text-sm font-semibold text-gray-800 mb-1">Por unidad</h4>
+                                                    <ul class="list-disc list-inside space-y-1 text-sm text-gray-900">
+                                                        @foreach($observacionesSeparadas['detalles'] as $detalle)
+                                                            <li class="whitespace-pre-line">{{ $detalle }}</li>
+                                                        @endforeach
+                                                    </ul>
+                                                </div>
+                                            @endif
+                                        </div>
                                     </div>
                                 </div>
                             @endif
