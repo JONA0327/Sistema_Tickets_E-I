@@ -221,13 +221,21 @@
                                             </div>
                                         @endif
                                     @else
-                                        @if($inventario->cantidad_disponible != $inventario->cantidad)
+                                        @if($inventario->estado === 'dañado')
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700">Disponibilidad</label>
+                                                <p class="mt-1 text-sm text-red-600">
+                                                    <span class="font-bold text-lg">No disponible</span>
+                                                    <span class="text-gray-600 block text-xs">Esta unidad no se encuentra disponible debido a su estado.</span>
+                                                </p>
+                                            </div>
+                                        @elseif($inventario->cantidad_disponible != $inventario->cantidad)
                                             <div>
                                                 <label class="block text-sm font-medium text-gray-700">En Préstamo</label>
                                                 <p class="mt-1 text-sm">
                                                     <span class="font-bold text-lg text-amber-600">
                                                         {{ $inventario->cantidad - $inventario->cantidad_disponible }}
-                                                    </span> 
+                                                    </span>
                                                     <span class="text-gray-600">prestadas</span>
                                                 </p>
                                             </div>
