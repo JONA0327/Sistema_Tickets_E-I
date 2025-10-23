@@ -403,7 +403,8 @@
                     available: 'bg-green-100 text-green-700 border border-green-200 hover:bg-green-200',
                     partial: 'bg-yellow-100 text-yellow-700 border border-yellow-200 hover:bg-yellow-200',
                     full: 'bg-red-100 text-red-700 border border-red-200 cursor-not-allowed',
-                    empty: 'bg-gray-100 text-gray-400 border border-gray-200 cursor-not-allowed'
+                    empty: 'bg-gray-100 text-gray-400 border border-gray-200 cursor-not-allowed',
+                    past: 'bg-gray-100 text-gray-400 border border-gray-200 cursor-not-allowed'
                 };
 
                 prevButton.addEventListener('click', () => {
@@ -465,7 +466,7 @@
                         button.dataset.date = isoDate;
                         button.className = `h-12 rounded-lg flex flex-col items-center justify-center text-sm transition-colors duration-200 ${statusClasses[status] || statusClasses.empty}`;
 
-                        if (status === 'full' || status === 'empty') {
+                        if (status === 'full' || status === 'empty' || status === 'past' || info?.is_past) {
                             button.disabled = true;
                         } else {
                             button.classList.add('cursor-pointer');
@@ -521,31 +522,49 @@
                             let matchedSlot = false;
 
                             slots.forEach(slot => {
+                                const isUnavailable = slot.status === 'full' || slot.status === 'past' || slot.available <= 0;
                                 const label = document.createElement('label');
-                                label.className = 'flex items-center justify-between border rounded-lg px-3 py-2 cursor-pointer transition-colors duration-200 hover:border-blue-300';
+                                label.className = 'flex items-center justify-between border rounded-lg px-3 py-2 transition-colors duration-200';
+
+                                if (isUnavailable) {
+                                    label.classList.add('bg-gray-100', 'border-gray-200', 'cursor-not-allowed', 'opacity-70');
+                                } else {
+                                    label.classList.add('cursor-pointer', 'hover:border-blue-300');
+                                }
 
                                 const radio = document.createElement('input');
                                 radio.type = 'radio';
                                 radio.name = 'maintenance_slot_choice';
                                 radio.value = slot.id;
                                 radio.className = 'h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300';
+                                radio.disabled = isUnavailable;
 
-                                if (hiddenSlotInput.value && String(hiddenSlotInput.value) === String(slot.id)) {
+                                if (!isUnavailable && hiddenSlotInput.value && String(hiddenSlotInput.value) === String(slot.id)) {
                                     radio.checked = true;
                                     selectedSlotLabel.textContent = `Horario seleccionado: ${slot.label}`;
                                     matchedSlot = true;
                                 }
 
-                                radio.addEventListener('change', () => {
-                                    hiddenSlotInput.value = slot.id;
-                                    selectedSlotLabel.textContent = `Horario seleccionado: ${slot.label}`;
-                                });
+                                if (!isUnavailable) {
+                                    radio.addEventListener('change', () => {
+                                        hiddenSlotInput.value = slot.id;
+                                        selectedSlotLabel.textContent = `Horario seleccionado: ${slot.label}`;
+                                    });
+                                }
 
                                 const infoContainer = document.createElement('div');
                                 infoContainer.className = 'flex flex-col text-sm text-gray-700';
+                                let availabilityText = `${slot.available} lugar(es) disponible(s)`;
+
+                                if (slot.status === 'past') {
+                                    availabilityText = 'Horario no disponible (pasado)';
+                                } else if (slot.status === 'full') {
+                                    availabilityText = 'Sin lugares disponibles';
+                                }
+
                                 infoContainer.innerHTML = `
                                     <span class="font-semibold text-gray-900">${slot.label}</span>
-                                    <span class="text-xs text-gray-500">${slot.available} lugar(es) disponible(s)</span>
+                                    <span class="text-xs ${isUnavailable ? 'text-gray-400' : 'text-gray-500'}">${availabilityText}</span>
                                 `;
 
                                 label.appendChild(radio);
@@ -557,6 +576,11 @@
                             if (!matchedSlot) {
                                 hiddenSlotInput.value = '';
                                 selectedSlotLabel.textContent = '';
+                            }
+
+                            if (!slots.some(slot => slot.status !== 'past' && slot.status !== 'full' && slot.available > 0)) {
+                                noSlotsMessage.classList.remove('hidden');
+                                noSlotsMessage.textContent = 'No hay horarios disponibles para la fecha seleccionada.';
                             }
                         })
                         .catch(() => {
