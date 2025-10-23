@@ -120,6 +120,7 @@
                     <!-- Form -->
                     @php
                         $esMultiple = str_contains($inventario->observaciones ?? '', '--- DETALLES POR UNIDAD ---');
+                        $observacionesSeparadas = $inventario->observaciones_separadas;
                         $unidades = [];
                         $oldUnits = old('unidades');
 
@@ -134,37 +135,33 @@
                                 ];
                             }
                         } elseif ($esMultiple) {
-                            $partes = explode('--- DETALLES POR UNIDAD ---', $inventario->observaciones);
-                            $detalles = trim($partes[1] ?? '');
+                            $detalles = $observacionesSeparadas['detalles'] ?? [];
 
-                            if ($detalles) {
-                                $lineas = array_filter(explode("\n", $detalles));
-                                foreach ($lineas as $index => $linea) {
-                                    if (str_contains($linea, 'UNIDAD')) {
-                                        $partes_unidad = explode(' | ', $linea);
-                                        $unidad = [
-                                            'numero' => trim(str_replace('UNIDAD', '', $partes_unidad[0] ?? '')) ?: ($index + 1),
-                                            'estado' => 'nuevo',
-                                            'color_primario' => '',
-                                            'color_secundario' => '',
-                                            'observaciones' => ''
-                                        ];
+                            foreach ($detalles as $index => $linea) {
+                                if (str_contains($linea, 'UNIDAD')) {
+                                    $partes_unidad = explode(' | ', $linea);
+                                    $unidad = [
+                                        'numero' => trim(str_replace('UNIDAD', '', $partes_unidad[0] ?? '')) ?: ($index + 1),
+                                        'estado' => 'nuevo',
+                                        'color_primario' => '',
+                                        'color_secundario' => '',
+                                        'observaciones' => ''
+                                    ];
 
-                                        foreach ($partes_unidad as $parte) {
-                                            if (str_contains($parte, 'Estado:')) {
-                                                $unidad['estado'] = strtolower(trim(str_replace('Estado:', '', $parte)));
-                                            } elseif (str_contains($parte, 'Color primario:')) {
-                                                $unidad['color_primario'] = trim(str_replace('Color primario:', '', $parte));
-                                            } elseif (str_contains($parte, 'Color secundario:')) {
-                                                $unidad['color_secundario'] = trim(str_replace('Color secundario:', '', $parte));
-                                            } elseif (str_contains($parte, 'Color:')) {
-                                                $unidad['color_primario'] = trim(str_replace('Color:', '', $parte));
-                                            } elseif (str_contains($parte, 'Notas:')) {
-                                                $unidad['observaciones'] = trim(str_replace('Notas:', '', $parte));
-                                            }
+                                    foreach ($partes_unidad as $parte) {
+                                        if (str_contains($parte, 'Estado:')) {
+                                            $unidad['estado'] = strtolower(trim(str_replace('Estado:', '', $parte)));
+                                        } elseif (str_contains($parte, 'Color primario:')) {
+                                            $unidad['color_primario'] = trim(str_replace('Color primario:', '', $parte));
+                                        } elseif (str_contains($parte, 'Color secundario:')) {
+                                            $unidad['color_secundario'] = trim(str_replace('Color secundario:', '', $parte));
+                                        } elseif (str_contains($parte, 'Color:')) {
+                                            $unidad['color_primario'] = trim(str_replace('Color:', '', $parte));
+                                        } elseif (str_contains($parte, 'Notas:')) {
+                                            $unidad['observaciones'] = trim(str_replace('Notas:', '', $parte));
                                         }
-                                        $unidades[] = $unidad;
                                     }
+                                    $unidades[] = $unidad;
                                 }
                             }
                         }
@@ -578,8 +575,8 @@
                                         <span x-show="esMultiple">Observaciones Generales (opcionales)</span>
                                     </label>
                                     @php
-                                        $observacionesGenerales = $esMultiple ? 
-                                            trim(str_replace('GENERAL:', '', explode('--- DETALLES POR UNIDAD ---', $inventario->observaciones)[0] ?? '')) : 
+                                        $observacionesGenerales = $esMultiple ?
+                                            ($observacionesSeparadas['general'] ?? '') :
                                             $inventario->observaciones;
                                     @endphp
                                     <textarea name="observaciones" 

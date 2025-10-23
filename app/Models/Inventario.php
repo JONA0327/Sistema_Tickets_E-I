@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class Inventario extends Model
 {
@@ -175,11 +176,65 @@ class Inventario extends Model
     public function scopeDisponibles($query)
     {
         return $query->funcionales()->whereRaw('cantidad > (
-            SELECT COALESCE(SUM(cantidad_prestada), 0) 
-            FROM prestamos_inventario 
-            WHERE inventario_id = inventarios.id 
+            SELECT COALESCE(SUM(cantidad_prestada), 0)
+            FROM prestamos_inventario
+            WHERE inventario_id = inventarios.id
             AND estado_prestamo = "activo"
         )');
+    }
+
+    public function getObservacionesSeparadasAttribute()
+    {
+        $general = null;
+        $detalles = [];
+
+        if (empty($this->observaciones)) {
+            return [
+                'general' => null,
+                'detalles' => []
+            ];
+        }
+
+        $texto = trim($this->observaciones);
+
+        if (Str::contains($texto, '--- DETALLES POR UNIDAD ---')) {
+            [$generalPart, $detallesPart] = array_pad(explode('--- DETALLES POR UNIDAD ---', $texto, 2), 2, null);
+
+            $generalPart = trim($generalPart ?? '');
+            if ($generalPart !== '') {
+                $generalPart = preg_replace('/^GENERAL:\s*/i', '', $generalPart);
+                $general = $generalPart !== '' ? trim($generalPart) : null;
+            }
+
+            $lineas = preg_split("/\r\n|\n|\r/", trim($detallesPart ?? ''));
+            foreach ($lineas as $linea) {
+                $linea = trim($linea);
+                if ($linea !== '') {
+                    $detalles[] = $linea;
+                }
+            }
+        } elseif (Str::contains($texto, ' | ')) {
+            $partes = array_map('trim', explode(' | ', $texto));
+            if (count($partes) > 0) {
+                $general = array_shift($partes);
+                if ($general === '') {
+                    $general = null;
+                }
+
+                foreach ($partes as $parte) {
+                    if ($parte !== '') {
+                        $detalles[] = $parte;
+                    }
+                }
+            }
+        } else {
+            $general = $texto;
+        }
+
+        return [
+            'general' => $general,
+            'detalles' => $detalles
+        ];
     }
 
     // Obtener el nombre formateado de la categoría
