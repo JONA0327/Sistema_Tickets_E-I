@@ -351,12 +351,29 @@
                                          x-transition
                                          x-data="{
                                              unidades: @js($unidadesIniciales),
-                                             aplicarColoresGenerales() {
-                                                 this.unidades = this.unidades.map((unidad) => ({
-                                                     ...unidad,
-                                                     color_primario: unidad.color_primario || this.$root.colorPrimario || '',
-                                                     color_secundario: unidad.color_secundario || this.$root.colorSecundario || ''
-                                                 }));
+                                             aplicarColoresGenerales(forzar = false) {
+                                                 const colorPrimarioGeneral = this.$root.colorPrimario;
+                                                 const colorSecundarioGeneral = this.$root.colorSecundario;
+
+                                                 this.unidades = this.unidades.map((unidad) => {
+                                                     const colorPrimario = forzar
+                                                         ? (colorPrimarioGeneral !== undefined && colorPrimarioGeneral !== null
+                                                             ? colorPrimarioGeneral
+                                                             : '')
+                                                         : (unidad.color_primario || colorPrimarioGeneral || '');
+
+                                                     const colorSecundario = forzar
+                                                         ? (colorSecundarioGeneral !== undefined && colorSecundarioGeneral !== null
+                                                             ? colorSecundarioGeneral
+                                                             : '')
+                                                         : (unidad.color_secundario || colorSecundarioGeneral || '');
+
+                                                     return {
+                                                         ...unidad,
+                                                         color_primario: colorPrimario,
+                                                         color_secundario: colorSecundario
+                                                     };
+                                                 });
                                              },
                                              agregarUnidad() {
                                                  this.unidades.push({
@@ -385,7 +402,7 @@
                                                 </div>
                                                 <div class="flex items-center gap-2">
                                                     <button type="button"
-                                                            @click="aplicarColoresGenerales()"
+                                                            @click="aplicarColoresGenerales(true)"
                                                             class="px-3 py-1 text-xs font-medium text-blue-700 bg-white border border-blue-200 rounded-md hover:bg-blue-100 transition-colors">
                                                         Aplicar colores generales
                                                     </button>
@@ -397,9 +414,9 @@
                                                 </div>
                                             </div>
 
-                                            <div class="space-y-3 max-h-64 overflow-y-auto">
+                                            <div class="space-y-4 max-h-[32rem] overflow-y-auto pr-1">
                                                 <template x-for="(unidad, index) in unidades" :key="index">
-                                                    <div class="bg-white border border-gray-200 rounded-lg p-3">
+                                                    <div class="bg-white border border-gray-200 rounded-lg p-4">
                                                         <div class="flex items-center justify-between mb-3">
                                                             <h5 class="text-sm font-medium text-gray-700">
                                                                 Unidad <span x-text="index + 1"></span>
@@ -415,7 +432,7 @@
                                                             </button>
                                                         </div>
 
-                                                        <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+                                                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                                                             <!-- Estado -->
                                                             <div>
                                                                 <label class="block text-xs font-medium text-gray-700 mb-1">Estado</label>
