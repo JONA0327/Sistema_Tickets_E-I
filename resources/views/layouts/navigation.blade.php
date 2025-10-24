@@ -75,63 +75,86 @@
                     <x-admin.notification-center class="hidden xl:flex" />
                 @endif
 
-                <div class="relative" x-data="{ open: false }">
-                    <button
-                        type="button"
-                        @click="open = !open"
-                        @click.outside="open = false"
-                        class="flex items-center gap-3 px-3 py-2 rounded-full bg-blue-50 text-sm text-gray-700 hover:bg-blue-100 transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
-                    >
-                        <span class="flex items-center justify-center w-9 h-9 rounded-full bg-blue-600 text-white font-semibold">
-                            {{ $initials }}
-                        </span>
-                        <span class="text-left">
-                            <span class="block font-semibold text-gray-900">{{ $user?->name }}</span>
-                            <span class="block text-xs text-gray-500">{{ $user?->email }}</span>
-                        </span>
-                        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                        </svg>
-                    </button>
-
-                    <div
-                        x-cloak
-                        x-show="open"
-                        x-transition:enter="transition ease-out duration-150"
-                        x-transition:enter-start="transform opacity-0 scale-95"
-                        x-transition:enter-end="transform opacity-100 scale-100"
-                        x-transition:leave="transition ease-in duration-100"
-                        x-transition:leave-start="transform opacity-100 scale-100"
-                        x-transition:leave-end="transform opacity-0 scale-95"
-                        class="absolute right-0 mt-3 w-72 bg-white border border-gray-200 rounded-xl shadow-xl z-50"
-                    >
-                        <div class="px-4 py-3 border-b border-gray-100">
-                            <p class="text-sm font-semibold text-gray-900">{{ $user?->name }}</p>
-                            <p class="text-xs text-gray-500">{{ $user?->email }}</p>
-                            <span class="inline-flex mt-2 items-center px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-600">
-                                {{ $roleLabel }}
+                @if ($user)
+                    <div class="relative" x-data="{ open: false }">
+                        <button
+                            type="button"
+                            @click="open = !open"
+                            @click.outside="open = false"
+                            class="flex items-center gap-3 px-3 py-2 rounded-full bg-blue-50 text-sm text-gray-700 hover:bg-blue-100 transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                        >
+                            <span class="flex items-center justify-center w-9 h-9 rounded-full bg-blue-600 text-white font-semibold">
+                                {{ $initials }}
                             </span>
-                        </div>
+                            <span class="text-left">
+                                <span class="block font-semibold text-gray-900">{{ $user?->name }}</span>
+                                <span class="block text-xs text-gray-500">{{ $user?->email }}</span>
+                            </span>
+                            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </button>
 
-                        <div class="py-2">
-                            <a href="{{ route('profile.edit') }}" class="flex items-center px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 transition-colors duration-150">
-                                <svg class="w-5 h-5 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L7.5 20.5H4v-3.5L16.732 3.732z" />
-                                </svg>
-                                Mi perfil
-                            </a>
-                            <form method="POST" action="{{ route('logout') }}" class="mt-1">
-                                @csrf
-                                <button type="submit" class="w-full flex items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors duration-150">
-                                    <svg class="w-5 h-5 mr-3 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4" />
+                        <div
+                            x-cloak
+                            x-show="open"
+                            x-transition:enter="transition ease-out duration-150"
+                            x-transition:enter-start="transform opacity-0 scale-95"
+                            x-transition:enter-end="transform opacity-100 scale-100"
+                            x-transition:leave="transition ease-in duration-100"
+                            x-transition:leave-start="transform opacity-100 scale-100"
+                            x-transition:leave-end="transform opacity-0 scale-95"
+                            class="absolute right-0 mt-3 w-72 bg-white border border-gray-200 rounded-xl shadow-xl z-50"
+                        >
+                            <div class="px-4 py-3 border-b border-gray-100">
+                                <p class="text-sm font-semibold text-gray-900">{{ $user?->name }}</p>
+                                <p class="text-xs text-gray-500">{{ $user?->email }}</p>
+                                <span class="inline-flex mt-2 items-center px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-600">
+                                    {{ $roleLabel }}
+                                </span>
+                            </div>
+
+                            <div class="py-2">
+                                <a href="{{ route('profile.edit') }}" class="flex items-center px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 transition-colors duration-150">
+                                    <svg class="w-5 h-5 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L7.5 20.5H4v-3.5L16.732 3.732z" />
                                     </svg>
-                                    Cerrar sesión
-                                </button>
-                            </form>
+                                    Mi perfil
+                                </a>
+                                <form method="POST" action="{{ route('logout') }}" class="mt-1">
+                                    @csrf
+                                    <button type="submit" class="w-full flex items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors duration-150">
+                                        <svg class="w-5 h-5 mr-3 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4" />
+                                        </svg>
+                                        Cerrar sesión
+                                    </button>
+                                </form>
+                            </div>
                         </div>
                     </div>
-                </div>
+                @else
+                    <div class="flex items-center gap-3">
+                        <a
+                            href="{{ route('login') }}"
+                            class="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                        >
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+                            </svg>
+                            Iniciar sesión
+                        </a>
+                        <a
+                            href="{{ route('register') }}"
+                            class="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                        >
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                            </svg>
+                            Solicitar registro
+                        </a>
+                    </div>
+                @endif
             </div>
 
             <div class="flex items-center gap-3 lg:hidden">
@@ -168,14 +191,37 @@
         class="lg:hidden border-t border-gray-200 bg-white"
     >
         <div class="px-4 pt-4 pb-6 space-y-4">
-            <div class="flex items-center gap-3">
-                <span class="flex items-center justify-center w-10 h-10 rounded-full bg-blue-600 text-white font-semibold">{{ $initials }}</span>
-                <div>
-                    <p class="text-sm font-semibold text-gray-900">{{ $user?->name }}</p>
-                    <p class="text-xs text-gray-500">{{ $user?->email }}</p>
-                    <span class="inline-flex mt-1 items-center px-2 py-0.5 text-xs font-medium rounded-full bg-gray-100 text-gray-600">{{ $roleLabel }}</span>
+            @if ($user)
+                <div class="flex items-center gap-3">
+                    <span class="flex items-center justify-center w-10 h-10 rounded-full bg-blue-600 text-white font-semibold">{{ $initials }}</span>
+                    <div>
+                        <p class="text-sm font-semibold text-gray-900">{{ $user?->name }}</p>
+                        <p class="text-xs text-gray-500">{{ $user?->email }}</p>
+                        <span class="inline-flex mt-1 items-center px-2 py-0.5 text-xs font-medium rounded-full bg-gray-100 text-gray-600">{{ $roleLabel }}</span>
+                    </div>
                 </div>
-            </div>
+            @else
+                <div class="space-y-2">
+                    <a
+                        href="{{ route('login') }}"
+                        class="w-full inline-flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-sm font-semibold text-blue-600 bg-blue-50 hover:bg-blue-100"
+                    >
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+                        </svg>
+                        Iniciar sesión
+                    </a>
+                    <a
+                        href="{{ route('register') }}"
+                        class="w-full inline-flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700"
+                    >
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                        </svg>
+                        Solicitar registro
+                    </a>
+                </div>
+            @endif
 
             <div class="space-y-2">
                 @foreach ($filteredItems as $item)
@@ -190,23 +236,25 @@
                 @endforeach
             </div>
 
-            <div class="border-t border-gray-100 pt-4 space-y-2">
-                <a href="{{ route('profile.edit') }}" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-gray-700 hover:bg-gray-50">
-                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L7.5 20.5H4v-3.5L16.732 3.732z" />
-                    </svg>
-                    Mi perfil
-                </a>
-                <form method="POST" action="{{ route('logout') }}">
-                    @csrf
-                    <button type="submit" class="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-red-600 hover:bg-red-50">
-                        <svg class="w-5 h-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4" />
+            @if ($user)
+                <div class="border-t border-gray-100 pt-4 space-y-2">
+                    <a href="{{ route('profile.edit') }}" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-gray-700 hover:bg-gray-50">
+                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L7.5 20.5H4v-3.5L16.732 3.732z" />
                         </svg>
-                        Cerrar sesión
-                    </button>
-                </form>
-            </div>
+                        Mi perfil
+                    </a>
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <button type="submit" class="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-red-600 hover:bg-red-50">
+                            <svg class="w-5 h-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4" />
+                            </svg>
+                            Cerrar sesión
+                        </button>
+                    </form>
+                </div>
+            @endif
         </div>
     </div>
 </nav>

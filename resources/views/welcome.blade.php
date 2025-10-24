@@ -21,27 +21,7 @@
         <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     </head>
     <body class="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100">
-        <!-- Header -->
-        <header class="bg-white shadow-sm border-b border-blue-100">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 py-4">
-                    <div class="flex items-center min-w-0">
-                        <div class="flex-shrink-0">
-                            <div class="flex items-center">
-                                <img src="{{ asset('images/logo-ei.png') }}" alt="E&I Logo" class="h-12 w-auto mr-3">
-                                <div class="min-w-0">
-                                    <h1 class="text-lg sm:text-xl font-bold text-gray-900 leading-tight">Sistema de Tickets</h1>
-                                    <p class="text-xs sm:text-sm text-gray-600">E&I - Tecnología</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    @auth
-                        <x-authenticated-actions theme="blue" />
-                    @endauth
-                </div>
-            </div>
-        </header>
+        @include('layouts.navigation')
 
         <!-- Main Content -->
         <main class="max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
