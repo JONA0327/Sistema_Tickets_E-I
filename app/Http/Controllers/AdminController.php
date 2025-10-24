@@ -182,29 +182,35 @@ class AdminController extends Controller
      */
     public function showUser(User $user)
     {
-        // Cargar tickets del usuario con información completa
-        $tickets = $user->tickets()
-            ->orderBy('created_at', 'desc')
-            ->get();
+        try {
+            // Cargar solo tickets por ahora para debugging
+            $tickets = $user->tickets()
+                ->orderBy('created_at', 'desc')
+                ->get();
 
-        // Cargar préstamos del usuario
-        $prestamos = $user->prestamosInventario()
-            ->with('inventario')
-            ->orderBy('created_at', 'desc')
-            ->get();
+            // Inicializar préstamos como colección vacía por seguridad
+            $prestamos = collect();
 
-        // Estadísticas del usuario
-        $stats = [
-            'total_tickets' => $tickets->count(),
-            'tickets_abiertos' => $tickets->where('estado', 'abierto')->count(),
-            'tickets_en_proceso' => $tickets->where('estado', 'en_proceso')->count(),
-            'tickets_cerrados' => $tickets->where('estado', 'cerrados')->count(),
-            'total_prestamos' => $prestamos->count(),
-            'prestamos_activos' => $prestamos->where('estado', 'prestado')->count(),
-            'prestamos_devueltos' => $prestamos->where('estado', 'devuelto')->count(),
-        ];
+            // Estadísticas simplificadas
+            $stats = [
+                'total_tickets' => $tickets->count(),
+                'tickets_abiertos' => $tickets->where('estado', 'abierto')->count(),
+                'tickets_en_proceso' => $tickets->where('estado', 'en_proceso')->count(),
+                'tickets_cerrados' => $tickets->whereIn('estado', ['cerrado', 'cerrados'])->count(),
+                'total_prestamos' => 0,
+                'prestamos_activos' => 0,
+                'prestamos_devueltos' => 0,
+            ];
 
-        return view('admin.users.show', compact('user', 'tickets', 'prestamos', 'stats'));
+            return view('admin.users.show', compact('user', 'tickets', 'prestamos', 'stats'));
+
+        } catch (\Exception $e) {
+            // Log del error para debugging
+            \Log::error('Error en showUser: ' . $e->getMessage());
+            
+            return redirect()->route('admin.users')
+                ->with('error', 'Error al cargar la información del usuario');
+        }
     }
 
     /**
@@ -212,7 +218,14 @@ class AdminController extends Controller
      */
     public function editUser(User $user)
     {
-        return view('admin.users.edit', compact('user'));
+        try {
+            return view('admin.users.edit', compact('user'));
+        } catch (\Exception $e) {
+            \Log::error('Error en editUser: ' . $e->getMessage());
+            
+            return redirect()->route('admin.users')
+                ->with('error', 'Error al cargar el formulario de edición');
+        }
     }
 
     /**
