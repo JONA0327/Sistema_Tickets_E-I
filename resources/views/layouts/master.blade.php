@@ -21,41 +21,6 @@
 
     <style>
         [x-cloak] { display: none !important; }
-        
-        /* Navegación responsive - Forzar comportamiento correcto */
-        .nav-desktop {
-            display: none !important;
-        }
-        
-        .nav-mobile {
-            display: flex !important;
-        }
-        
-        /* En pantallas grandes (desktop) */
-        @media (min-width: 1024px) {
-            .nav-desktop {
-                display: flex !important;
-            }
-            .nav-mobile {
-                display: none !important;
-            }
-            .lg\:hidden {
-                display: none !important;
-            }
-            .lg\:flex {
-                display: flex !important;
-            }
-        }
-        
-        /* En pantallas pequeñas (móvil/tablet) */
-        @media (max-width: 1023px) {
-            .nav-desktop {
-                display: none !important;
-            }
-            .nav-mobile {
-                display: flex !important;
-            }
-        }
     </style>
 </head>
 <body class="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100">

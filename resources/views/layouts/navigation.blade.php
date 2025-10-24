@@ -55,7 +55,7 @@
             </div>
 
             <!-- Desktop navigation - Only visible on large screens -->
-            <div class="nav-desktop items-center gap-6">
+            <div class="hidden lg:flex items-center gap-6">
                 <div class="flex items-center gap-2">
                     @foreach ($filteredItems as $item)
                         @php
@@ -159,7 +159,7 @@
             </div>
 
             <!-- Mobile menu button - Only visible on small screens -->
-            <div class="nav-mobile items-center gap-3">
+            <div class="flex items-center gap-3 lg:hidden">
                 @if ($user && method_exists($user, 'isAdmin') && $user->isAdmin())
                     <x-admin.notification-center />
                 @endif
