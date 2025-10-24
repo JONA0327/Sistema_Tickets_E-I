@@ -10,65 +10,8 @@
         <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     </head>
     <body class="min-h-screen bg-gradient-to-br from-orange-50 to-orange-100">
-        <!-- Header -->
-        <header class="bg-white shadow-sm border-b border-orange-100">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 py-4">
-                    <div class="flex items-center">
-                        <div class="flex-shrink-0">
-                            <div class="flex items-center">
-                                <img src="{{ asset('images/logo-ei.png') }}" alt="E&I Logo" class="h-12 w-auto mr-3">
-                                <div>
-                                    <h1 class="text-xl font-bold text-gray-900">Discos en Uso</h1>
-                                    <p class="text-sm text-gray-600">E&I - Gestión de Discos Duros</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="flex flex-col items-center md:flex-row md:items-center md:justify-end gap-4 md:gap-6" x-data="{ open: false }">
-                        @include('components.nav-links', ['theme' => 'orange'])
+        @include('layouts.navigation')
 
-                        <!-- User Profile Dropdown -->
-                        <div class="relative">
-                            <button 
-                                @click="open = !open" 
-                                @click.away="open = false"
-                                class="flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-orange-50 transition-colors duration-200">
-                                <div class="w-8 h-8 bg-orange-600 rounded-full flex items-center justify-center">
-                                    <span class="text-sm font-medium text-white">{{ substr(auth()->user()->name, 0, 1) }}</span>
-                                </div>
-                                <span class="text-sm font-medium text-gray-700">{{ auth()->user()->name }}</span>
-                                <svg class="w-4 h-4 text-gray-400" :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                                </svg>
-                            </button>
-
-                            <div x-show="open" 
-                                 x-transition:enter="transition ease-out duration-100"
-                                 x-transition:enter-start="transform opacity-0 scale-95"
-                                 x-transition:enter-end="transform opacity-100 scale-100"
-                                 x-transition:leave="transition ease-in duration-75"
-                                 x-transition:leave-start="transform opacity-100 scale-100"
-                                 x-transition:leave-end="transform opacity-0 scale-95"
-                                 class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
-                                <a href="{{ route('inventario.index') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">🏠 Inicio</a>
-                                <a href="{{ route('profile.edit') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Perfil</a>
-                                @if(Auth::user()->isAdmin())
-                                    <a href="{{ route('admin.dashboard') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">⚙️ Panel Admin</a>
-                                @endif
-                                <div class="border-t border-gray-100"></div>
-                                <form method="POST" action="{{ route('logout') }}">
-                                    @csrf
-                                    <button type="submit" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                        Cerrar Sesión
-                                    </button>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </header>
 
         <!-- Navigation Breadcrumbs -->
         <nav class="bg-white border-b border-gray-200">

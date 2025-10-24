@@ -18,72 +18,7 @@
         <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     </head>
     <body class="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100">
-        <!-- Header -->
-        <header class="bg-white shadow-sm border-b border-blue-100">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 py-4">
-                    <div class="flex items-center">
-                        <div class="flex-shrink-0">
-                            <div class="flex items-center">
-                                <img src="{{ asset('images/logo-ei.png') }}" alt="E&I Logo" class="h-12 w-auto mr-3">
-                                <div>
-                                    <h1 class="text-xl font-bold text-gray-900">Gestión de Tickets</h1>
-                                    <p class="text-sm text-gray-600">E&I - Tecnología</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="flex flex-col items-center md:flex-row md:items-center md:justify-end gap-4 md:gap-6">
-                        @include('components.nav-links', ['theme' => 'blue'])
-
-                        <div class="flex items-center gap-4">
-                            <x-admin.notification-center />
-
-                            <!-- Profile Dropdown -->
-                            <div class="relative" x-data="{ open: false }">
-                                <button @click="open = !open"
-                                        class="flex items-center space-x-2 text-sm rounded-full bg-blue-50 p-2 text-gray-700 hover:bg-blue-100 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
-                                    <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
-                                        <span class="text-white text-sm font-medium">{{ substr(Auth::user()->name, 0, 1) }}</span>
-                                    </div>
-                                    <span class="hidden md:block font-medium">{{ Auth::user()->name }}</span>
-                                    <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                                    </svg>
-                                </button>
-
-                                <!-- Dropdown Menu -->
-                                <div x-show="open"
-                                     @click.away="open = false"
-                                     x-transition:enter="transition ease-out duration-200"
-                                     x-transition:enter-start="transform opacity-0 scale-95"
-                                     x-transition:enter-end="transform opacity-100 scale-100"
-                                     x-transition:leave="transition ease-in duration-75"
-                                     x-transition:leave-start="transform opacity-100 scale-100"
-                                     x-transition:leave-end="transform opacity-0 scale-95"
-                                     class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
-                                    <div class="py-1">
-                                        <div class="px-4 py-2 text-xs text-gray-500 border-b border-gray-100">
-                                            Administrador TI
-                                        </div>
-                                        <form method="POST" action="{{ route('logout') }}">
-                                            @csrf
-                                            <button type="submit"
-                                                    class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 hover:text-red-800 transition-colors duration-200 flex items-center">
-                                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
-                                                </svg>
-                                                Cerrar Sesión
-                                            </button>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </header>
+        @include('layouts.navigation')
 
         <!-- Back to Home Button -->
         @if (!Auth::user()->isAdmin())

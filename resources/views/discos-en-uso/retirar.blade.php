@@ -10,68 +10,8 @@
         <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     </head>
     <body class="min-h-screen bg-gradient-to-br from-red-50 to-red-100">
-        <!-- Header -->
-        <header class="bg-white shadow-sm border-b border-red-100">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 py-4">
-                    <div class="flex items-center">
-                        <div class="flex-shrink-0">
-                            <div class="flex items-center">
-                                <img src="{{ asset('images/logo-ei.png') }}" alt="E&I Logo" class="h-12 w-auto mr-3">
-                                <div>
-                                    <h1 class="text-xl font-bold text-gray-900">Retirar Disco de Uso</h1>
-                                    <p class="text-sm text-gray-600">E&I - Gestión de Discos</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="flex flex-col items-center md:flex-row md:items-center md:justify-end gap-4 md:gap-6" x-data="{ open: false }">
-                        @include('components.nav-links', ['theme' => 'orange'])
+        @include('layouts.navigation')
 
-                        <!-- User Profile Dropdown -->
-                        <div class="relative">
-                            <button 
-                                @click="open = !open" 
-                                @click.away="open = false"
-                                class="flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-red-50 transition-colors duration-200">
-                                <div class="w-8 h-8 bg-red-600 rounded-full flex items-center justify-center">
-                                    <span class="text-sm font-medium text-white">{{ substr(auth()->user()->name, 0, 1) }}</span>
-                                </div>
-                                <span class="text-sm font-medium text-gray-700">{{ auth()->user()->name }}</span>
-                                <svg class="w-4 h-4 text-gray-400" :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                                </svg>
-                            </button>
-
-                            <div x-show="open" 
-                                 x-transition:enter="transition ease-out duration-100"
-                                 x-transition:enter-start="transform opacity-0 scale-95"
-                                 x-transition:enter-end="transform opacity-100 scale-100"
-                                 x-transition:leave="transition ease-in duration-75"
-                                 x-transition:leave-start="transform opacity-100 scale-100"
-                                 x-transition:leave-end="transform opacity-0 scale-95"
-                                 class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
-                                <div class="py-1">
-                                    <a href="{{ route('inventario.index') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors">
-                                        📦 Inventario
-                                    </a>
-                                    <a href="{{ route('discos-en-uso.index') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors">
-                                        💾 Discos en Uso
-                                    </a>
-                                    <div class="border-t border-gray-100"></div>
-                                    <form method="POST" action="{{ route('logout') }}" class="block">
-                                        @csrf
-                                        <button type="submit" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors">
-                                            🚪 Cerrar Sesión
-                                        </button>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </header>
 
         <!-- Main Content -->
         <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
