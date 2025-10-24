@@ -149,6 +149,78 @@
                                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                 @enderror
                             </div>
+
+                            <div id="hardwareComputerInfo" class="hidden">
+                                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                                    <div class="flex items-start">
+                                        <div class="flex-shrink-0 bg-blue-100 text-blue-600 rounded-full p-2 mr-3">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <h4 class="text-sm font-semibold text-blue-900 mb-1">Computadora detectada</h4>
+                                            @if($assignedComputerLoan && $assignedComputerLoan->inventario)
+                                                <p class="text-sm text-blue-800">
+                                                    {{ $assignedComputerLoan->inventario->codigo_inventario ?? 'Sin código' }} ·
+                                                    {{ $assignedComputerLoan->inventario->articulo }}
+                                                    @if($assignedComputerLoan->inventario->modelo)
+                                                        – {{ $assignedComputerLoan->inventario->modelo }}
+                                                    @endif
+                                                </p>
+                                                <p class="text-xs text-blue-600 mt-1">
+                                                    Prestada desde {{ optional($assignedComputerLoan->fecha_prestamo)->format('d/m/Y') ?? 'fecha no disponible' }}.
+                                                </p>
+                                            @elseif($assignedComputerProfile)
+                                                <p class="text-sm text-blue-800">
+                                                    {{ $assignedComputerProfile->identifier ?? 'Equipo sin identificador' }}
+                                                    @if($assignedComputerProfile->brand || $assignedComputerProfile->model)
+                                                        – {{ trim(($assignedComputerProfile->brand ? $assignedComputerProfile->brand : '') . ' ' . ($assignedComputerProfile->model ? $assignedComputerProfile->model : '')) }}
+                                                    @endif
+                                                </p>
+                                                <p class="text-xs text-blue-600 mt-1">
+                                                    Información tomada del historial de mantenimiento.
+                                                </p>
+                                            @else
+                                                <p class="text-sm text-blue-800">
+                                                    No se detectó una computadora asociada a tu usuario en el sistema.
+                                                </p>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="hardwarePrinterInfo" class="hidden">
+                                <div class="bg-purple-50 border border-purple-200 rounded-lg p-4 mb-4">
+                                    <div class="flex items-start">
+                                        <div class="flex-shrink-0 bg-purple-100 text-purple-600 rounded-full p-2 mr-3">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8V4a1 1 0 011-1h8a1 1 0 011 1v4m3 4h1a1 1 0 011 1v6a1 1 0 01-1 1h-1M4 12H3a1 1 0 00-1 1v6a1 1 0 001 1h1m3-3h10m-6 3h2" />
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <h4 class="text-sm font-semibold text-purple-900 mb-1">Impresora detectada</h4>
+                                            @if($assignedPrinterLoan && $assignedPrinterLoan->inventario)
+                                                <p class="text-sm text-purple-800">
+                                                    {{ $assignedPrinterLoan->inventario->codigo_inventario ?? 'Sin código' }} ·
+                                                    {{ $assignedPrinterLoan->inventario->articulo }}
+                                                    @if($assignedPrinterLoan->inventario->modelo)
+                                                        – {{ $assignedPrinterLoan->inventario->modelo }}
+                                                    @endif
+                                                </p>
+                                                <p class="text-xs text-purple-600 mt-1">
+                                                    Prestada desde {{ optional($assignedPrinterLoan->fecha_prestamo)->format('d/m/Y') ?? 'fecha no disponible' }}.
+                                                </p>
+                                            @else
+                                                <p class="text-sm text-purple-800">
+                                                    No se detectó una impresora asociada a tu usuario en el sistema.
+                                                </p>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         @endif
 
                         <div>
@@ -616,6 +688,41 @@
                     updateImagePreview();
                 };
             }
+            @endif
+
+            @if($tipo === 'hardware')
+            document.addEventListener('DOMContentLoaded', function() {
+                const equipmentSelect = document.getElementById('tipo_equipo');
+                const computerInfo = document.getElementById('hardwareComputerInfo');
+                const printerInfo = document.getElementById('hardwarePrinterInfo');
+
+                function toggleHardwareDetails() {
+                    if (!equipmentSelect) {
+                        return;
+                    }
+
+                    const value = equipmentSelect.value;
+
+                    if (computerInfo) {
+                        if (value === 'Computadora') {
+                            computerInfo.classList.remove('hidden');
+                        } else {
+                            computerInfo.classList.add('hidden');
+                        }
+                    }
+
+                    if (printerInfo) {
+                        if (value === 'Impresora') {
+                            printerInfo.classList.remove('hidden');
+                        } else {
+                            printerInfo.classList.add('hidden');
+                        }
+                    }
+                }
+
+                equipmentSelect?.addEventListener('change', toggleHardwareDetails);
+                toggleHardwareDetails();
+            });
             @endif
 
             @if($tipo === 'software')
