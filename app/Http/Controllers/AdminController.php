@@ -178,11 +178,33 @@ class AdminController extends Controller
     }
 
     /**
-     * Mostrar detalles del usuario
+     * Mostrar detalles del usuario con su historial completo
      */
     public function showUser(User $user)
     {
-        return view('admin.users.show', compact('user'));
+        // Cargar tickets del usuario con información completa
+        $tickets = $user->tickets()
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        // Cargar préstamos del usuario
+        $prestamos = $user->prestamosInventario()
+            ->with('inventario')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        // Estadísticas del usuario
+        $stats = [
+            'total_tickets' => $tickets->count(),
+            'tickets_abiertos' => $tickets->where('estado', 'abierto')->count(),
+            'tickets_en_proceso' => $tickets->where('estado', 'en_proceso')->count(),
+            'tickets_cerrados' => $tickets->where('estado', 'cerrados')->count(),
+            'total_prestamos' => $prestamos->count(),
+            'prestamos_activos' => $prestamos->where('estado', 'prestado')->count(),
+            'prestamos_devueltos' => $prestamos->where('estado', 'devuelto')->count(),
+        ];
+
+        return view('admin.users.show', compact('user', 'tickets', 'prestamos', 'stats'));
     }
 
     /**
@@ -194,12 +216,12 @@ class AdminController extends Controller
     }
 
     /**
-     * Actualizar usuario
+     * Actualizar usuario - Solo permite cambiar email y contraseña
+     * El nombre y rol se mantienen para preservar la integridad del historial
      */
     public function updateUser(Request $request, User $user)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
             'email' => [
                 'required',
                 'string',
@@ -208,24 +230,18 @@ class AdminController extends Controller
                 'unique:users,email,' . $user->id,
                 'ends_with:estrategiaeinnovacion.com.mx',
             ],
-            'role' => 'required|in:user,admin',
             'password' => 'nullable|string|min:8|confirmed',
         ], [
-            'name.required' => 'El nombre es obligatorio.',
             'email.required' => 'El correo electrónico es obligatorio.',
             'email.email' => 'Debe ser un correo electrónico válido.',
             'email.unique' => 'Este correo electrónico ya está registrado.',
             'email.ends_with' => 'El correo debe pertenecer al dominio estrategiaeinnovacion.com.mx.',
             'password.min' => 'La contraseña debe tener al menos 8 caracteres.',
             'password.confirmed' => 'La confirmación de contraseña no coincide.',
-            'role.required' => 'Debe seleccionar un rol.',
-            'role.in' => 'El rol seleccionado no es válido.',
         ]);
 
         $data = [
-            'name' => $request->name,
             'email' => $request->email,
-            'role' => $request->role,
         ];
 
         // Solo actualizar la contraseña si se proporciona
@@ -235,7 +251,7 @@ class AdminController extends Controller
 
         $user->update($data);
 
-        return redirect()->route('admin.users')->with('success', 'Usuario actualizado exitosamente.');
+        return redirect()->route('users.show', $user)->with('success', 'Usuario actualizado exitosamente. El historial se mantiene intacto.');
     }
 
     /**
