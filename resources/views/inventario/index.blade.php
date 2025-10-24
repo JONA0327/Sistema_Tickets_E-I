@@ -8,27 +8,7 @@
 </style>
 @endpush
 
-@section('header')
-<!-- Header -->
-<header class="bg-white shadow-sm border-b border-green-100">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 py-4">
-            <div class="flex items-center">
-                <div class="flex-shrink-0">
-                    <div class="flex items-center">
-                        <img src="{{ asset('images/logo-ei.png') }}" alt="E&I Logo" class="h-12 w-auto mr-3">
-                        <div>
-                            <h1 class="text-xl font-bold text-gray-900">Inventario</h1>
-                            <p class="text-sm text-gray-600">E&I - Tecnología</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <x-authenticated-actions theme="green" />
-        </div>
-    </div>
-        </header>
-@endsection
+
 
 @section('content')
         <!-- Main Content -->
