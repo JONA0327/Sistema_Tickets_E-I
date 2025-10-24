@@ -1,18 +1,14 @@
-<!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>Agregar Artículo - E&I Sistema de Inventario</title>
-        <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700" rel="stylesheet" />
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
-        <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    </head>
-    <body class="min-h-screen bg-gradient-to-br from-green-50 to-green-100">
-        @include('layouts.navigation')
+@extends('layouts.master')
 
+@section('title', 'Agregar Artículo - E&I Sistema de Inventario')
 
+@push('styles')
+<style>
+    body { background: linear-gradient(135deg, rgb(240 253 244) 0%, rgb(220 252 231) 100%); }
+</style>
+@endpush
+
+@section('content')
         <!-- Main Content -->
         <main class="max-w-4xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
@@ -734,5 +730,4 @@
                 }
             });
         </script>
-    </body>
-</html>
+@endsection
