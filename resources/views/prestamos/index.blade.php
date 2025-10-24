@@ -27,9 +27,9 @@
                                 </svg>
                                 Gestión de Préstamos
                             </h2>
-                            <div class="flex space-x-3">
+                            <div class="flex flex-col sm:flex-row gap-2 sm:gap-3">
                                 <a href="{{ route('prestamos.create') }}" 
-                                   class="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200">
+                                   class="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 inline-flex items-center justify-center text-sm">
                                     <svg class="w-4 h-4 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                                     </svg>

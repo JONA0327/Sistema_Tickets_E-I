@@ -99,14 +99,14 @@
                 <div class="p-4 border-b border-gray-200">
                     <div class="flex justify-between items-center">
                         <h2 class="text-lg font-semibold text-gray-900">💾 Gestión de Discos Duros</h2>
-                        <div class="flex space-x-3">
+                        <div class="flex flex-col sm:flex-row gap-2 sm:gap-3">
                             <button @click="showFilters = !showFilters" 
-                                    class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-2 px-4 rounded-lg transition-colors duration-200">
+                                    class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-2 px-4 rounded-lg transition-colors duration-200 inline-flex items-center justify-center text-sm">
                                 <span x-show="!showFilters">🔍 Filtros</span>
                                 <span x-show="showFilters">✕ Cerrar</span>
                             </button>
                             <a href="{{ route('discos-en-uso.create') }}" 
-                               class="bg-orange-600 hover:bg-orange-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200">
+                               class="bg-orange-600 hover:bg-orange-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 inline-flex items-center justify-center text-sm">
                                 💾 Registrar Disco en Uso
                             </a>
                         </div>
