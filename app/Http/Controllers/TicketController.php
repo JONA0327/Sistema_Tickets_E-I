@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\ComputerProfile;
 use App\Models\MaintenanceBooking;
 use App\Models\MaintenanceSlot;
+use App\Models\PrestamoInventario;
 use App\Models\Ticket;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
@@ -25,7 +26,48 @@ class TicketController extends Controller
             abort(404);
         }
 
-        return view('tickets.create', compact('tipo'));
+        $assignedComputerLoan = null;
+        $assignedComputerProfile = null;
+        $assignedPrinterLoan = null;
+
+        if ($tipo === 'hardware' && auth()->check()) {
+            $user = auth()->user();
+
+            $assignedComputerLoan = PrestamoInventario::with('inventario')
+                ->where('user_id', $user->id)
+                ->where('estado_prestamo', 'activo')
+                ->whereHas('inventario', function ($query) {
+                    $query->where('categoria', 'computadoras');
+                })
+                ->latest('fecha_prestamo')
+                ->first();
+
+            if (!$assignedComputerLoan) {
+                $assignedComputerProfile = ComputerProfile::where('is_loaned', true)
+                    ->whereNotNull('loaned_to_email')
+                    ->where('loaned_to_email', $user->email)
+                    ->first();
+            }
+
+            $assignedPrinterLoan = PrestamoInventario::with('inventario')
+                ->where('user_id', $user->id)
+                ->where('estado_prestamo', 'activo')
+                ->whereHas('inventario', function ($query) {
+                    $query->where(function ($q) {
+                        $q->where('articulo', 'like', '%impresora%')
+                          ->orWhere('modelo', 'like', '%impresora%');
+                    });
+                })
+                ->latest('fecha_prestamo')
+                ->first();
+        }
+
+        return view('tickets.create', compact(
+            'tipo',
+            'assignedComputerLoan',
+            'assignedComputerProfile',
+            'assignedPrinterLoan'
+        ));
     }
 
     /**
