@@ -14,22 +14,20 @@
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
     <body class="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100">
-        <!-- Header -->
-        <header class="bg-white shadow-sm border-b border-blue-100">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 py-4">
-                    <div class="flex items-center">
-                        <div class="flex-shrink-0">
-                            <div class="flex items-center">
-                                <img src="{{ asset('images/logo-ei.png') }}" alt="E&I Logo" class="h-12 w-auto mr-3">
-                                <div>
-                                    <h1 class="text-xl font-bold text-gray-900">Sistema de Tickets</h1>
-                                    <p class="text-sm text-gray-600">E&I - Tecnología</p>
-                                </div>
-                            </div>
-                        </div>
+        @include('layouts.navigation')
+
+        <!-- Secondary Header -->
+        <header class="bg-white border-b border-blue-100">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+                <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                    <div>
+                        <p class="text-sm font-semibold text-blue-600 uppercase tracking-wide">Centro de soporte</p>
+                        <h1 class="text-2xl font-bold text-gray-900 leading-tight">Sistema de Tickets</h1>
+                        <p class="mt-1 text-sm text-gray-600">E&amp;I - Tecnología</p>
                     </div>
-                    <x-authenticated-actions theme="blue" />
+                    <div class="flex items-center justify-start lg:justify-end">
+                        <x-authenticated-actions theme="blue" />
+                    </div>
                 </div>
             </div>
         </header>

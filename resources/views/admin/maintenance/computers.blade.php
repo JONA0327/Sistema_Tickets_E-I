@@ -13,21 +13,35 @@
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
     <body class="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100">
-        <header class="bg-white shadow-sm border-b border-blue-100">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 py-4">
-                    <div class="flex items-center">
-                        <img src="{{ asset('images/logo-ei.png') }}" alt="E&I Logo" class="h-12 w-auto mr-3">
-                        <div>
-                            <h1 class="text-xl font-bold text-gray-900">Expedientes de Equipos</h1>
-                            <p class="text-sm text-gray-600">Consulta y gestiona el historial de mantenimiento de cada equipo</p>
-                        </div>
+        @include('layouts.navigation')
+
+        <header class="bg-white border-b border-blue-100">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <div>
+                        <p class="text-sm font-semibold text-blue-600 uppercase tracking-wide">Mantenimiento</p>
+                        <h1 class="text-2xl font-bold text-gray-900 leading-tight">Expedientes de Equipos</h1>
+                        <p class="mt-1 text-sm text-gray-600">Consulta y gestiona el historial de mantenimiento de cada equipo.</p>
                     </div>
-                    <div class="flex flex-wrap items-center justify-center sm:justify-end gap-4">
-                        <a href="{{ route('admin.maintenance.index') }}" class="text-sm text-blue-600 hover:text-blue-800 font-medium">Horarios</a>
-                        <a href="{{ route('admin.tickets.index') }}" class="text-sm text-blue-600 hover:text-blue-800 font-medium">Tickets</a>
-                        <a href="{{ route('admin.dashboard') }}" class="text-sm text-blue-600 hover:text-blue-800 font-medium">Panel Admin</a>
-                        <x-admin.notification-center />
+                    <div class="flex flex-wrap items-center gap-3">
+                        <a href="{{ route('admin.maintenance.index') }}" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3h8v4m-9 4h10m-9 4h8m-7 4h4" />
+                            </svg>
+                            Horarios
+                        </a>
+                        <a href="{{ route('admin.tickets.index') }}" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-blue-600 border border-blue-200 rounded-lg hover:bg-blue-50 transition-colors">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m-8 4h10a2 2 0 002-2V6a2 2 0 00-2-2h-3.586a1 1 0 01-.707-.293L11.414 2.586A2 2 0 0010 2H6a2 2 0 00-2 2v16a2 2 0 002 2z" />
+                            </svg>
+                            Tickets
+                        </a>
+                        <a href="{{ route('admin.dashboard') }}" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                            </svg>
+                            Panel Admin
+                        </a>
                     </div>
                 </div>
             </div>
