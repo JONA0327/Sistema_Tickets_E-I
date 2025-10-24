@@ -1,19 +1,8 @@
-<!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>{{ $ticket ? 'Archivar Problema' : 'Nuevo Problema' }} - E&I Sistema de Tickets</title>
-        <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700" rel="stylesheet" />
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
-        <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    </head>
-    <body class="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100">
-        @include('layouts.navigation')
+@extends('layouts.master')
 
+@section('title', $ticket ? 'Archivar Problema - E&I Sistema de Tickets' : 'Nuevo Problema - E&I Sistema de Tickets')
 
-        <!-- Main Content -->
+@section('content')
         <main class="max-w-4xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
@@ -293,5 +282,4 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
             </div>
         </footer>
-    </body>
-</html>
+@endsection

@@ -1,19 +1,8 @@
-<!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>Préstamo #{{ $prestamo->id }} - E&I Sistema de Inventario</title>
-        <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700" rel="stylesheet" />
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
-        <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    </head>
-    <body class="min-h-screen bg-gradient-to-br from-green-50 to-green-100">
-        @include('layouts.navigation')
+@extends('layouts.master')
 
+@section('title', 'Préstamo #{{ $prestamo->id }} - E&I Sistema de Inventario')
 
-        <!-- Main Content -->
+@section('content')
         <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <!-- Success/Error Messages -->
             @if(session('success'))
@@ -283,4 +272,4 @@
             </div>
         </div>
     </div>
-</x-app-layout>
+@endsection

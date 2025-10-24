@@ -1,55 +1,8 @@
-<!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
+@extends('layouts.master')
 
-        <title>Mis Tickets - Sistema IT</title>
+@section('title', 'Mis Tickets - Sistema IT')
 
-        <!-- Fonts -->
-        <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700" rel="stylesheet" />
-
-        <!-- Scripts -->
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
-    </head>
-    <body class="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100">
-        <!-- Header -->
-        <header class="bg-white shadow-sm border-b border-blue-100">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 py-4">
-                    <div class="flex items-center">
-                        <div class="flex-shrink-0">
-                            <div class="flex items-center">
-                                <img src="{{ asset('images/logo-ei.png') }}" alt="E&I Logo" class="h-12 w-auto mr-3">
-                                <div>
-                                    <h1 class="text-xl font-bold text-gray-900">Mis Tickets</h1>
-                                    <p class="text-sm text-gray-600">E&I - Tecnología</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <x-authenticated-actions theme="blue" />
-                </div>
-            </div>
-        </header>
-
-        <!-- Back to Home Button -->
-        <div class="bg-white border-b border-gray-200">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
-                <div class="flex items-center justify-center sm:justify-start">
-                    <a href="{{ route('welcome') }}" 
-                       class="inline-flex items-center text-blue-600 hover:text-blue-800 text-sm font-medium transition-colors duration-200 group">
-                        <svg class="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-                        </svg>
-                        Volver al Portal de Tickets
-                    </a>
-                </div>
-            </div>
-        </div>
-
-        <!-- Main Content -->
+@section('content')
         <main class="max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
             <!-- Success Message -->
             @if(session('success'))
@@ -498,5 +451,4 @@
                 }
             }
         </script>
-    </body>
-</html>
+@endsection
