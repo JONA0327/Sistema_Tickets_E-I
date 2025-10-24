@@ -1,35 +1,8 @@
-<!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>Ver Artículo - E&I Sistema de Inventario</title>
-        <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700" rel="stylesheet" />
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
-        <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    </head>
-    <body class="min-h-screen bg-gradient-to-br from-green-50 to-green-100">
-        <!-- Header -->
-        <header class="bg-white shadow-sm border-b border-green-100">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 py-4">
-                    <div class="flex items-center">
-                        <div class="flex-shrink-0">
-                            <div class="flex items-center">
-                                <img src="{{ asset('images/logo-ei.png') }}" alt="E&I Logo" class="h-12 w-auto mr-3">
-                                <div>
-                                    <h1 class="text-xl font-bold text-gray-900">Detalle de Artículo</h1>
-                                    <p class="text-sm text-gray-600">E&I - Inventario</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <x-authenticated-actions theme="green" />
-                </div>
-            </div>
-        </header>
+@extends('layouts.master')
 
+@section('title', 'Ver Artículo - E&I Sistema de Inventario')
+
+@section('content')
         <!-- Main Content -->
         <main class="max-w-6xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
             @if(session('success'))
