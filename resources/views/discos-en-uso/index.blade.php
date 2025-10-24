@@ -11,21 +11,6 @@
     </head>
     <body class="min-h-screen bg-gradient-to-br from-orange-50 to-orange-100">
         @include('layouts.navigation')
-
-
-        <!-- Navigation Breadcrumbs -->
-        <nav class="bg-white border-b border-gray-200">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex items-center space-x-4 h-12 text-sm">
-                    <a href="{{ route('inventario.index') }}" class="text-orange-600 hover:text-orange-800">🏠 Inicio</a>
-                    <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                    </svg>
-                    <span class="text-gray-900 font-medium">💾 Discos en Uso</span>
-                </div>
-            </div>
-        </nav>
-
         <!-- Main Content -->
         <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <!-- Mensajes de éxito/error -->
