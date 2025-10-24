@@ -1,39 +1,8 @@
-@extends('layouts.master')
+ @extends('layouts.master')
 
 @section('title', 'Crear Ticket - ' . ucfirst($tipo) . ' - Sistema IT')
 
-@section('header')
-<!-- Secondary Header -->
-<header class="bg-white border-b border-blue-100">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-            <div>
-                <p class="text-sm font-semibold text-blue-600 uppercase tracking-wide">Centro de soporte</p>
-                <h1 class="text-2xl font-bold text-gray-900 leading-tight">Sistema de Tickets</h1>
-                <p class="mt-1 text-sm text-gray-600">E&amp;I - Tecnología</p>
-            </div>
-            <div class="flex items-center justify-start lg:justify-end">
-                <x-authenticated-actions theme="blue" />
-            </div>
-        </div>
-    </div>
-</header>
 
-<!-- Back to Home Button -->
-<div class="bg-white border-b border-gray-200">
-    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
-        <div class="flex items-center justify-center sm:justify-start">
-            <a href="{{ route('welcome') }}" 
-               class="inline-flex items-center text-blue-600 hover:text-blue-800 text-sm font-medium transition-colors duration-200 group">
-                <svg class="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-                </svg>
-                Volver al Portal de Tickets
-            </a>
-        </div>
-    </div>
-</div>
-@endsection
 
 @section('content')
         <main class="max-w-4xl mx-auto py-10 px-4 sm:px-6 lg:px-8">

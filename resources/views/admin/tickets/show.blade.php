@@ -2,33 +2,7 @@
 
 @section('title', 'Ticket ' . $ticket->folio . ' - Panel Administrativo')
 
-@section('header')
-<!-- Navegación rápida -->
-<div class="bg-white border-b border-gray-200">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        @if (!Auth::user()->isAdmin())
-        <div class="flex items-center justify-center sm:justify-start">
-            <a href="{{ route('welcome') }}"
-               class="inline-flex items-center text-blue-600 hover:text-blue-800 text-sm font-medium transition-colors duration-200 group">
-                <svg class="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-                </svg>
-                Volver al Portal de Tickets
-            </a>
-        </div>
-        @endif
-        <div class="flex items-center justify-center sm:justify-end">
-            <a href="{{ route('admin.tickets.index') }}"
-               class="inline-flex items-center text-blue-600 hover:text-blue-800 text-sm font-medium transition-colors duration-200">
-                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7" />
-                </svg>
-                Lista de Tickets
-            </a>
-        </div>
-    </div>
-</div>
-@endsection
+
 
 @section('content')
         <main class="max-w-6xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
