@@ -30,6 +30,20 @@
             'active' => request()->routeIs('archivo-problemas.*'),
             'visible' => $user && method_exists($user, 'isAdmin') ? $user->isAdmin() : false,
         ],
+        [
+            'label' => 'Manual de Ayuda',
+            'icon' => '🆘',
+            'route' => route('help.public'),
+            'active' => request()->routeIs('help.public'),
+            'visible' => true,
+        ],
+        [
+            'label' => 'Gestionar Manual',
+            'icon' => '📖',
+            'route' => route('admin.help.index'),
+            'active' => request()->routeIs('admin.help.*'),
+            'visible' => $user && method_exists($user, 'isAdmin') ? $user->isAdmin() : false,
+        ],
     ];
 
     $filteredItems = array_filter($navItems, fn ($item) => $item['visible']);

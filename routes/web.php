@@ -83,6 +83,19 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
     Route::delete('/users/{user}', [AdminController::class, 'destroyUser'])->name('users.destroy');
     Route::delete('/users/{user}/rejection', [AdminController::class, 'destroyRejectedUser'])->name('users.rejections.destroy');
     Route::delete('/blocked-emails/{blockedEmail}', [AdminController::class, 'destroyBlockedEmail'])->name('blocked-emails.destroy');
+    
+    // Manual de Ayuda - Administración
+    Route::get('/help', [\App\Http\Controllers\HelpController::class, 'adminIndex'])->name('help.index');
+    Route::get('/help/create', [\App\Http\Controllers\HelpController::class, 'create'])->name('help.create');
+    Route::post('/help', [\App\Http\Controllers\HelpController::class, 'store'])->name('help.store');
+    Route::get('/help/{helpSection}/edit', [\App\Http\Controllers\HelpController::class, 'edit'])->name('help.edit');
+    Route::put('/help/{helpSection}', [\App\Http\Controllers\HelpController::class, 'update'])->name('help.update');
+    Route::delete('/help/{helpSection}', [\App\Http\Controllers\HelpController::class, 'destroy'])->name('help.destroy');
+    Route::patch('/help/{helpSection}/toggle', [\App\Http\Controllers\HelpController::class, 'toggleStatus'])->name('help.toggle');
+    
+    // Gestión de imágenes del manual de ayuda
+    Route::post('/help/{helpSection}/upload-image', [\App\Http\Controllers\HelpController::class, 'uploadImage'])->name('help.upload-image');
+    Route::delete('/help/{helpSection}/delete-image/{imageIndex}', [\App\Http\Controllers\HelpController::class, 'deleteImage'])->name('help.delete-image');
 });
 
 // API Routes for Notifications (Admin only)
@@ -139,6 +152,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
+
+// Manual de Ayuda - Vista pública (disponible para usuarios autenticados)
+Route::middleware('auth')->group(function () {
+    Route::get('/ayuda', [\App\Http\Controllers\HelpController::class, 'index'])->name('help.public');
 });
 
 require __DIR__.'/auth.php';
