@@ -11,14 +11,14 @@
             <p class="text-gray-600 mt-2">Información completa e historial de actividad</p>
         </div>
         <div class="flex flex-col sm:flex-row gap-2 sm:gap-3">
-            <a href="{{ route('users.edit', $user) }}" 
+            <a href="{{ route('admin.users.edit', $user) }}" 
                class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 inline-flex items-center justify-center text-sm">
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                 </svg>
                 ✏️ Editar Usuario
             </a>
-            <a href="{{ route('users') }}" 
+            <a href="{{ route('admin.users') }}" 
                class="bg-gray-500 hover:bg-gray-600 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 inline-flex items-center justify-center text-sm">
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>

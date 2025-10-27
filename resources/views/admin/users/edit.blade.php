@@ -7,7 +7,7 @@
     <!-- Header -->
     <div class="mb-8">
         <div class="flex items-center gap-4 mb-4">
-            <a href="{{ route('users.show', $user) }}" 
+            <a href="{{ route('admin.users.show', $user) }}" 
                class="text-blue-600 hover:text-blue-800">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
@@ -45,26 +45,53 @@
     <!-- Formulario de Edición -->
     <div class="bg-white rounded-xl shadow-lg border border-gray-200">
         <div class="p-8">
-            <form method="POST" action="{{ route('users.update', $user) }}" class="space-y-6">
+            <form method="POST" action="{{ route('admin.users.update', $user) }}" class="space-y-6">
                 @csrf
                 @method('PUT')
 
+                <!-- Nombre -->
+                <div>
+                    <label for="name" class="block text-sm font-medium text-gray-700 mb-2">
+                        👤 Nombre Completo *
+                    </label>
+                    <input type="text" 
+                           id="name" 
+                           name="name" 
+                           value="{{ old('name', $user->name) }}" 
+                           required
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('name') border-red-500 @enderror">
+                    @error('name')
+                        <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                    <p class="mt-1 text-sm text-gray-500">
+                        Nombre completo del usuario como aparecerá en el sistema
+                    </p>
+                </div>
+
                 <!-- Email -->
                 <div>
-                    <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
+                    <label for="email_prefix" class="block text-sm font-medium text-gray-700 mb-2">
                         📧 Correo Electrónico *
                     </label>
-                    <input type="email" 
-                           id="email" 
-                           name="email" 
-                           value="{{ old('email', $user->email) }}" 
-                           required
-                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('email') border-red-500 @enderror">
+                    <div class="flex items-center space-x-2">
+                        <input type="text" 
+                               id="email_prefix" 
+                               name="email_prefix" 
+                               value="{{ old('email_prefix', explode('@', $user->email)[0]) }}" 
+                               required
+                               pattern="[a-zA-Z0-9._-]+"
+                               title="Solo letras, números, puntos, guiones y guiones bajos"
+                               class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('email_prefix') border-red-500 @enderror @error('email') border-red-500 @enderror">
+                        <span class="text-gray-500 font-medium px-2">@estrategiaeinnovacion.com.mx</span>
+                    </div>
+                    @error('email_prefix')
+                        <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
                     @error('email')
                         <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                     @enderror
                     <p class="mt-1 text-sm text-gray-500">
-                        Debe terminar en @estrategiaeinnovacion.com.mx
+                        Solo puedes cambiar la parte antes del @. El dominio siempre será @estrategiaeinnovacion.com.mx
                     </p>
                 </div>
 
@@ -100,15 +127,16 @@
                 </div>
 
                 <!-- Advertencia de Integridad -->
-                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
                     <div class="flex items-start">
-                        <svg class="w-5 h-5 text-yellow-400 mt-0.5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16c-.77.833.192 2.5 1.732 2.5z"></path>
+                        <svg class="w-5 h-5 text-blue-400 mt-0.5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                         </svg>
                         <div>
-                            <h3 class="text-sm font-medium text-yellow-800">Protección de Integridad de Datos</h3>
-                            <p class="mt-1 text-sm text-yellow-700">
-                                El <strong>nombre</strong> y <strong>rol</strong> del usuario no pueden modificarse para mantener la consistencia del historial.
+                            <h3 class="text-sm font-medium text-blue-800">Información de Edición</h3>
+                            <p class="mt-1 text-sm text-blue-700">
+                                Puedes editar el <strong>nombre</strong> y <strong>correo</strong> del usuario. 
+                                El <strong>rol</strong> no puede modificarse por seguridad.
                                 Todos los tickets y préstamos permanecen vinculados al ID único del usuario (#{{ $user->id }}).
                             </p>
                         </div>
@@ -124,7 +152,7 @@
                         </svg>
                         💾 Guardar Cambios
                     </button>
-                    <a href="{{ route('users.show', $user) }}" 
+                    <a href="{{ route('admin.users.show', $user) }}" 
                        class="bg-gray-500 hover:bg-gray-600 text-white font-medium py-3 px-6 rounded-lg transition-colors duration-200 inline-flex items-center justify-center">
                         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -162,4 +190,75 @@
         </p>
     </div>
 </main>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const emailPrefix = document.getElementById('email_prefix');
+    const emailDisplay = document.createElement('div');
+    emailDisplay.className = 'mt-2 text-sm text-gray-600 bg-gray-50 px-3 py-2 rounded border';
+    emailDisplay.innerHTML = '<strong>📧 Email completo:</strong> <span id="full-email" class="font-mono text-blue-600"></span>';
+    emailPrefix.parentNode.appendChild(emailDisplay);
+    
+    function updateEmailDisplay() {
+        const prefix = emailPrefix.value.trim() || '[usuario]';
+        const fullEmail = prefix + '@estrategiaeinnovacion.com.mx';
+        document.getElementById('full-email').textContent = fullEmail;
+        
+        // Cambiar color si es válido
+        const span = document.getElementById('full-email');
+        if (prefix !== '[usuario]' && /^[a-zA-Z0-9._-]+$/.test(prefix)) {
+            span.className = 'font-mono text-green-600';
+        } else {
+            span.className = 'font-mono text-blue-600';
+        }
+    }
+    
+    // Actualizar en tiempo real
+    emailPrefix.addEventListener('input', updateEmailDisplay);
+    
+    // Mostrar email inicial
+    updateEmailDisplay();
+    
+    // Validación en tiempo real con mejor UX
+    emailPrefix.addEventListener('input', function() {
+        const value = this.value.trim();
+        const validPattern = /^[a-zA-Z0-9._-]+$/;
+        
+        // Remover clases anteriores
+        this.classList.remove('border-red-500', 'border-green-500');
+        
+        if (value) {
+            if (!validPattern.test(value)) {
+                this.setCustomValidity('Solo se permiten letras, números, puntos, guiones y guiones bajos');
+                this.classList.add('border-red-500');
+            } else {
+                this.setCustomValidity('');
+                this.classList.add('border-green-500');
+            }
+        } else {
+            this.setCustomValidity('');
+        }
+    });
+    
+    // Validación al enviar el formulario
+    const form = emailPrefix.closest('form');
+    form.addEventListener('submit', function(e) {
+        const prefix = emailPrefix.value.trim();
+        if (!prefix) {
+            e.preventDefault();
+            emailPrefix.focus();
+            alert('Por favor, ingresa la parte del correo antes del @');
+            return false;
+        }
+        
+        if (!/^[a-zA-Z0-9._-]+$/.test(prefix)) {
+            e.preventDefault();
+            emailPrefix.focus();
+            alert('El correo solo puede contener letras, números, puntos, guiones y guiones bajos');
+            return false;
+        }
+    });
+});
+</script>
+
 @endsection

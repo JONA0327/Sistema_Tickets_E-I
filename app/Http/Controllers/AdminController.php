@@ -182,35 +182,29 @@ class AdminController extends Controller
      */
     public function showUser(User $user)
     {
-        try {
-            // Cargar solo tickets por ahora para debugging
-            $tickets = $user->tickets()
-                ->orderBy('created_at', 'desc')
-                ->get();
+        // Cargar tickets del usuario con información completa
+        $tickets = $user->tickets()
+            ->orderBy('created_at', 'desc')
+            ->get();
 
-            // Inicializar préstamos como colección vacía por seguridad
-            $prestamos = collect();
+        // Cargar préstamos del usuario
+        $prestamos = $user->prestamosInventario()
+            ->with('inventario')
+            ->orderBy('created_at', 'desc')
+            ->get();
 
-            // Estadísticas simplificadas
-            $stats = [
-                'total_tickets' => $tickets->count(),
-                'tickets_abiertos' => $tickets->where('estado', 'abierto')->count(),
-                'tickets_en_proceso' => $tickets->where('estado', 'en_proceso')->count(),
-                'tickets_cerrados' => $tickets->whereIn('estado', ['cerrado', 'cerrados'])->count(),
-                'total_prestamos' => 0,
-                'prestamos_activos' => 0,
-                'prestamos_devueltos' => 0,
-            ];
+        // Estadísticas del usuario
+        $stats = [
+            'total_tickets' => $tickets->count(),
+            'tickets_abiertos' => $tickets->where('estado', 'abierto')->count(),
+            'tickets_en_proceso' => $tickets->where('estado', 'en_proceso')->count(),
+            'tickets_cerrados' => $tickets->whereIn('estado', ['cerrado', 'cerrados'])->count(),
+            'total_prestamos' => $prestamos->count(),
+            'prestamos_activos' => $prestamos->where('estado_prestamo', 'activo')->count(),
+            'prestamos_devueltos' => $prestamos->where('estado_prestamo', 'devuelto')->count(),
+        ];
 
-            return view('admin.users.show', compact('user', 'tickets', 'prestamos', 'stats'));
-
-        } catch (\Exception $e) {
-            // Log del error para debugging
-            \Log::error('Error en showUser: ' . $e->getMessage());
-            
-            return redirect()->route('admin.users')
-                ->with('error', 'Error al cargar la información del usuario');
-        }
+        return view('admin.users.show', compact('user', 'tickets', 'prestamos', 'stats'));
     }
 
     /**
@@ -218,43 +212,45 @@ class AdminController extends Controller
      */
     public function editUser(User $user)
     {
-        try {
-            return view('admin.users.edit', compact('user'));
-        } catch (\Exception $e) {
-            \Log::error('Error en editUser: ' . $e->getMessage());
-            
-            return redirect()->route('admin.users')
-                ->with('error', 'Error al cargar el formulario de edición');
-        }
+        return view('admin.users.edit', compact('user'));
     }
 
     /**
-     * Actualizar usuario - Solo permite cambiar email y contraseña
-     * El nombre y rol se mantienen para preservar la integridad del historial
+     * Actualizar usuario - Permite cambiar nombre, email y contraseña
+     * El rol se mantiene para preservar la seguridad del sistema
      */
     public function updateUser(Request $request, User $user)
     {
         $request->validate([
-            'email' => [
+            'name' => 'required|string|max:255',
+            'email_prefix' => [
                 'required',
                 'string',
-                'email',
-                'max:255',
-                'unique:users,email,' . $user->id,
-                'ends_with:estrategiaeinnovacion.com.mx',
+                'max:100',
+                'regex:/^[a-zA-Z0-9._-]+$/',
             ],
             'password' => 'nullable|string|min:8|confirmed',
         ], [
-            'email.required' => 'El correo electrónico es obligatorio.',
-            'email.email' => 'Debe ser un correo electrónico válido.',
-            'email.unique' => 'Este correo electrónico ya está registrado.',
-            'email.ends_with' => 'El correo debe pertenecer al dominio estrategiaeinnovacion.com.mx.',
+            'name.required' => 'El nombre es obligatorio.',
+            'name.max' => 'El nombre no puede exceder 255 caracteres.',
+            'email_prefix.required' => 'La parte del correo antes del @ es obligatoria.',
+            'email_prefix.max' => 'La parte del correo no puede exceder 100 caracteres.',
+            'email_prefix.regex' => 'El correo solo puede contener letras, números, puntos, guiones y guiones bajos.',
             'password.min' => 'La contraseña debe tener al menos 8 caracteres.',
             'password.confirmed' => 'La confirmación de contraseña no coincide.',
         ]);
 
+        // Construir el email completo
+        $email = $request->email_prefix . '@estrategiaeinnovacion.com.mx';
+
+        // Validar que el email no esté en uso por otro usuario
+        if ($email !== $user->email && User::where('email', $email)->exists()) {
+            return back()->withErrors(['email_prefix' => 'Este correo electrónico ya está registrado.'])->withInput();
+        }
+
         $data = [
-            'email' => $request->email,
+            'name' => $request->name,
+            'email' => $email,
         ];
 
         // Solo actualizar la contraseña si se proporciona
@@ -264,7 +260,7 @@ class AdminController extends Controller
 
         $user->update($data);
 
-        return redirect()->route('users.show', $user)->with('success', 'Usuario actualizado exitosamente. El historial se mantiene intacto.');
+        return redirect()->route('admin.users.show', $user)->with('success', 'Usuario actualizado exitosamente.');
     }
 
     /**
