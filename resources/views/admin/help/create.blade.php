@@ -79,7 +79,7 @@
                                         Subir imágenes
                                     </span>
                                     <span class="mt-1 block text-sm text-gray-600">
-                                        PNG, JPG, GIF hasta 2MB cada una
+                                        PNG, JPG, GIF hasta 100MB cada una
                                     </span>
                                 </label>
                                 <input id="images" name="images[]" type="file" class="sr-only" multiple accept="image/*">

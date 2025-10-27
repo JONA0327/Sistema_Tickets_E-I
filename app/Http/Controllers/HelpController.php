@@ -45,7 +45,7 @@ class HelpController extends Controller
             'content' => 'required|string',
             'section_order' => 'required|integer|min:0',
             'is_active' => 'boolean',
-            'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:102400',
         ], [
             'title.required' => 'El título es obligatorio.',
             'title.max' => 'El título no puede exceder 255 caracteres.',
@@ -55,7 +55,7 @@ class HelpController extends Controller
             'section_order.min' => 'El orden debe ser mayor o igual a 0.',
             'images.*.image' => 'El archivo debe ser una imagen.',
             'images.*.mimes' => 'La imagen debe ser de tipo: jpeg, png, jpg, gif, webp.',
-            'images.*.max' => 'La imagen no puede ser mayor a 2MB.',
+            'images.*.max' => 'La imagen no puede ser mayor a 100MB.',
         ]);
 
         // Crear la sección primero
@@ -93,7 +93,7 @@ class HelpController extends Controller
             'content' => 'required|string',
             'section_order' => 'required|integer|min:0',
             'is_active' => 'boolean',
-            'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:102400',
         ], [
             'title.required' => 'El título es obligatorio.',
             'title.max' => 'El título no puede exceder 255 caracteres.',
@@ -103,7 +103,7 @@ class HelpController extends Controller
             'section_order.min' => 'El orden debe ser mayor o igual a 0.',
             'images.*.image' => 'El archivo debe ser una imagen.',
             'images.*.mimes' => 'La imagen debe ser de tipo: jpeg, png, jpg, gif, webp.',
-            'images.*.max' => 'La imagen no puede ser mayor a 2MB.',
+            'images.*.max' => 'La imagen no puede ser mayor a 100MB.',
         ]);
 
         $helpSection->update([
