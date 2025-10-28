@@ -17,6 +17,7 @@ return new class extends Migration
             $table->text('content');
             $table->integer('section_order')->default(0);
             $table->boolean('is_active')->default(true);
+            $table->json('images')->nullable();
             $table->timestamps();
         });
     }

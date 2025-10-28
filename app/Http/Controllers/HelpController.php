@@ -150,6 +150,12 @@ class HelpController extends Controller
     {
         $images = $helpSection->images ?? [];
         
+        // Asegurar que el directorio existe
+        $helpImagesPath = storage_path('app/public/help-images');
+        if (!file_exists($helpImagesPath)) {
+            mkdir($helpImagesPath, 0755, true);
+        }
+        
         foreach ($request->file('images') as $file) {
             // Generar nombre único para el archivo
             $filename = time() . '-' . Str::random(10) . '.' . $file->getClientOriginalExtension();

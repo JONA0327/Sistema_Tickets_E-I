@@ -55,7 +55,8 @@
                 </a>
             </div>
 
-            <!-- Desktop navigation - Only visible on large screens -->
+            <!-- Desktop navigation - Only visible on large screens and for authenticated users -->
+            @auth
             <div class="hidden lg:flex items-center gap-6">
                 <div class="flex items-center gap-2">
                     @foreach ($filteredItems as $item)
@@ -135,31 +136,13 @@
                             </div>
                         </div>
                     </div>
-                @else
-                    <div class="flex items-center gap-3">
-                        <a
-                            href="{{ route('login') }}"
-                            class="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
-                        >
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
-                            </svg>
-                            Iniciar sesión
-                        </a>
-                        <a
-                            href="{{ route('register') }}"
-                            class="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
-                        >
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                            </svg>
-                            Solicitar registro
-                        </a>
-                    </div>
                 @endif
             </div>
+            @endauth
+            </div>
 
-            <!-- Mobile menu button - Only visible on small screens -->
+            <!-- Mobile menu button - Only visible on small screens and for authenticated users -->
+            @auth
             <div class="flex items-center gap-3 lg:hidden">
                 @if ($user && method_exists($user, 'isAdmin') && $user->isAdmin())
                     <x-admin.notification-center />
@@ -179,9 +162,11 @@
                     </svg>
                 </button>
             </div>
+            @endauth
         </div>
     </div>
 
+    @auth
     <div
         x-cloak
         x-show="mobileOpen"
@@ -260,4 +245,5 @@
             @endif
         </div>
     </div>
+    @endauth
 </nav>

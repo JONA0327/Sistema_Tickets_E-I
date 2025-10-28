@@ -84,7 +84,7 @@
                     @foreach($sections as $section)
                         <a href="#section-{{ $section->id }}" 
                            class="flex items-center p-3 rounded-lg hover:bg-gray-50 transition-colors duration-200 group">
-                            <div class="flex-shrink-0 w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3 group-hover:bg-blue-200">
+                            <div class="flex-shrink-0 w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mr-3 group-hover:bg-blue-200">
                                 <span class="text-sm font-medium text-blue-600">{{ $section->section_order }}</span>
                             </div>
                             <div class="flex-1">
@@ -108,7 +108,7 @@
                     <div class="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-gray-100">
                         <div class="flex items-center justify-between">
                             <div class="flex items-center">
-                                <div class="flex-shrink-0 w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center mr-4">
+                                <div class="flex-shrink-0 w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center mr-4">
                                     <span class="text-lg font-bold text-white">{{ $section->section_order }}</span>
                                 </div>
                                 <div>

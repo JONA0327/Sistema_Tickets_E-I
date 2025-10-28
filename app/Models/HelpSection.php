@@ -75,8 +75,8 @@ class HelpSection extends Model
 
         foreach ($imageUrls as $reference => $url) {
             // Reemplazar referencias como [img:figura1] con <img> tags
-            $pattern = '/\[img:' . preg_quote($reference, '/') . '\]/';
-            $replacement = '<img src="' . $url . '" alt="' . $reference . '" class="max-w-full h-auto rounded-lg shadow-lg my-4" loading="lazy">';
+            $pattern = '/\[img:' . preg_quote($reference, '/') . '\]/i';
+            $replacement = '<div class="my-6 text-center"><img src="' . $url . '" alt="' . $reference . '" class="max-w-full h-auto rounded-lg shadow-lg mx-auto" loading="lazy" style="max-height: 500px;"><p class="text-sm text-gray-500 mt-2 italic">Figura: ' . $reference . '</p></div>';
             $content = preg_replace($pattern, $replacement, $content);
         }
 
