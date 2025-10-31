@@ -116,7 +116,7 @@
                                autocomplete="username"
                                placeholder="tu@correo.com"
                                class="block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 @error('email') border-red-300 @enderror">
-                        <p class="mt-1 text-xs text-gray-500">Utiliza tu correo corporativo con el dominio @estrategiaeinnovacion.com.mx.</p>
+                        <p class="mt-1 text-xs text-gray-500">Puedes usar cualquier dirección de correo electrónico válida. Tu cuenta será revisada por un administrador.</p>
                     </div>
 
                     <!-- Password -->

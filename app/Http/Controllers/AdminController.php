@@ -147,7 +147,6 @@ class AdminController extends Controller
                 'email',
                 'max:255',
                 'unique:users',
-                'ends_with:estrategiaeinnovacion.com.mx',
             ],
             'password' => 'required|string|min:8|confirmed',
             'role' => 'required|in:user,admin',
@@ -156,7 +155,6 @@ class AdminController extends Controller
             'email.required' => 'El correo electrónico es obligatorio.',
             'email.email' => 'Debe ser un correo electrónico válido.',
             'email.unique' => 'Este correo electrónico ya está registrado.',
-            'email.ends_with' => 'El correo debe pertenecer al dominio estrategiaeinnovacion.com.mx.',
             'password.required' => 'La contraseña es obligatoria.',
             'password.min' => 'La contraseña debe tener al menos 8 caracteres.',
             'password.confirmed' => 'La confirmación de contraseña no coincide.',
@@ -223,34 +221,31 @@ class AdminController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'email_prefix' => [
+            'email' => [
                 'required',
                 'string',
-                'max:100',
-                'regex:/^[a-zA-Z0-9._-]+$/',
+                'email',
+                'max:255',
             ],
             'password' => 'nullable|string|min:8|confirmed',
         ], [
             'name.required' => 'El nombre es obligatorio.',
             'name.max' => 'El nombre no puede exceder 255 caracteres.',
-            'email_prefix.required' => 'La parte del correo antes del @ es obligatoria.',
-            'email_prefix.max' => 'La parte del correo no puede exceder 100 caracteres.',
-            'email_prefix.regex' => 'El correo solo puede contener letras, números, puntos, guiones y guiones bajos.',
+            'email.required' => 'El correo electrónico es obligatorio.',
+            'email.email' => 'Debe ser un correo electrónico válido.',
+            'email.max' => 'El correo no puede exceder 255 caracteres.',
             'password.min' => 'La contraseña debe tener al menos 8 caracteres.',
             'password.confirmed' => 'La confirmación de contraseña no coincide.',
         ]);
 
-        // Construir el email completo
-        $email = $request->email_prefix . '@estrategiaeinnovacion.com.mx';
-
         // Validar que el email no esté en uso por otro usuario
-        if ($email !== $user->email && User::where('email', $email)->exists()) {
-            return back()->withErrors(['email_prefix' => 'Este correo electrónico ya está registrado.'])->withInput();
+        if ($request->email !== $user->email && User::where('email', $request->email)->exists()) {
+            return back()->withErrors(['email' => 'Este correo electrónico ya está registrado.'])->withInput();
         }
 
         $data = [
             'name' => $request->name,
-            'email' => $email,
+            'email' => $request->email,
         ];
 
         // Solo actualizar la contraseña si se proporciona

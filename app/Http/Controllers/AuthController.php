@@ -32,7 +32,6 @@ class AuthController extends Controller
                 'max:255',
                 'unique:users,email',
                 'unique:blocked_emails,email',
-                'ends_with:estrategiaeinnovacion.com.mx',
             ],
             'password' => [
                 'required',
@@ -47,7 +46,6 @@ class AuthController extends Controller
             'email.required' => 'El correo electrónico es obligatorio.',
             'email.email' => 'El formato del correo no es válido.',
             'email.unique' => 'Este correo ya está registrado o bloqueado.',
-            'email.ends_with' => 'Solo se permiten correos con el dominio estrategiaeinnovacion.com.mx.',
             'password.required' => 'La contraseña es obligatoria.',
             'password.confirmed' => 'Las contraseñas no coinciden.',
             'password.min' => 'La contraseña debe tener al menos 8 caracteres.',
@@ -65,7 +63,7 @@ class AuthController extends Controller
 
         return redirect()
             ->route('login')
-            ->with('status', 'Tu solicitud de registro fue enviada. Un administrador revisará tu cuenta y te notificará cuando esté activa.');
+            ->with('status', 'Tu solicitud de registro fue enviada exitosamente. Un administrador revisará tu cuenta y te notificará cuando esté aprobada. Puedes usar cualquier correo electrónico para registrarte.');
     }
 
     /**
@@ -82,12 +80,11 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         $credentials = $request->validate([
-            'email' => ['required', 'email', 'ends_with:estrategiaeinnovacion.com.mx'],
+            'email' => ['required', 'email'],
             'password' => ['required'],
         ], [
             'email.required' => 'El correo electrónico es obligatorio.',
             'email.email' => 'El formato del correo no es válido.',
-            'email.ends_with' => 'Solo se permiten correos con el dominio estrategiaeinnovacion.com.mx.',
             'password.required' => 'La contraseña es obligatoria.',
         ]);
 

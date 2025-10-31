@@ -48,30 +48,19 @@
                     </div>
 
                     <!-- Email -->
-                    @php
-                        $oldEmail = old('email');
-                        $oldLocalPart = $oldEmail ? preg_replace('/@estrategiaeinnovacion\.com\.mx$/i', '', $oldEmail) : '';
-                    @endphp
-                    <div x-data="{ domain: 'estrategiaeinnovacion.com.mx', localPart: @js($oldLocalPart) }">
-                        <label for="email_local" class="block text-sm font-medium text-gray-700 mb-2">
+                    <div>
+                        <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
                             Correo Electrónico <span class="text-red-500">*</span>
                         </label>
-                        <div class="flex rounded-lg shadow-sm">
-                            <input type="text"
-                                   id="email_local"
-                                   x-model="localPart"
-                                   @input="localPart = localPart.replace(/@.*/, '')"
-                                   name="email_local"
-                                   required
-                                   class="block w-full min-w-0 px-3 py-2 border border-gray-300 rounded-l-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 @error('email') border-red-300 @enderror"
-                                   placeholder="nombre.apellido"
-                                   autocomplete="off">
-                            <span class="inline-flex items-center px-3 py-2 border border-l-0 border-gray-300 bg-gray-50 rounded-r-lg text-sm text-gray-600">
-                                &#64;estrategiaeinnovacion.com.mx
-                            </span>
-                        </div>
-                        <input type="hidden" name="email" :value="localPart ? `${localPart}@${domain}` : ''">
-                        <p class="mt-1 text-sm text-gray-500">Solo se permiten correos corporativos &#64;estrategiaeinnovacion.com.mx</p>
+                        <input type="email"
+                               id="email"
+                               name="email"
+                               value="{{ old('email') }}"
+                               required
+                               class="block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 @error('email') border-red-300 @enderror"
+                               placeholder="correo@ejemplo.com"
+                               autocomplete="email">
+                        <p class="mt-1 text-sm text-gray-500">Se permite cualquier dirección de correo electrónico válida</p>
                         @error('email')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror

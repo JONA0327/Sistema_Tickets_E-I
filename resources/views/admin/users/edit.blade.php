@@ -70,28 +70,21 @@
 
                 <!-- Email -->
                 <div>
-                    <label for="email_prefix" class="block text-sm font-medium text-gray-700 mb-2">
+                    <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
                         📧 Correo Electrónico *
                     </label>
-                    <div class="flex items-center space-x-2">
-                        <input type="text" 
-                               id="email_prefix" 
-                               name="email_prefix" 
-                               value="{{ old('email_prefix', explode('@', $user->email)[0]) }}" 
-                               required
-                               pattern="[a-zA-Z0-9._-]+"
-                               title="Solo letras, números, puntos, guiones y guiones bajos"
-                               class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('email_prefix') border-red-500 @enderror @error('email') border-red-500 @enderror">
-                        <span class="text-gray-500 font-medium px-2">@estrategiaeinnovacion.com.mx</span>
-                    </div>
-                    @error('email_prefix')
-                        <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
+                    <input type="email" 
+                           id="email" 
+                           name="email" 
+                           value="{{ old('email', $user->email) }}" 
+                           required
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('email') border-red-500 @enderror"
+                           placeholder="correo@ejemplo.com">
                     @error('email')
                         <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                     @enderror
                     <p class="mt-1 text-sm text-gray-500">
-                        Solo puedes cambiar la parte antes del @. El dominio siempre será @estrategiaeinnovacion.com.mx
+                        Se permite cualquier dirección de correo electrónico válida
                     </p>
                 </div>
 
@@ -193,69 +186,21 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const emailPrefix = document.getElementById('email_prefix');
-    const emailDisplay = document.createElement('div');
-    emailDisplay.className = 'mt-2 text-sm text-gray-600 bg-gray-50 px-3 py-2 rounded border';
-    emailDisplay.innerHTML = '<strong>📧 Email completo:</strong> <span id="full-email" class="font-mono text-blue-600"></span>';
-    emailPrefix.parentNode.appendChild(emailDisplay);
-    
-    function updateEmailDisplay() {
-        const prefix = emailPrefix.value.trim() || '[usuario]';
-        const fullEmail = prefix + '@estrategiaeinnovacion.com.mx';
-        document.getElementById('full-email').textContent = fullEmail;
-        
-        // Cambiar color si es válido
-        const span = document.getElementById('full-email');
-        if (prefix !== '[usuario]' && /^[a-zA-Z0-9._-]+$/.test(prefix)) {
-            span.className = 'font-mono text-green-600';
-        } else {
-            span.className = 'font-mono text-blue-600';
-        }
-    }
-    
-    // Actualizar en tiempo real
-    emailPrefix.addEventListener('input', updateEmailDisplay);
-    
-    // Mostrar email inicial
-    updateEmailDisplay();
+    const emailInput = document.getElementById('email');
     
     // Validación en tiempo real con mejor UX
-    emailPrefix.addEventListener('input', function() {
+    emailInput.addEventListener('input', function() {
         const value = this.value.trim();
-        const validPattern = /^[a-zA-Z0-9._-]+$/;
         
         // Remover clases anteriores
         this.classList.remove('border-red-500', 'border-green-500');
         
         if (value) {
-            if (!validPattern.test(value)) {
-                this.setCustomValidity('Solo se permiten letras, números, puntos, guiones y guiones bajos');
+            if (!this.validity.valid) {
                 this.classList.add('border-red-500');
             } else {
-                this.setCustomValidity('');
                 this.classList.add('border-green-500');
             }
-        } else {
-            this.setCustomValidity('');
-        }
-    });
-    
-    // Validación al enviar el formulario
-    const form = emailPrefix.closest('form');
-    form.addEventListener('submit', function(e) {
-        const prefix = emailPrefix.value.trim();
-        if (!prefix) {
-            e.preventDefault();
-            emailPrefix.focus();
-            alert('Por favor, ingresa la parte del correo antes del @');
-            return false;
-        }
-        
-        if (!/^[a-zA-Z0-9._-]+$/.test(prefix)) {
-            e.preventDefault();
-            emailPrefix.focus();
-            alert('El correo solo puede contener letras, números, puntos, guiones y guiones bajos');
-            return false;
         }
     });
 });
