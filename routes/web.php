@@ -59,6 +59,8 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
     Route::get('/tickets', [TicketController::class, 'index'])->name('tickets.index');
     Route::get('/tickets/{ticket}', [TicketController::class, 'show'])->name('tickets.show');
     Route::patch('/tickets/{ticket}', [TicketController::class, 'update'])->name('tickets.update');
+    Route::post('/tickets/{ticket}/change-maintenance-date', [TicketController::class, 'changeMaintenanceDate'])->name('tickets.change-maintenance-date');
+    Route::get('/maintenance-slots/available', [TicketController::class, 'getAvailableMaintenanceSlots'])->name('maintenance-slots.available');
     Route::get('/inventory', [AdminController::class, 'inventory'])->name('inventory');
     Route::get('/inventory-requests', [AdminController::class, 'inventoryRequests'])->name('inventory-requests');
 

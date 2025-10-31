@@ -481,12 +481,18 @@ class TicketController extends Controller
         $solicitante = $ticket->nombre_solicitante;
         $isAdmin = $user && method_exists($user, 'isAdmin') ? $user->isAdmin() : false;
 
+        // Liberar slot de mantenimiento si es un ticket de mantenimiento
+        if ($ticket->tipo_problema === 'mantenimiento' && $ticket->maintenance_slot_id) {
+            $this->releaseMaintenanceSlot($ticket);
+        }
+
         if ($isAdmin) {
             $ticket->delete();
 
             return redirect()->back()->with(
                 'success',
-                "Ticket {$folio} de {$solicitante} eliminado exitosamente desde el panel administrativo."
+                "Ticket {$folio} de {$solicitante} eliminado exitosamente desde el panel administrativo." .
+                ($ticket->tipo_problema === 'mantenimiento' ? ' El horario de mantenimiento ha sido liberado.' : '')
             );
         }
 
@@ -510,10 +516,47 @@ class TicketController extends Controller
             'notified_at' => now(),
         ])->save();
 
-        return redirect()->back()->with(
-            'success',
-            "Ticket {$folio} cancelado exitosamente. El equipo de TI ha sido notificado."
-        );
+        $message = "Ticket {$folio} cancelado exitosamente. El equipo de TI ha sido notificado.";
+        if ($ticket->tipo_problema === 'mantenimiento') {
+            $message .= " El horario de mantenimiento ha sido liberado para que otros usuarios puedan agendarlo.";
+        }
+
+        return redirect()->back()->with('success', $message);
+    }
+
+    /**
+     * Liberar slot de mantenimiento cuando se cancela un ticket
+     */
+    private function releaseMaintenanceSlot(Ticket $ticket)
+    {
+        try {
+            // Buscar la reserva de mantenimiento
+            $booking = MaintenanceBooking::where('ticket_id', $ticket->id)->first();
+            
+            if ($booking) {
+                $slot = $booking->slot;
+                
+                // Decrementar el contador de reservas
+                if ($slot && $slot->booked_count > 0) {
+                    $slot->decrement('booked_count');
+                }
+                
+                // Eliminar la reserva
+                $booking->delete();
+                
+                \Log::info('MaintenanceSlot liberado', [
+                    'ticket_id' => $ticket->id,
+                    'slot_id' => $slot->id ?? 'no encontrado',
+                    'fecha' => $slot->date ?? 'no disponible',
+                    'hora' => $slot->start_time ?? 'no disponible'
+                ]);
+            }
+        } catch (\Exception $e) {
+            \Log::error('Error al liberar MaintenanceSlot', [
+                'ticket_id' => $ticket->id,
+                'error' => $e->getMessage()
+            ]);
+        }
     }
 
     /**
@@ -532,5 +575,116 @@ class TicketController extends Controller
         } catch (\Exception $e) {
             \Log::error('Error enviando email: ' . $e->getMessage());
         }
+    }
+
+    /**
+     * Cambiar fecha de mantenimiento (Solo administrador)
+     */
+    public function changeMaintenanceDate(Request $request, Ticket $ticket)
+    {
+        // Verificar que el usuario sea administrador
+        if (!auth()->user()->isAdmin()) {
+            return redirect()->back()->with('error', 'No tienes permisos para realizar esta acción.');
+        }
+
+        // Verificar que sea un ticket de mantenimiento
+        if ($ticket->tipo_problema !== 'mantenimiento') {
+            return redirect()->back()->with('error', 'Solo se puede cambiar la fecha de tickets de mantenimiento.');
+        }
+
+        // Validar la nueva fecha
+        $request->validate([
+            'new_maintenance_slot_id' => 'required|exists:maintenance_slots,id',
+        ], [
+            'new_maintenance_slot_id.required' => 'Debes seleccionar un nuevo horario.',
+            'new_maintenance_slot_id.exists' => 'El horario seleccionado no es válido.',
+        ]);
+
+        $newSlot = MaintenanceSlot::find($request->new_maintenance_slot_id);
+        
+        // Verificar que el nuevo slot tenga capacidad disponible
+        if ($newSlot->available_capacity <= 0) {
+            return redirect()->back()->with('error', 'El horario seleccionado no tiene capacidad disponible.');
+        }
+
+        try {
+            DB::transaction(function () use ($ticket, $newSlot) {
+                // Liberar el slot actual si existe
+                if ($ticket->maintenance_slot_id) {
+                    $this->releaseMaintenanceSlot($ticket);
+                }
+
+                // Asignar el nuevo slot
+                $booking = MaintenanceBooking::create([
+                    'maintenance_slot_id' => $newSlot->id,
+                    'ticket_id' => $ticket->id,
+                    'additional_details' => 'Fecha cambiada por administrador',
+                ]);
+
+                // Incrementar el contador de reservas del nuevo slot
+                $newSlot->increment('booked_count');
+
+                // Actualizar el ticket
+                $ticket->update([
+                    'maintenance_slot_id' => $newSlot->id,
+                    'is_read' => false,
+                    'user_has_updates' => true,
+                    'notified_at' => now(),
+                ]);
+
+                \Log::info('Fecha de mantenimiento cambiada por administrador', [
+                    'ticket_id' => $ticket->id,
+                    'folio' => $ticket->folio,
+                    'new_slot_id' => $newSlot->id,
+                    'new_date' => $newSlot->date,
+                    'new_time' => $newSlot->start_time,
+                    'admin_id' => auth()->id(),
+                ]);
+            });
+
+            return redirect()->back()->with('success', 
+                "La fecha del mantenimiento ha sido cambiada exitosamente. El usuario será notificado del cambio."
+            );
+
+        } catch (\Exception $e) {
+            \Log::error('Error al cambiar fecha de mantenimiento', [
+                'ticket_id' => $ticket->id,
+                'error' => $e->getMessage()
+            ]);
+
+            return redirect()->back()->with('error', 'Hubo un error al cambiar la fecha del mantenimiento.');
+        }
+    }
+
+    /**
+     * Obtener slots de mantenimiento disponibles (para AJAX)
+     */
+    public function getAvailableMaintenanceSlots(Request $request)
+    {
+        if (!auth()->user()->isAdmin()) {
+            return response()->json(['error' => 'No autorizado'], 403);
+        }
+
+        $slots = MaintenanceSlot::active()
+            ->where('date', '>=', now()->toDateString())
+            ->where('capacity', '>', DB::raw('booked_count'))
+            ->orderBy('date')
+            ->orderBy('start_time')
+            ->get(['id', 'date', 'start_time', 'end_time', 'capacity', 'booked_count'])
+            ->map(function ($slot) {
+                return [
+                    'id' => $slot->id,
+                    'date' => $slot->date->format('Y-m-d'),
+                    'date_formatted' => $slot->date->format('d/m/Y'),
+                    'start_time' => $slot->start_time,
+                    'end_time' => $slot->end_time,
+                    'available_capacity' => $slot->available_capacity,
+                    'display_text' => $slot->date->format('d/m/Y') . ' de ' . 
+                                    $slot->start_time . ' a ' . $slot->end_time . 
+                                    ' (' . $slot->available_capacity . ' disponibles)'
+                ];
+            });
+
+        return response()->json($slots);
     }
 }
