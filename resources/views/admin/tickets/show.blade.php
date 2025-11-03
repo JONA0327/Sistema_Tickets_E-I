@@ -186,61 +186,6 @@
                                 </div>
                             </div>
 
-                            <div class="bg-white p-6 rounded-lg border border-gray-200 mb-6">
-                                <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                                    <svg class="w-5 h-5 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7h2l.4 2M7 7h14l-1.68 8.39a2 2 0 01-1.97 1.61H8.25a2 2 0 01-1.97-1.61L5 4H3" />
-                                    </svg>
-                                    Ficha técnica del equipo
-                                </h3>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-700">
-                                    <div>
-                                        <p class="text-gray-500 text-xs uppercase tracking-wider">Identificador</p>
-                                        <p class="font-semibold text-gray-900">{{ $ticket->equipment_identifier ?? 'Sin asignar' }}</p>
-                                    </div>
-                                    <div>
-                                        <p class="text-gray-500 text-xs uppercase tracking-wider">Marca y modelo</p>
-                                        <p class="font-semibold text-gray-900">{{ trim(($ticket->equipment_brand ?? '').' '.($ticket->equipment_model ?? '')) ?: 'No especificado' }}</p>
-                                    </div>
-                                    <div>
-                                        <p class="text-gray-500 text-xs uppercase tracking-wider">Tipo de disco</p>
-                                        <p class="font-semibold text-gray-900">{{ $ticket->disk_type ?? 'Sin registro' }}</p>
-                                    </div>
-                                    <div>
-                                        <p class="text-gray-500 text-xs uppercase tracking-wider">Capacidad de RAM</p>
-                                        <p class="font-semibold text-gray-900">{{ $ticket->ram_capacity ?? 'Sin registro' }}</p>
-                                    </div>
-                                    <div>
-                                        <p class="text-gray-500 text-xs uppercase tracking-wider">Estado de batería</p>
-                                        <p class="font-semibold text-gray-900">{{ $ticket->battery_status ? ucfirst(str_replace('_', ' ', $ticket->battery_status)) : 'No evaluada' }}</p>
-                                    </div>
-                                    @if($ticket->equipment_password)
-                                    <div>
-                                        <p class="text-gray-500 text-xs uppercase tracking-wider">Contraseña del equipo</p>
-                                        <div class="flex items-center space-x-2">
-                                            <span id="password-text" class="font-semibold text-gray-900 bg-gray-100 px-2 py-1 rounded" style="display: none;">{{ $ticket->equipment_password }}</span>
-                                            <span id="password-hidden" class="font-semibold text-gray-900">••••••••</span>
-                                            <button type="button" onclick="togglePassword()" class="text-blue-600 hover:text-blue-800 text-xs underline">
-                                                <span id="toggle-text">Mostrar</span>
-                                            </button>
-                                        </div>
-                                    </div>
-                                    @endif
-                                    @if($ticket->aesthetic_observations)
-                                        <div class="md:col-span-2">
-                                            <p class="text-gray-500 text-xs uppercase tracking-wider">Observaciones estéticas</p>
-                                            <p class="mt-1 text-gray-800">{{ $ticket->aesthetic_observations }}</p>
-                                        </div>
-                                    @endif
-                                    @if($profile && $profile->is_loaned)
-                                        <div class="md:col-span-2 bg-green-50 border border-green-200 rounded-lg p-4">
-                                            <p class="text-sm font-semibold text-green-700">Equipo prestado actualmente</p>
-                                            <p class="text-sm text-green-700">{{ $profile->loaned_to_name }} - {{ $profile->loaned_to_email }}</p>
-                                        </div>
-                                    @endif
-                                </div>
-                            </div>
-
                             @if($ticket->maintenance_report || $ticket->closure_observations)
                                 <div class="bg-gray-50 p-6 rounded-lg border border-gray-200 mb-6">
                                     <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
@@ -480,64 +425,10 @@
                             </div>
 
                             @if($ticket->tipo_problema === 'mantenimiento')
-                                <!-- Datos del equipo -->
                                 <div class="mt-6">
-                                    <h4 class="text-sm font-semibold text-gray-700 mb-4">Datos del equipo</h4>
-                                    <div class="space-y-4">
-                                        <div>
-                                            <label for="equipment_identifier" class="block text-xs font-medium text-gray-600 mb-1">Identificador del equipo</label>
-                                            <input type="text" id="equipment_identifier" name="equipment_identifier" value="{{ old('equipment_identifier', $ticket->equipment_identifier) }}" class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                                            @error('equipment_identifier')<p class="text-xs text-red-600 mt-1">{{ $message }}</p>@enderror
-                                        </div>
-                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <h4 class="text-sm font-semibold text-gray-700 mb-4">Imágenes del administrador</h4>
+                                        <div class="space-y-4">
                                             <div>
-                                                <label for="equipment_brand" class="block text-xs font-medium text-gray-600 mb-1">Marca</label>
-                                                <input type="text" id="equipment_brand" name="equipment_brand" value="{{ old('equipment_brand', $ticket->equipment_brand) }}" class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                                                @error('equipment_brand')<p class="text-xs text-red-600 mt-1">{{ $message }}</p>@enderror
-                                            </div>
-                                            <div>
-                                                <label for="equipment_model" class="block text-xs font-medium text-gray-600 mb-1">Modelo</label>
-                                                <input type="text" id="equipment_model" name="equipment_model" value="{{ old('equipment_model', $ticket->equipment_model) }}" class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                                                @error('equipment_model')<p class="text-xs text-red-600 mt-1">{{ $message }}</p>@enderror
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <label for="equipment_password" class="block text-xs font-medium text-gray-600 mb-1">Contraseña del equipo</label>
-                                            <input type="password" id="equipment_password" name="equipment_password" value="{{ old('equipment_password', $ticket->equipment_password) }}" class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Contraseña de acceso al equipo">
-                                            @error('equipment_password')<p class="text-xs text-red-600 mt-1">{{ $message }}</p>@enderror
-                                        </div>
-                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                <label for="disk_type" class="block text-xs font-medium text-gray-600 mb-1">Tipo de disco</label>
-                                                <input type="text" id="disk_type" name="disk_type" value="{{ old('disk_type', $ticket->disk_type) }}" class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                                                @error('disk_type')<p class="text-xs text-red-600 mt-1">{{ $message }}</p>@enderror
-                                            </div>
-                                            <div>
-                                                <label for="ram_capacity" class="block text-xs font-medium text-gray-600 mb-1">Capacidad de RAM</label>
-                                                <input type="text" id="ram_capacity" name="ram_capacity" value="{{ old('ram_capacity', $ticket->ram_capacity) }}" class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                                                @error('ram_capacity')<p class="text-xs text-red-600 mt-1">{{ $message }}</p>@enderror
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <label for="battery_status" class="block text-xs font-medium text-gray-600 mb-1">Estado de batería</label>
-                                            <select id="battery_status" name="battery_status" class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                                                <option value="">Selecciona una opción</option>
-                                                <option value="functional" {{ old('battery_status', $ticket->battery_status) === 'functional' ? 'selected' : '' }}>Funcional</option>
-                                                <option value="partially_functional" {{ old('battery_status', $ticket->battery_status) === 'partially_functional' ? 'selected' : '' }}>Parcialmente funcional</option>
-                                                <option value="damaged" {{ old('battery_status', $ticket->battery_status) === 'damaged' ? 'selected' : '' }}>Dañada</option>
-                                            </select>
-                                            @error('battery_status')<p class="text-xs text-red-600 mt-1">{{ $message }}</p>@enderror
-                                        </div>
-                                        <div>
-                                            <label for="aesthetic_observations" class="block text-xs font-medium text-gray-600 mb-1">Observaciones estéticas</label>
-                                            <textarea id="aesthetic_observations" name="aesthetic_observations" rows="3" class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">{{ old('aesthetic_observations', $ticket->aesthetic_observations) }}</textarea>
-                                            @error('aesthetic_observations')<p class="text-xs text-red-600 mt-1">{{ $message }}</p>@enderror
-                                        </div>
-
-                                        <!-- Imágenes del administrador -->
-                                        <div class="mt-6">
-                                            <h4 class="text-sm font-semibold text-gray-700 mb-4">Imágenes del administrador</h4>
-                                    <div class="space-y-4">
-                                        <div>
                                             <label for="imagenes_admin" class="block text-xs font-medium text-gray-600 mb-1">Anexar imágenes (solo administrador)</label>
                                             <input type="file" id="imagenes_admin" name="imagenes_admin[]" multiple accept="image/*" class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:bg-gray-50 file:text-gray-700 hover:file:bg-gray-100">
                                             <p class="text-xs text-gray-500 mt-1">
@@ -606,41 +497,7 @@
                                     </div>
                                 </div>
 
-                                <!-- Componentes para reemplazo -->
-                                <div class="mt-6">
-                                    <h4 class="text-sm font-semibold text-gray-700 mb-4">Componentes para reemplazo</h4>
-                                    @php
-                                        $componentOptions = [
-                                            'disco_duro' => 'Disco duro',
-                                            'ram' => 'RAM',
-                                            'bateria' => 'Batería',
-                                            'pantalla' => 'Pantalla',
-                                            'conectores' => 'Conectores',
-                                            'teclado' => 'Teclado',
-                                            'mousepad' => 'Mousepad',
-                                            'cargador' => 'Cargador',
-                                        ];
-                                        $selected = old('replacement_components', $ticket->replacement_components ?? []);
-                                    @endphp
-                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
-                                        @foreach($componentOptions as $value => $label)
-                                            <label class="inline-flex items-center text-xs text-gray-600 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2">
-                                                <input type="checkbox" name="replacement_components[]" value="{{ $value }}" class="mr-2 rounded border-gray-300 text-blue-600 focus:ring-blue-500" {{ is_array($selected) && in_array($value, $selected) ? 'checked' : '' }}>
-                                                {{ $label }}
-                                            </label>
-                                        @endforeach
-                                    </div>
-                                    @error('replacement_components')<p class="text-xs text-red-600 mt-2">{{ $message }}</p>@enderror
-                                    @error('replacement_components.*')<p class="text-xs text-red-600 mt-2">{{ $message }}</p>@enderror
-                                </div>
-
-                                <!-- Marcar como prestado -->
-                                <div class="mt-6">
-                                    <label class="flex items-start text-sm text-gray-700">
-                                        <input type="checkbox" name="mark_as_loaned" value="1" class="mt-1 mr-2 rounded border-gray-300 text-green-600 focus:ring-green-500" {{ old('mark_as_loaned', optional($ticket->computerProfile)->is_loaned) ? 'checked' : '' }}>
-                                        <span>Marcar equipo como prestado a {{ $ticket->nombre_solicitante }}<br><span class="text-xs text-gray-500">Se registrará que el equipo permanece bajo custodia del solicitante.</span></span>
-                                    </label>
-                                </div>
+                                <!-- Imágenes del administrador -->
                             @endif
 
                             <!-- Información de Fechas -->

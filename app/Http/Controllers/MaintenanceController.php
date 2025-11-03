@@ -9,6 +9,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 class MaintenanceController extends Controller
@@ -128,6 +129,7 @@ class MaintenanceController extends Controller
 
         return view('admin.maintenance.index', [
             'groupedSlots' => $groupedSlots,
+            'componentOptions' => $this->getReplacementComponentOptions(),
         ]);
     }
 
@@ -357,28 +359,121 @@ class MaintenanceController extends Controller
 
         return view('admin.maintenance.computers', [
             'profiles' => $profiles,
+            'componentOptions' => $this->getReplacementComponentOptions(),
         ]);
     }
 
-    public function updateComputerLoan(Request $request, ComputerProfile $profile): RedirectResponse
+    public function storeComputerProfile(Request $request): RedirectResponse
     {
-        $validated = $request->validate([
-            'is_loaned' => 'sometimes|boolean',
-            'loaned_to_name' => 'nullable|string|max:255',
-            'loaned_to_email' => 'nullable|email|max:255',
-        ]);
+        $validated = $this->validateComputerProfile($request);
 
-        $isLoaned = $request->boolean('is_loaned');
-        $profile->is_loaned = $isLoaned;
-        if ($isLoaned) {
+        $profile = new ComputerProfile();
+        $profile->fill(collect($validated)->except(['replacement_components', 'is_loaned'])->toArray());
+        $profile->replacement_components = $validated['replacement_components'] ?? [];
+        $profile->is_loaned = $request->boolean('is_loaned');
+
+        if ($profile->is_loaned) {
             $profile->loaned_to_name = $validated['loaned_to_name'] ?? null;
             $profile->loaned_to_email = $validated['loaned_to_email'] ?? null;
         } else {
             $profile->loaned_to_name = null;
             $profile->loaned_to_email = null;
         }
+
         $profile->save();
 
-        return redirect()->back()->with('success', 'Estado de préstamo actualizado correctamente.');
+        return redirect()
+            ->route('admin.maintenance.computers.index')
+            ->with('success', 'Ficha técnica registrada correctamente.');
+    }
+
+    public function showComputerProfile(ComputerProfile $profile): View
+    {
+        return view('admin.maintenance.computers.show', [
+            'profile' => $profile,
+            'componentOptions' => $this->getReplacementComponentOptions(),
+        ]);
+    }
+
+    public function editComputerProfile(ComputerProfile $profile): View
+    {
+        return view('admin.maintenance.computers.edit', [
+            'profile' => $profile,
+            'componentOptions' => $this->getReplacementComponentOptions(),
+        ]);
+    }
+
+    public function updateComputerProfile(Request $request, ComputerProfile $profile): RedirectResponse
+    {
+        $validated = $this->validateComputerProfile($request, $profile);
+
+        $profile->fill(collect($validated)->except(['replacement_components', 'is_loaned'])->toArray());
+        $profile->replacement_components = $validated['replacement_components'] ?? [];
+        $profile->is_loaned = $request->boolean('is_loaned');
+
+        if ($profile->is_loaned) {
+            $profile->loaned_to_name = $validated['loaned_to_name'] ?? null;
+            $profile->loaned_to_email = $validated['loaned_to_email'] ?? null;
+        } else {
+            $profile->loaned_to_name = null;
+            $profile->loaned_to_email = null;
+        }
+
+        $profile->save();
+
+        return redirect()
+            ->route('admin.maintenance.computers.index')
+            ->with('success', 'Ficha técnica actualizada correctamente.');
+    }
+
+    public function destroyComputerProfile(ComputerProfile $profile): RedirectResponse
+    {
+        $profile->delete();
+
+        return redirect()
+            ->route('admin.maintenance.computers.index')
+            ->with('success', 'Ficha técnica eliminada correctamente.');
+    }
+
+    private function validateComputerProfile(Request $request, ?ComputerProfile $profile = null): array
+    {
+        $options = implode(',', array_keys($this->getReplacementComponentOptions()));
+
+        $identifierRule = Rule::unique('computer_profiles', 'identifier');
+        if ($profile) {
+            $identifierRule = $identifierRule->ignore($profile->id);
+        }
+
+        $rules = [
+            'identifier' => ['required', 'string', 'max:255', $identifierRule],
+            'brand' => ['nullable', 'string', 'max:255'],
+            'model' => ['nullable', 'string', 'max:255'],
+            'disk_type' => ['nullable', 'string', 'max:255'],
+            'ram_capacity' => ['nullable', 'string', 'max:255'],
+            'battery_status' => ['nullable', 'in:functional,partially_functional,damaged'],
+            'aesthetic_observations' => ['nullable', 'string'],
+            'replacement_components' => ['nullable', 'array'],
+            'replacement_components.*' => ['in:' . $options],
+            'last_maintenance_at' => ['nullable', 'date'],
+            'is_loaned' => ['nullable', 'boolean'],
+            'loaned_to_name' => ['nullable', 'string', 'max:255', 'required_if:is_loaned,1'],
+            'loaned_to_email' => ['nullable', 'email', 'max:255', 'required_if:is_loaned,1'],
+        ];
+
+        return $request->validate($rules);
+    }
+
+    private function getReplacementComponentOptions(): array
+    {
+        return [
+            'disco_duro' => 'Disco duro',
+            'ram' => 'RAM',
+            'bateria' => 'Batería',
+            'pantalla' => 'Pantalla',
+            'conectores' => 'Conectores',
+            'teclado' => 'Teclado',
+            'mousepad' => 'Mousepad',
+            'cargador' => 'Cargador',
+        ];
     }
 }

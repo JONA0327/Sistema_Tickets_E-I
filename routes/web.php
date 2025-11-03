@@ -71,7 +71,11 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
     Route::delete('/maintenance/slots/past', [MaintenanceController::class, 'destroyPastSlots'])->name('maintenance.slots.destroy-past');
     Route::delete('/maintenance/slots/{slot}', [MaintenanceController::class, 'destroySlot'])->name('maintenance.slots.destroy');
     Route::get('/maintenance/computers', [MaintenanceController::class, 'computersIndex'])->name('maintenance.computers.index');
-    Route::patch('/maintenance/computers/{profile}', [MaintenanceController::class, 'updateComputerLoan'])->name('maintenance.computers.update-loan');
+    Route::post('/maintenance/computers', [MaintenanceController::class, 'storeComputerProfile'])->name('maintenance.computers.store');
+    Route::get('/maintenance/computers/{profile}', [MaintenanceController::class, 'showComputerProfile'])->name('maintenance.computers.show');
+    Route::get('/maintenance/computers/{profile}/edit', [MaintenanceController::class, 'editComputerProfile'])->name('maintenance.computers.edit');
+    Route::put('/maintenance/computers/{profile}', [MaintenanceController::class, 'updateComputerProfile'])->name('maintenance.computers.update');
+    Route::delete('/maintenance/computers/{profile}', [MaintenanceController::class, 'destroyComputerProfile'])->name('maintenance.computers.destroy');
     
     // Gestión de usuarios
     Route::get('/users', [AdminController::class, 'users'])->name('users');
