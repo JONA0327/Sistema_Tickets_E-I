@@ -265,6 +265,10 @@ class TicketController extends Controller
         $maintenanceData = [];
 
         if ($ticket->tipo_problema === 'mantenimiento') {
+            $technicalDataProvided = false;
+            $replacementComponentsProvided = false;
+            $markAsLoanedProvided = $request->has('mark_as_loaned');
+
             $maintenanceFields = [
                 'equipment_identifier',
                 'equipment_brand',
@@ -281,12 +285,16 @@ class TicketController extends Controller
             foreach ($maintenanceFields as $field) {
                 if (array_key_exists($field, $validated)) {
                     $maintenanceData[$field] = $validated[$field];
+                    if (in_array($field, ['equipment_identifier', 'equipment_brand', 'equipment_model', 'equipment_password', 'disk_type', 'ram_capacity', 'battery_status', 'aesthetic_observations'], true)) {
+                        $technicalDataProvided = true;
+                    }
                 }
             }
 
-            $maintenanceData['replacement_components'] = $request->has('replacement_components')
-                ? ($validated['replacement_components'] ?? [])
-                : [];
+            if ($request->has('replacement_components')) {
+                $maintenanceData['replacement_components'] = $validated['replacement_components'] ?? [];
+                $replacementComponentsProvided = true;
+            }
 
             // Procesamiento de imágenes del administrador
             $existingImages = $ticket->imagenes_admin ?? [];
@@ -320,48 +328,67 @@ class TicketController extends Controller
         $ticket->save();
 
         if ($ticket->tipo_problema === 'mantenimiento') {
-            $profileData = [
-                'identifier' => $ticket->equipment_identifier,
-                'brand' => $ticket->equipment_brand,
-                'model' => $ticket->equipment_model,
-                'disk_type' => $ticket->disk_type,
-                'ram_capacity' => $ticket->ram_capacity,
-                'battery_status' => $ticket->battery_status,
-                'aesthetic_observations' => $ticket->aesthetic_observations,
-                'replacement_components' => $ticket->replacement_components,
-                'last_ticket_id' => $ticket->id,
-            ];
+            $shouldUpdateMaintenanceDate = $ticket->computerProfile && $validated['estado'] === 'cerrado';
+            $shouldManageProfile = $technicalDataProvided || $replacementComponentsProvided || $markAsLoanedProvided || $shouldUpdateMaintenanceDate;
 
-            if ($validated['estado'] === 'cerrado') {
-                $profileData['last_maintenance_at'] = now();
+            if ($shouldManageProfile) {
+                $profile = $ticket->computerProfile;
+
+                if (!$profile && $technicalDataProvided && $ticket->equipment_identifier) {
+                    $profile = ComputerProfile::firstOrNew(['identifier' => $ticket->equipment_identifier]);
+                }
+
+                if (!$profile && $technicalDataProvided) {
+                    $profile = new ComputerProfile();
+                }
+
+                if ($profile) {
+                    $profileData = [
+                        'last_ticket_id' => $ticket->id,
+                    ];
+
+                    if ($technicalDataProvided) {
+                        $profileData = array_merge($profileData, [
+                            'identifier' => $ticket->equipment_identifier,
+                            'brand' => $ticket->equipment_brand,
+                            'model' => $ticket->equipment_model,
+                            'disk_type' => $ticket->disk_type,
+                            'ram_capacity' => $ticket->ram_capacity,
+                            'battery_status' => $ticket->battery_status,
+                            'aesthetic_observations' => $ticket->aesthetic_observations,
+                        ]);
+                    }
+
+                    if ($validated['estado'] === 'cerrado') {
+                        $profileData['last_maintenance_at'] = now();
+                    }
+
+                    $profile->fill(array_filter($profileData, fn ($value) => !is_null($value)));
+
+                    if ($replacementComponentsProvided) {
+                        $profile->replacement_components = $ticket->replacement_components ?? [];
+                    }
+
+                    if ($markAsLoanedProvided) {
+                        $markAsLoaned = $request->boolean('mark_as_loaned');
+                        $profile->is_loaned = $markAsLoaned;
+                        if ($markAsLoaned) {
+                            $profile->loaned_to_name = $ticket->nombre_solicitante;
+                            $profile->loaned_to_email = $ticket->correo_solicitante;
+                        } else {
+                            $profile->loaned_to_name = null;
+                            $profile->loaned_to_email = null;
+                        }
+                    }
+
+                    $profile->save();
+
+                    if ($ticket->computer_profile_id !== $profile->id) {
+                        $ticket->computer_profile_id = $profile->id;
+                        $ticket->save();
+                    }
+                }
             }
-
-            $profile = $ticket->computerProfile;
-
-            if (!$profile && $ticket->equipment_identifier) {
-                $profile = ComputerProfile::firstOrNew(['identifier' => $ticket->equipment_identifier]);
-            }
-
-            if (!$profile) {
-                $profile = new ComputerProfile();
-            }
-
-            $profile->fill($profileData);
-
-            $markAsLoaned = $request->boolean('mark_as_loaned');
-            $profile->is_loaned = $markAsLoaned;
-            if ($markAsLoaned) {
-                $profile->loaned_to_name = $ticket->nombre_solicitante;
-                $profile->loaned_to_email = $ticket->correo_solicitante;
-            } else {
-                $profile->loaned_to_name = null;
-                $profile->loaned_to_email = null;
-            }
-
-            $profile->save();
-
-            $ticket->computer_profile_id = $profile->id;
-            $ticket->save();
         }
 
         $userNotificationMessages = [];

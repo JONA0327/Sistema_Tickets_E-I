@@ -30,7 +30,6 @@
                             <tr>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Identificador</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Equipo</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Detalles técnicos</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Último mantenimiento</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Préstamo</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
@@ -47,16 +46,15 @@
                                     </td>
                                     <td class="px-6 py-4">
                                         <div class="text-sm font-semibold text-gray-900">{{ $profile->brand ?? 'Marca no definida' }} {{ $profile->model }}</div>
-                                        <div class="text-xs text-gray-500">Batería: {{ $profile->battery_status ? ucfirst(str_replace('_', ' ', $profile->battery_status)) : 'Sin registrar' }}</div>
-                                        @if($profile->aesthetic_observations)
-                                            <div class="mt-1 text-xs text-gray-500">Observaciones: {{ $profile->aesthetic_observations }}</div>
-                                        @endif
-                                    </td>
-                                    <td class="px-6 py-4 text-sm text-gray-600">
-                                        <div>Disco: <span class="font-medium text-gray-900">{{ $profile->disk_type ?? 'N/A' }}</span></div>
-                                        <div>RAM: <span class="font-medium text-gray-900">{{ $profile->ram_capacity ?? 'N/A' }}</span></div>
-                                        @if($profile->replacement_components)
-                                            <div class="mt-1 text-xs text-gray-500">Componentes reemplazados: {{ collect($profile->replacement_components)->map(fn($component) => ucfirst(str_replace('_', ' ', $component)))->implode(', ') }}</div>
+                                        @if($profile->disk_type || $profile->ram_capacity)
+                                            <div class="text-xs text-gray-500 mt-1 flex flex-col space-y-1">
+                                                @if($profile->disk_type)
+                                                    <span>Disco: {{ $profile->disk_type }}</span>
+                                                @endif
+                                                @if($profile->ram_capacity)
+                                                    <span>RAM: {{ $profile->ram_capacity }}</span>
+                                                @endif
+                                            </div>
                                         @endif
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
@@ -78,22 +76,20 @@
                                         @endif
                                     </td>
                                     <td class="px-6 py-4 text-sm text-gray-600">
-                                        <form method="POST" action="{{ route('admin.maintenance.computers.update-loan', $profile) }}" class="space-y-2">
-                                            @csrf
-                                            @method('PATCH')
-                                            <label class="flex items-center text-xs text-gray-600">
-                                                <input type="checkbox" name="is_loaned" value="1" class="mr-2 rounded border-gray-300 text-green-600 focus:ring-green-500" {{ $profile->is_loaned ? 'checked' : '' }}>
-                                                Marcar como prestado
-                                            </label>
-                                            <input type="text" name="loaned_to_name" value="{{ old('loaned_to_name', $profile->loaned_to_name) }}" placeholder="Nombre de la persona" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                            <input type="email" name="loaned_to_email" value="{{ old('loaned_to_email', $profile->loaned_to_email) }}" placeholder="Correo" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                            <button type="submit" class="w-full inline-flex items-center justify-center px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg transition-colors">Actualizar</button>
-                                        </form>
+                                        <div class="flex flex-col sm:flex-row sm:items-center sm:space-x-2 space-y-2 sm:space-y-0">
+                                            <a href="{{ route('admin.maintenance.computers.edit', $profile) }}" class="inline-flex items-center px-3 py-2 bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 rounded-lg text-xs font-semibold transition-colors">Editar</a>
+                                            <a href="{{ route('admin.maintenance.computers.show', $profile) }}" class="inline-flex items-center px-3 py-2 bg-gray-50 text-gray-700 hover:bg-gray-100 border border-gray-200 rounded-lg text-xs font-semibold transition-colors">Ver detalles</a>
+                                            <form method="POST" action="{{ route('admin.maintenance.computers.destroy', $profile) }}" onsubmit="return confirm('¿Deseas eliminar esta ficha técnica? Esta acción no se puede deshacer.');">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="inline-flex items-center px-3 py-2 bg-red-50 text-red-600 hover:bg-red-100 border border-red-200 rounded-lg text-xs font-semibold transition-colors">Borrar ficha técnica</button>
+                                            </form>
+                                        </div>
                                     </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="6" class="px-6 py-10 text-center text-gray-500">
+                                    <td colspan="5" class="px-6 py-10 text-center text-gray-500">
                                         No hay expedientes registrados aún.
                                     </td>
                                 </tr>
@@ -103,5 +99,4 @@
                 </div>
             </div>
         </main>
-    </body>
-</html>
+@endsection
