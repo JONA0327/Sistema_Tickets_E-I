@@ -20,10 +20,33 @@
     @stack('styles')
 
     <style>
+        :root {
+            --bg: #F7F9FC;
+            --surface: #FFFFFF;
+            --text: #0B1220;
+            --muted: #5B6472;
+            --border: #E6E8F0;
+            --primary: #2F6BFF;
+            --primary-hover: #2456CC;
+            --success: #1BA97F;
+            --warning: #F2994A;
+            --danger: #E5484D;
+            --focus: #2F6BFF;
+            --radius-card: 18px;
+            --radius-button: 12px;
+            --gap: 24px;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+
         [x-cloak] { display: none !important; }
     </style>
 </head>
-<body class="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100">
+<body class="min-h-screen">
     @include('layouts.navigation')
 
     @yield('header')

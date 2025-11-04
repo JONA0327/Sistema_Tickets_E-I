@@ -3,211 +3,182 @@
 @section('title', 'Sistema de Tickets - E&I Tecnología')
 
 @section('content')
-        <main class="max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
-            <!-- Success Message -->
+    <main class="py-10 sm:py-12">
+        <div class="mx-auto max-w-[1280px] px-6">
             @if(session('success'))
-                <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-8 mx-auto max-w-4xl">
-                    <div class="flex items-center">
-                        <div class="flex-shrink-0">
-                            <svg class="h-5 w-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
-                        </div>
-                        <div class="ml-3">
-                            <p class="text-green-800 font-medium">
-                                {{ session('success') }}
-                            </p>
-                        </div>
-                    </div>
+                <div class="mb-6 flex items-start gap-3 rounded-[var(--radius-card)] border border-[rgba(27,169,127,0.35)] bg-[rgba(27,169,127,0.12)] px-5 py-4">
+                    <span class="flex h-9 w-9 items-center justify-center rounded-full bg-[rgba(27,169,127,0.18)]" aria-hidden="true">
+                        <svg class="h-5 w-5 text-[var(--success)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                        </svg>
+                    </span>
+                    <p class="text-sm font-medium text-[var(--text)] leading-[1.5]">{{ session('success') }}</p>
                 </div>
             @endif
 
-            <!-- Info Message -->
             @if(session('info'))
-                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-8 mx-auto max-w-4xl">
-                    <div class="flex items-center">
-                        <div class="flex-shrink-0">
-                            <svg class="h-5 w-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
-                        </div>
-                        <div class="ml-3">
-                            <p class="text-blue-800 font-medium">
-                                {{ session('info') }}
-                            </p>
-                        </div>
-                    </div>
+                <div class="mb-6 flex items-start gap-3 rounded-[var(--radius-card)] border border-[rgba(47,107,255,0.35)] bg-[rgba(47,107,255,0.12)] px-5 py-4">
+                    <span class="flex h-9 w-9 items-center justify-center rounded-full bg-[rgba(47,107,255,0.18)]" aria-hidden="true">
+                        <svg class="h-5 w-5 text-[var(--primary)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </span>
+                    <p class="text-sm font-medium text-[var(--text)] leading-[1.5]">{{ session('info') }}</p>
                 </div>
             @endif
 
-            <!-- Hero Section -->
-            <div class="text-center mb-12">
-                <h2 class="text-3xl sm:text-4xl font-bold text-gray-900 mb-4 leading-tight">
-                    Centro de <span class="text-blue-600">Soporte Técnico</span>
-                </h2>
-                <p class="text-base sm:text-xl text-gray-600 max-w-2xl mx-auto">
-                    Gestiona tus solicitudes de soporte técnico de manera rápida y eficiente
+            <header class="text-center">
+                <h1 class="text-[34px] font-semibold leading-[1.2] text-[var(--text)]">Centro de Soporte Técnico</h1>
+                <p class="mx-auto mt-3 max-w-2xl text-[18px] font-normal leading-[1.5] text-[var(--muted)]">
+                    Gestiona tus solicitudes de soporte técnico de manera rápida y eficiente.
                 </p>
-            </div>
-
-
-
-                        </div>
+            </header>
 
             @guest
-            <!-- Login/Register Section for Non-Authenticated Users -->
-            <div class="text-center mb-12">
-                <div class="bg-white rounded-xl shadow-lg border border-blue-100 p-6 sm:p-8 max-w-2xl mx-auto">
-                    <div class="flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 bg-blue-100 rounded-lg mb-6 mx-auto">
-                        <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-                        </svg>
-                    </div>
-                    <h3 class="text-xl sm:text-2xl font-semibold text-gray-900 mb-4">¡Bienvenido al Sistema de Tickets!</h3>
-                    <p class="text-gray-600 mb-6 leading-relaxed text-sm sm:text-base">
-                        Para crear y gestionar tus tickets de soporte técnico, inicia sesión con tu correo corporativo.
-                    </p>
-                    <div class="flex flex-col sm:flex-row justify-center gap-3 mb-4">
-                        <a href="{{ route('login') }}"
-                           class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg transition-colors duration-200 inline-flex items-center justify-center">
-                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>
+                <section class="mt-12">
+                    <div class="mx-auto max-w-xl rounded-[var(--radius-card)] border border-[var(--border)] bg-white p-8 shadow-[0_2px_10px_rgba(16,24,40,0.06)]">
+                        <div class="mx-auto mb-6 flex h-14 w-14 items-center justify-center rounded-full bg-[rgba(47,107,255,0.12)]">
+                            <svg class="h-7 w-7 text-[var(--primary)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 9a3 3 0 11-6 0 3 3 0 016 0zM4.5 20.25a7.5 7.5 0 0115 0" />
                             </svg>
-                            Iniciar Sesión
-                        </a>
-                        <a href="{{ route('register') }}"
-                           class="bg-white border border-blue-200 hover:border-blue-400 hover:bg-blue-50 text-blue-700 font-medium py-3 px-6 rounded-lg transition-colors duration-200 inline-flex items-center justify-center">
-                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                            </svg>
-                            Solicitar Registro
-                        </a>
+                        </div>
+                        <h2 class="text-[24px] font-semibold leading-[1.2] text-[var(--text)] text-center">Ingresa para gestionar tus tickets</h2>
+                        <p class="mt-4 text-sm leading-[1.5] text-[var(--muted)] text-center">
+                            Accede con tu correo corporativo para crear, dar seguimiento y resolver incidencias de TI.
+                        </p>
+                        <div class="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
+                            <a href="{{ route('login') }}" class="inline-flex h-12 items-center justify-center rounded-[var(--radius-button)] border border-[var(--border)] px-6 text-sm font-semibold text-[var(--text)] transition-colors duration-200 hover:border-[var(--primary)] hover:text-[var(--primary)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus)]">
+                                Iniciar sesión
+                            </a>
+                            <a href="{{ route('register') }}" class="inline-flex h-12 items-center justify-center rounded-[var(--radius-button)] bg-[var(--primary)] px-6 text-sm font-semibold text-white transition-colors duration-200 hover:bg-[var(--primary-hover)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus)]">
+                                Solicitar registro
+                            </a>
+                        </div>
+                        <p class="mt-4 text-xs leading-[1.5] text-[var(--muted)] text-center">
+                            Las nuevas cuentas se validan para garantizar que pertenezcan a la organización.
+                        </p>
                     </div>
-                    <p class="text-xs sm:text-sm text-gray-500">Las nuevas cuentas deben ser aprobadas por el administrador para garantizar que pertenezcan a la organización.</p>
-                </div>
-            </div>
+                </section>
             @endguest
 
             @auth
-            <!-- Cards Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <!-- Card 1: Reportar Problema de Software -->
-                <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 border border-blue-100">
-                    <div class="p-8">
-                        <div class="flex items-center justify-center w-16 h-16 bg-blue-100 rounded-lg mb-6 mx-auto">
-                            <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                            </svg>
-                        </div>
-                        <h3 class="text-xl font-semibold text-gray-900 text-center mb-4">
-                            Reportar Problema de Software
-                        </h3>
-                        <p class="text-gray-600 text-center mb-6 leading-relaxed">
-                            ¿Tienes problemas con algún programa o aplicación? Reporta errores, fallos o comportamientos inesperados.
-                        </p>
-                        <a href="{{ route('tickets.create', 'software') }}" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg transition-colors duration-200 flex items-center justify-center">
-                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                            </svg>
-                            Crear Reporte
-                        </a>
+                <section class="mt-12" aria-labelledby="acciones-rapidas">
+                    <div class="flex items-center justify-between gap-4">
+                        <h2 id="acciones-rapidas" class="text-[24px] font-semibold leading-[1.2] text-[var(--text)]">Acciones rápidas</h2>
+                        <span class="hidden text-sm font-medium text-[var(--muted)] md:inline">Selecciona el flujo que necesitas</span>
                     </div>
-                </div>
-
-                <!-- Card 2: Programar Mantenimiento -->
-                <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 border border-blue-100">
-                    <div class="p-8">
-                        <div class="flex items-center justify-center w-16 h-16 bg-blue-100 rounded-lg mb-6 mx-auto">
-                            <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3a1 1 0 011-1h6a1 1 0 011 1v4h3a1 1 0 011 1v9a1 1 0 01-1 1H5a1 1 0 01-1-1V8a1 1 0 011-1h3z"></path>
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 12h.01M8 16h8"></path>
-                            </svg>
-                        </div>
-                        <h3 class="text-xl font-semibold text-gray-900 text-center mb-4">
-                            Programar Mantenimiento
-                        </h3>
-                        <p class="text-gray-600 text-center mb-6 leading-relaxed">
-                            Solicita mantenimiento preventivo o correctivo para tus equipos. Programa revisiones y actualizaciones.
-                        </p>
-                        <a href="{{ route('tickets.create', 'mantenimiento') }}" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg transition-colors duration-200 flex items-center justify-center">
-                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                            </svg>
-                            Programar Cita
-                        </a>
-                    </div>
-                </div>
-
-                <!-- Card 3: Problema de Equipo -->
-                <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 border border-blue-100">
-                    <div class="p-8">
-                        <div class="flex items-center justify-center w-16 h-16 bg-blue-100 rounded-lg mb-6 mx-auto">
-                            <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
-                            </svg>
-                        </div>
-                        <h3 class="text-xl font-semibold text-gray-900 text-center mb-4">
-                            Reportar Problema de Equipo
-                        </h3>
-                        <p class="text-gray-600 text-center mb-6 leading-relaxed">
-                            ¿Tu computadora, impresora u otro equipo no funciona correctamente? Reporta problemas de hardware.
-                        </p>
-                        <a href="{{ route('tickets.create', 'hardware') }}" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg transition-colors duration-200 flex items-center justify-center">
-                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.084 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
-                            </svg>
-                            Reportar Falla
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Sección de Ayuda -->
-            <div class="mt-16 max-w-4xl mx-auto">
-                <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl shadow-lg border border-blue-200 p-8">
-                    <div class="text-center">
-                        <div class="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-6">
-                            <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3.063h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
-                        </div>
-                        <h3 class="text-2xl font-bold text-gray-900 mb-4">
-                            ¿Necesitas ayuda? 🆘
-                        </h3>
-                        <p class="text-gray-600 mb-8 leading-relaxed">
-                            Consulta nuestro manual de ayuda completo con guías paso a paso, preguntas frecuentes y consejos útiles para aprovechar al máximo el sistema de tickets.
-                        </p>
-                        <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                            <a href="{{ route('help.public') }}" 
-                               class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg transition-colors duration-200 inline-flex items-center justify-center">
-                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                    <div class="mt-8 grid grid-cols-1 gap-[var(--gap)] md:grid-cols-3">
+                        <article class="mx-auto flex w-full max-w-[360px] min-h-[320px] flex-col justify-between rounded-[var(--radius-card)] border border-[var(--border)] bg-white p-7 shadow-[0_2px_10px_rgba(16,24,40,0.06)] transition duration-200 hover:-translate-y-1 hover:shadow-[0_10px_30px_rgba(15,23,42,0.12)] focus-within:outline focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-[var(--focus)]" aria-labelledby="card-software-title">
+                            <div>
+                                <span class="mb-6 inline-flex h-14 w-14 items-center justify-center rounded-full bg-[rgba(47,107,255,0.1)]">
+                                    <svg class="h-10 w-10 text-[var(--primary)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 5h16M4 9h16M9 9v10m6-10v10M4 19h16" />
+                                    </svg>
+                                </span>
+                                <h3 id="card-software-title" class="text-[20px] font-semibold leading-[1.2] text-[var(--text)]">Reportar Software</h3>
+                                <p class="mt-3 text-[15px] leading-[1.5] text-[var(--muted)]" style="display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;text-overflow:ellipsis;">
+                                    Reporta fallas de aplicaciones o comportamientos inesperados.
+                                </p>
+                            </div>
+                            <a href="{{ route('tickets.create', 'software') }}" class="mt-6 inline-flex h-12 w-full items-center justify-center gap-2 rounded-[var(--radius-button)] bg-[var(--primary)] px-4 text-sm font-semibold text-white transition-colors duration-200 hover:bg-[var(--primary-hover)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus)]" aria-label="Reportar Software">
+                                <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 5h16M4 9h16M9 9v10m6-10v10M4 19h16" />
                                 </svg>
-                                📖 Ver Manual de Ayuda
+                                Crear Reporte
                             </a>
-                            <a href="mailto:soporte@estrategiaeinnovacion.com.mx" 
-                               class="bg-white hover:bg-gray-50 text-blue-600 font-medium py-3 px-6 rounded-lg border-2 border-blue-200 hover:border-blue-300 transition-colors duration-200 inline-flex items-center justify-center">
-                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                        </article>
+
+                        <article class="mx-auto flex w-full max-w-[360px] min-h-[320px] flex-col justify-between rounded-[var(--radius-card)] border border-[var(--border)] bg-white p-7 shadow-[0_2px_10px_rgba(16,24,40,0.06)] transition duration-200 hover:-translate-y-1 hover:shadow-[0_10px_30px_rgba(15,23,42,0.12)] focus-within:outline focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-[var(--focus)]" aria-labelledby="card-mantenimiento-title">
+                            <div>
+                                <span class="mb-6 inline-flex h-14 w-14 items-center justify-center rounded-full bg-[rgba(47,107,255,0.1)]">
+                                    <svg class="h-10 w-10 text-[var(--primary)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 7h6m-3-3v3m-7 4h14M5 21h14a2 2 0 002-2v-7H3v7a2 2 0 002 2z" />
+                                    </svg>
+                                </span>
+                                <h3 id="card-mantenimiento-title" class="text-[20px] font-semibold leading-[1.2] text-[var(--text)]">Agendar Mantenimiento</h3>
+                                <p class="mt-3 text-[15px] leading-[1.5] text-[var(--muted)]" style="display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;text-overflow:ellipsis;">
+                                    Solicita mantenimiento preventivo o correctivo. Revisiones y actualizaciones.
+                                </p>
+                            </div>
+                            <a href="{{ route('tickets.create', 'mantenimiento') }}" class="mt-6 inline-flex h-12 w-full items-center justify-center gap-2 rounded-[var(--radius-button)] bg-[var(--primary)] px-4 text-sm font-semibold text-white transition-colors duration-200 hover:bg-[var(--primary-hover)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus)]" aria-label="Agendar Mantenimiento">
+                                <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 7h6m-3-3v3m-7 4h14M5 21h14a2 2 0 002-2v-7H3v7a2 2 0 002 2z" />
                                 </svg>
-                                ✉️ Contacto Directo
+                                Programar Cita
                             </a>
-                        </div>
-                        <div class="mt-6 text-sm text-gray-500">
-                            <p>💡 <strong>Tip:</strong> Antes de crear un ticket, consulta el manual para encontrar soluciones rápidas a problemas comunes.</p>
-                        </div>
+                        </article>
+
+                        <article class="mx-auto flex w-full max-w-[360px] min-h-[320px] flex-col justify-between rounded-[var(--radius-card)] border border-[var(--border)] bg-white p-7 shadow-[0_2px_10px_rgba(16,24,40,0.06)] transition duration-200 hover:-translate-y-1 hover:shadow-[0_10px_30px_rgba(15,23,42,0.12)] focus-within:outline focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-[var(--focus)]" aria-labelledby="card-hardware-title">
+                            <div>
+                                <span class="mb-6 inline-flex h-14 w-14 items-center justify-center rounded-full bg-[rgba(47,107,255,0.1)]">
+                                    <svg class="h-10 w-10 text-[var(--primary)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 7h16M4 12h16M8 12v6m8-6v6M5 18h14a1 1 0 001-1V7H4v10a1 1 0 001 1z" />
+                                    </svg>
+                                </span>
+                                <h3 id="card-hardware-title" class="text-[20px] font-semibold leading-[1.2] text-[var(--text)]">Reportar Hardware</h3>
+                                <p class="mt-3 text-[15px] leading-[1.5] text-[var(--muted)]" style="display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;text-overflow:ellipsis;">
+                                    Computadora, impresora u otro equipo con fallas. Abre un ticket.
+                                </p>
+                            </div>
+                            <a href="{{ route('tickets.create', 'hardware') }}" class="mt-6 inline-flex h-12 w-full items-center justify-center gap-2 rounded-[var(--radius-button)] bg-[var(--primary)] px-4 text-sm font-semibold text-white transition-colors duration-200 hover:bg-[var(--primary-hover)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus)]" aria-label="Reportar Hardware">
+                                <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 7h16M4 12h16M8 12v6m8-6v6M5 18h14a1 1 0 001-1V7H4v10a1 1 0 001 1z" />
+                                </svg>
+                                Reportar Falla
+                            </a>
+                        </article>
                     </div>
-                </div>
-            </div>
+                </section>
+
+                <section class="mt-14 rounded-[var(--radius-card)] border border-[var(--border)] bg-white p-8 shadow-[0_2px_10px_rgba(16,24,40,0.06)]" aria-labelledby="help-center">
+                    <div class="max-w-3xl">
+                        <h2 id="help-center" class="text-[24px] font-semibold leading-[1.2] text-[var(--text)]">¿Necesitas ayuda?</h2>
+                        <p class="mt-3 text-[16px] leading-[1.5] text-[var(--muted)]">
+                            Consulta el manual paso a paso o contacta directamente al equipo de TI para resolver dudas específicas.
+                        </p>
+                    </div>
+
+                    <form action="{{ route('help.public') }}" method="GET" class="mt-6 flex flex-col gap-3 md:flex-row">
+                        <label for="help-search" class="sr-only">Buscar en el manual</label>
+                        <div class="relative flex-1">
+                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--muted)]" aria-hidden="true">
+                                <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M11 5a6 6 0 104.472 10.028l3.25 3.25" />
+                                </svg>
+                            </span>
+                            <input id="help-search" name="q" type="search" placeholder="Busca en el manual…" class="h-12 w-full rounded-[var(--radius-button)] border border-[var(--border)] bg-white pl-12 pr-16 text-sm text-[var(--text)] placeholder:text-[var(--muted)] focus:border-[var(--primary)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus)]" aria-label="Buscar en el manual" />
+                            <span class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 rounded-md border border-[var(--border)] bg-[var(--surface)] px-2 py-1 text-[11px] font-semibold uppercase tracking-wide text-[var(--muted)]">/</span>
+                        </div>
+                        <button type="submit" class="inline-flex h-12 items-center justify-center gap-2 rounded-[var(--radius-button)] bg-[var(--primary)] px-5 text-sm font-semibold text-white transition-colors duration-200 hover:bg-[var(--primary-hover)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus)]" aria-label="Buscar en el manual">
+                            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M11 5a6 6 0 104.472 10.028l3.25 3.25" />
+                            </svg>
+                            Buscar
+                        </button>
+                    </form>
+
+                    <div class="mt-6 flex flex-col gap-3 sm:flex-row">
+                        <a href="{{ route('help.public') }}" class="inline-flex h-12 flex-1 items-center justify-center gap-2 rounded-[var(--radius-button)] bg-[var(--primary)] px-5 text-sm font-semibold text-white transition-colors duration-200 hover:bg-[var(--primary-hover)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus)]" aria-label="Ver Manual">
+                            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M4 5c1.5-.667 3-.667 4.5 0S12 5.667 13.5 5 16.5 4.333 18 5v13c-1.5-.667-3-.667-4.5 0s-3 1.333-4.5.667S7 18.667 5.5 19 4 19.333 4 20V5z" />
+                            </svg>
+                            Ver Manual
+                        </a>
+                        <a href="mailto:soporte@estrategiaeinnovacion.com.mx" class="inline-flex h-12 flex-1 items-center justify-center gap-2 rounded-[var(--radius-button)] border border-[var(--border)] px-5 text-sm font-semibold text-[var(--text)] transition-colors duration-200 hover:border-[var(--primary)] hover:text-[var(--primary)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus)]" aria-label="Contacto Directo">
+                            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 7l9 6 9-6m-9 6v6" />
+                            </svg>
+                            Contacto Directo
+                        </a>
+                    </div>
+                </section>
             @endauth
-        </main>
+        </div>
+    </main>
 
-        <!-- Footer -->
-        <footer class="bg-white border-t border-blue-100 mt-16">
-            <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-                <div class="text-center text-gray-500 text-sm">
-                    <p>&copy; {{ date('Y') }} E&I - Comercio Exterior, Logística y Tecnología. Todos los derechos reservados.</p>
-                </div>
-            </div>
-        </footer>
+    <footer class="mt-16 border-t border-[var(--border)] bg-white">
+        <div class="mx-auto max-w-[1280px] px-6 py-6 text-center text-sm text-[var(--muted)]">
+            &copy; {{ date('Y') }} E&I - Comercio Exterior, Logística y Tecnología. Todos los derechos reservados.
+        </div>
+    </footer>
 @endsection
