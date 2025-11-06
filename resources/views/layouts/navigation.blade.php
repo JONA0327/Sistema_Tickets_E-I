@@ -48,7 +48,7 @@
     <style>[x-cloak] { display: none !important; }</style>
 @endonce
 
-<nav x-data="{ mobileOpen: false }" class="relative border-b border-blue-100/60 bg-white/70 backdrop-blur-xl">
+<nav x-data="{ mobileOpen: false }" class="relative z-50 border-b border-blue-100/60 bg-white">
     <div class="absolute inset-0 pointer-events-none">
         <div class="absolute inset-x-0 top-0 h-full bg-gradient-to-r from-blue-100/50 via-white to-blue-100/40"></div>
         <div class="absolute -top-24 -left-24 h-56 w-56 rounded-full bg-blue-200/50 blur-3xl"></div>
@@ -58,18 +58,18 @@
     <div class="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div class="flex h-20 items-center justify-between">
             <div class="flex items-center gap-4">
-                <a href="{{ route('welcome') }}" class="relative flex items-center gap-3 rounded-2xl border border-white/60 bg-white/80 px-3 py-2 shadow-sm shadow-blue-500/10 backdrop-blur">
-                    <img src="{{ asset('images/logo-ei.png') }}" alt="E&I Logo" class="h-10 w-auto">
-                    <div class="leading-tight">
-                        <p class="text-lg font-semibold text-slate-900">Sistema de Tickets</p>
-                        <p class="text-sm font-medium text-slate-500">E&amp;I - Tecnología</p>
+                <a href="{{ route('welcome') }}" class="relative flex items-center gap-3 rounded-2xl border border-white/60 bg-white/80 px-3 py-1.5 shadow-sm shadow-blue-500/10 backdrop-blur">
+                    <img src="{{ asset('images/logo-ei.png') }}" alt="E&I Logo" class="h-9 w-auto flex-shrink-0">
+                    <div class="min-w-0 leading-tight">
+                        <p class="text-sm sm:text-base font-semibold text-slate-900 truncate" style="max-width:220px">Sistema de Tickets</p>
+                        <p class="text-xs sm:text-sm font-medium text-slate-500 truncate" style="max-width:220px">E&amp;I - Tecnología</p>
                     </div>
                 </a>
             </div>
 
             @auth
-                <div class="hidden items-center gap-6 lg:flex">
-                    <div class="flex items-center gap-2">
+                <div class="hidden items-center gap-6 lg:flex pr-4 lg:pr-8">
+                    <div class="flex items-center gap-2 pr-4">
                         @foreach ($filteredItems as $item)
                             @php
                                 $isActive = $item['active'];
@@ -94,24 +94,27 @@
                     @endif
 
                     @if ($user)
-                        <div class="relative" x-data="{ open: false }">
-                            <button
-                                type="button"
-                                @click="open = !open"
-                                @click.outside="open = false"
-                                class="flex items-center gap-3 rounded-full border border-blue-100/80 bg-white/80 px-3 py-2 text-sm text-slate-700 shadow-sm shadow-blue-500/10 transition-all duration-200 hover:shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
-                            >
-                                <span class="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-blue-600 to-blue-500 text-white font-semibold shadow-md shadow-blue-500/30">
-                                    {{ $initials }}
-                                </span>
-                                <span class="text-left">
-                                    <span class="block font-semibold text-slate-900">{{ $user?->name }}</span>
-                                    <span class="block text-xs text-slate-500">{{ $user?->email }}</span>
-                                </span>
-                                <svg class="h-4 w-4 text-slate-400 transition-transform duration-200" :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                                </svg>
-                            </button>
+                        <div class="relative flex-shrink-0" x-data="{ open: false }">
+                            <div class="flex items-center gap-2">
+                                <div class="hidden md:flex flex-col text-right leading-tight mr-2 min-w-0">
+                                    <span class="block font-semibold text-slate-900 truncate" style="max-width:180px">{{ $user?->name }}</span>
+                                    <span class="block text-xs text-slate-500 truncate" style="max-width:180px">{{ $user?->email }}</span>
+                                </div>
+
+                                <button
+                                    type="button"
+                                    @click="open = !open"
+                                    @click.outside="open = false"
+                                    class="inline-flex items-center gap-2 rounded-full border border-blue-100/80 bg-white px-2 py-2 text-sm text-slate-700 shadow-sm shadow-blue-500/10 transition-all duration-200 hover:shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                                >
+                                    <span class="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-blue-600 to-blue-500 text-white font-semibold shadow-md shadow-blue-500/30">
+                                        {{ $initials }}
+                                    </span>
+                                    <svg class="h-4 w-4 text-slate-400 transition-transform duration-200" :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                    </svg>
+                                </button>
+                            </div>
 
                             <div
                                 x-cloak
@@ -122,7 +125,7 @@
                                 x-transition:leave="transition ease-in duration-100"
                                 x-transition:leave-start="transform opacity-100 scale-100"
                                 x-transition:leave-end="transform opacity-0 scale-95"
-                                class="absolute right-0 mt-3 w-72 overflow-hidden rounded-2xl border border-blue-100/80 bg-white/95 shadow-2xl shadow-blue-500/10 backdrop-blur-xl z-50"
+                                class="absolute right-0 mt-3 w-72 overflow-hidden rounded-2xl border border-blue-100/80 bg-white/95 shadow-2xl shadow-blue-500/10 backdrop-blur-xl z-60"
                             >
                                 <div class="border-b border-blue-100/70 bg-gradient-to-r from-blue-50/70 to-white px-4 py-3">
                                     <p class="text-sm font-semibold text-slate-900">{{ $user?->name }}</p>
