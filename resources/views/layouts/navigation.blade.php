@@ -48,21 +48,16 @@
     <style>[x-cloak] { display: none !important; }</style>
 @endonce
 
-<nav x-data="{ mobileOpen: false }" class="relative z-50 border-b border-blue-100/60 bg-white">
-    <div class="absolute inset-0 pointer-events-none">
-        <div class="absolute inset-x-0 top-0 h-full bg-gradient-to-r from-blue-100/50 via-white to-blue-100/40"></div>
-        <div class="absolute -top-24 -left-24 h-56 w-56 rounded-full bg-blue-200/50 blur-3xl"></div>
-        <div class="absolute -bottom-28 -right-24 h-56 w-56 rounded-full bg-blue-300/40 blur-3xl"></div>
-    </div>
+<nav x-data="{ mobileOpen: false }" class="relative z-50 border-b border-blue-900/40 bg-gradient-to-r from-blue-700 via-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-900/20">
 
     <div class="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div class="flex h-20 items-center justify-between">
             <div class="flex items-center gap-4">
-                <a href="{{ route('welcome') }}" class="relative flex items-center gap-3 rounded-2xl border border-white/60 bg-white/80 px-3 py-1.5 shadow-sm shadow-blue-500/10 backdrop-blur">
+                <a href="{{ route('welcome') }}" class="relative flex items-center gap-3 px-1.5 py-1.5">
                     <img src="{{ asset('images/logo-ei.png') }}" alt="E&I Logo" class="h-9 w-auto flex-shrink-0">
                     <div class="min-w-0 leading-tight">
-                        <p class="text-sm sm:text-base font-semibold text-slate-900 truncate" style="max-width:220px">Sistema de Tickets</p>
-                        <p class="text-xs sm:text-sm font-medium text-slate-500 truncate" style="max-width:220px">E&amp;I - Tecnología</p>
+                        <p class="text-sm sm:text-base font-semibold text-white truncate" style="max-width:220px">Sistema de Tickets</p>
+                        <p class="text-xs sm:text-sm font-medium text-white/70 truncate" style="max-width:220px">E&amp;I - Tecnología</p>
                     </div>
                 </a>
             </div>
@@ -73,12 +68,12 @@
                         @foreach ($filteredItems as $item)
                             @php
                                 $isActive = $item['active'];
-                                $linkClasses = 'group inline-flex items-center gap-3 rounded-2xl px-4 py-2 text-sm font-semibold transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white';
-                                $activeClasses = 'bg-white text-blue-700 shadow-lg shadow-blue-500/10 ring-1 ring-blue-200/60';
-                                $inactiveClasses = 'text-slate-600 hover:text-blue-700 hover:bg-white/60';
+                                $linkClasses = 'group inline-flex items-center gap-3 rounded-2xl px-4 py-2 text-sm font-semibold transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-blue-700';
+                                $activeClasses = 'bg-white text-blue-700 shadow-lg shadow-blue-900/10 ring-1 ring-blue-100/60';
+                                $inactiveClasses = 'text-white/80 hover:text-white hover:bg-white/10';
                                 $iconWrapper = $isActive
                                     ? 'bg-gradient-to-br from-blue-600 to-blue-500 text-white shadow-md shadow-blue-500/30'
-                                    : 'bg-blue-50 text-blue-600 transition-colors duration-200 group-hover:bg-blue-100 group-hover:text-blue-700';
+                                    : 'bg-white/10 text-white transition-colors duration-200 group-hover:bg-white/20 group-hover:text-white';
                             @endphp
                             <a href="{{ $item['route'] }}" class="{{ $linkClasses }} {{ $isActive ? $activeClasses : $inactiveClasses }}">
                                 <span class="flex h-9 w-9 items-center justify-center rounded-xl {{ $iconWrapper }}">
@@ -96,21 +91,16 @@
                     @if ($user)
                         <div class="relative flex-shrink-0" x-data="{ open: false }">
                             <div class="flex items-center gap-2">
-                                <div class="hidden md:flex flex-col text-right leading-tight mr-2 min-w-0">
-                                    <span class="block font-semibold text-slate-900 truncate" style="max-width:180px">{{ $user?->name }}</span>
-                                    <span class="block text-xs text-slate-500 truncate" style="max-width:180px">{{ $user?->email }}</span>
-                                </div>
-
                                 <button
                                     type="button"
                                     @click="open = !open"
                                     @click.outside="open = false"
-                                    class="inline-flex items-center gap-2 rounded-full border border-blue-100/80 bg-white px-2 py-2 text-sm text-slate-700 shadow-sm shadow-blue-500/10 transition-all duration-200 hover:shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                                    class="inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/10 px-2 py-2 text-sm text-white shadow-sm shadow-blue-900/20 transition-all duration-200 hover:bg-white/20 hover:shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-white/80 focus-visible:ring-offset-2 focus-visible:ring-offset-blue-700"
                                 >
                                     <span class="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-blue-600 to-blue-500 text-white font-semibold shadow-md shadow-blue-500/30">
                                         {{ $initials }}
                                     </span>
-                                    <svg class="h-4 w-4 text-slate-400 transition-transform duration-200" :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg class="h-4 w-4 text-white/70 transition-transform duration-200" :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                                     </svg>
                                 </button>
@@ -156,7 +146,7 @@
             @endauth
 
             @auth
-                <div class="flex items-center gap-3 lg:hidden">
+                <div class="flex items-center gap-3 lg:hidden text-white">
                     @if ($user && method_exists($user, 'isAdmin') && $user->isAdmin())
                         <x-admin.notification-center />
                     @endif
@@ -164,7 +154,7 @@
                     <button
                         type="button"
                         @click="mobileOpen = !mobileOpen"
-                        class="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-blue-100/80 bg-white/80 text-blue-600 shadow-sm shadow-blue-500/10 transition-colors duration-200 hover:bg-blue-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                        class="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-white/20 bg-white/10 text-white shadow-sm shadow-blue-900/20 transition-colors duration-200 hover:bg-white/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/80 focus-visible:ring-offset-2 focus-visible:ring-offset-blue-700"
                         aria-label="Abrir menú"
                     >
                         <svg x-show="!mobileOpen" class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
