@@ -59,9 +59,7 @@
 
                             <div class="relative px-8 py-10 sm:px-12">
                                 <div class="flex items-center justify-center w-16 h-16 rounded-2xl bg-blue-600 text-white shadow-lg shadow-blue-500/40 mx-auto mb-6">
-                                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-                                    </svg>
+                                        <x-ui.icon-box name="squares-2x2" boxClass="h-16 w-16 rounded-2xl" iconClass="h-8 w-8" />
                                 </div>
                                 <h2 class="text-2xl sm:text-3xl font-bold text-center text-slate-900 mb-4">¡Bienvenido al Sistema de Tickets!</h2>
                                 <p class="text-center text-slate-600 mb-8 text-sm sm:text-base max-w-xl mx-auto">

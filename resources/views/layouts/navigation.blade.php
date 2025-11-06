@@ -30,13 +30,7 @@
             'active' => request()->routeIs('archivo-problemas.*'),
             'visible' => $user && method_exists($user, 'isAdmin') ? $user->isAdmin() : false,
         ],
-        [
-            'label' => 'Ayuda',
-            'icon' => 'lifebuoy',
-            'route' => route('help.public'),
-            'active' => request()->routeIs('help.*'),
-            'visible' => true,
-        ],
+        
     ];
 
     $filteredItems = array_filter($navItems, fn ($item) => $item['visible']);
@@ -54,7 +48,7 @@
         <div class="flex h-20 items-center justify-between">
             <div class="flex items-center gap-4">
                 <a href="{{ route('welcome') }}" class="relative flex items-center gap-3 px-1.5 py-1.5">
-                    <img src="{{ asset('images/logo-ei.png') }}" alt="E&I Logo" class="h-9 w-auto flex-shrink-0">
+                    <img src="{{ asset('images/logo-ei.png') }}?v={{ filemtime(public_path('images/logo-ei.png')) }}" alt="E&I Logo" class="h-9 w-auto flex-shrink-0 bg-transparent" style="background-color: transparent;">
                     <div class="min-w-0 leading-tight">
                         <p class="text-sm sm:text-base font-semibold text-white truncate" style="max-width:220px">Sistema de Tickets</p>
                         <p class="text-xs sm:text-sm font-medium text-white/70 truncate" style="max-width:220px">E&amp;I - Tecnología</p>

@@ -6,9 +6,9 @@
 <main class="max-w-5xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
     <!-- Header -->
     <div class="mb-12 text-center">
-        <div class="mb-6 inline-flex h-20 w-20 items-center justify-center rounded-3xl bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-500/30">
-            <x-ui.icon name="lifebuoy" class="h-10 w-10" />
-        </div>
+        <div class="mb-6 inline-flex h-20 w-20 items-center justify-center">
+                <x-ui.icon-box name="lifebuoy" boxClass="h-20 w-20 rounded-3xl" iconClass="h-10 w-10" />
+            </div>
         <h1 class="mb-4 text-4xl font-bold text-gray-900">Manual de Ayuda</h1>
         <p class="text-xl text-gray-600 max-w-2xl mx-auto">
             Guía completa para usar el Sistema de Tickets IT. Encuentra respuestas a las preguntas más frecuentes y aprende a utilizar todas las funcionalidades.
@@ -179,7 +179,7 @@
     <!-- Información adicional -->
     <div class="mt-12 rounded-lg border border-blue-200 bg-gradient-to-r from-blue-50 to-indigo-50 p-6">
         <div class="flex items-start">
-            <x-ui.icon name="lifebuoy" class="mt-1 mr-3 h-6 w-6 flex-shrink-0 text-blue-500" />
+            <x-ui.icon-box name="lifebuoy" boxClass="h-9 w-9 rounded-lg" iconClass="h-5 w-5" class="mt-0 mr-3 flex-shrink-0" />
             <div>
                 <h3 class="text-lg font-medium text-blue-900 mb-2">¿No encuentras lo que buscas?</h3>
                 <p class="text-blue-800 mb-4">
