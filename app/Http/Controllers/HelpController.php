@@ -245,4 +245,21 @@ class HelpController extends Controller
             'index' => count($images) - 1
         ]);
     }
+
+    /**
+     * Mostrar una imagen almacenada del manual de ayuda.
+     */
+    public function showImage($filename)
+    {
+        $path = 'help-images/' . $filename;
+
+        if (!Storage::disk('public')->exists($path)) {
+            abort(404);
+        }
+
+        $fileContents = Storage::disk('public')->get($path);
+        $mimeType = Storage::disk('public')->mimeType($path) ?? 'image/jpeg';
+
+        return response($fileContents, 200)->header('Content-Type', $mimeType);
+    }
 }

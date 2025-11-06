@@ -48,7 +48,7 @@ class HelpSection extends Model
      */
     public function getImageUrl($imageName)
     {
-        return asset('storage/help-images/' . $imageName);
+        return route('help.images.show', ['filename' => $imageName]);
     }
 
     /**
