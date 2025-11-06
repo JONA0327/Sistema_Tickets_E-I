@@ -151,17 +151,16 @@ class HelpController extends Controller
         $images = $helpSection->images ?? [];
         
         // Asegurar que el directorio existe
-        $helpImagesPath = storage_path('app/public/help-images');
-        if (!file_exists($helpImagesPath)) {
-            mkdir($helpImagesPath, 0755, true);
+        if (!Storage::disk('public')->exists('help-images')) {
+            Storage::disk('public')->makeDirectory('help-images');
         }
-        
+
         foreach ($request->file('images') as $file) {
             // Generar nombre único para el archivo
             $filename = time() . '-' . Str::random(10) . '.' . $file->getClientOriginalExtension();
-            
+
             // Guardar archivo
-            $file->storeAs('public/help-images', $filename);
+            Storage::disk('public')->putFileAs('help-images', $file, $filename);
             
             // Generar referencia para la imagen
             $reference = $helpSection->generateImageReference($file->getClientOriginalName());
@@ -189,7 +188,7 @@ class HelpController extends Controller
         
         if (isset($images[$imageIndex])) {
             // Eliminar archivo físico
-            Storage::delete('public/help-images/' . $images[$imageIndex]['filename']);
+            Storage::disk('public')->delete('help-images/' . $images[$imageIndex]['filename']);
             
             // Remover de la lista
             unset($images[$imageIndex]);
@@ -218,7 +217,7 @@ class HelpController extends Controller
         $filename = time() . '-' . Str::random(10) . '.' . $file->getClientOriginalExtension();
         
         // Guardar archivo
-        $file->storeAs('public/help-images', $filename);
+        Storage::disk('public')->putFileAs('help-images', $file, $filename);
         
         // Generar referencia para la imagen
         $reference = $helpSection->generateImageReference($file->getClientOriginalName());
