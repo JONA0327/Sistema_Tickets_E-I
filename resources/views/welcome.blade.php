@@ -44,9 +44,9 @@
             @endif
 
             <!-- Hero/banner removed as requested; show a simple header instead -->
-            <div class="mb-6">
+            <div class="mb-6 text-center">
                 <h1 class="text-2xl font-bold text-slate-900">Centro de Soporte Técnico</h1>
-                <p class="mt-2 text-sm text-slate-600">Gestiona y crea tus solicitudes de soporte técnico.</p>
+                <p class="mx-auto mt-2 max-w-2xl text-sm text-slate-600">Gestiona y crea tus solicitudes de soporte técnico.</p>
             </div>
 
             @guest
@@ -161,27 +161,21 @@
                         <div class="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-blue-100/60 to-transparent"></div>
                         <div class="relative px-10 py-12">
                             <div class="text-center">
-                                <div class="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-500/40 mb-6">
-                                    <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3.063h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                    </svg>
+                                <div class="mb-6 inline-flex h-20 w-20 items-center justify-center rounded-3xl bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-500/40">
+                                    <x-ui.icon name="lifebuoy" class="h-10 w-10" />
                                 </div>
-                                <h2 class="text-3xl font-bold text-slate-900 mb-4">¿Necesitas ayuda? 🆘</h2>
+                                <h2 class="mb-4 text-3xl font-bold text-slate-900">¿Necesitas ayuda?</h2>
                                 <p class="text-lg text-slate-600 mb-8 max-w-2xl mx-auto leading-relaxed">
                                     Accede a nuestro manual con guías paso a paso, preguntas frecuentes y recomendaciones prácticas para resolver incidentes comunes antes de solicitar soporte.
                                 </p>
                                 <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                                    <a href="{{ route('help.public') }}" class="inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-500/30 hover:from-blue-700 hover:to-blue-800 transition-colors">
-                                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
-                                        </svg>
-                                        📖 Ver manual de ayuda
+                                    <a href="{{ route('help.public') }}" class="inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-500/30 transition-colors hover:from-blue-700 hover:to-blue-800">
+                                        <x-ui.icon name="book-open" class="mr-2 h-5 w-5" />
+                                        Ver manual de ayuda
                                     </a>
-                                    <a href="mailto:soporte@estrategiaeinnovacion.com.mx" class="inline-flex items-center justify-center rounded-xl border border-blue-200 bg-white px-6 py-3 text-sm font-semibold text-blue-700 shadow-sm hover:border-blue-300 hover:bg-blue-50 transition-colors">
-                                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
-                                        </svg>
-                                        ✉️ Contacto directo
+                                    <a href="mailto:soporte@estrategiaeinnovacion.com.mx" class="inline-flex items-center justify-center rounded-xl border border-blue-200 bg-white px-6 py-3 text-sm font-semibold text-blue-700 shadow-sm transition-colors hover:border-blue-300 hover:bg-blue-50">
+                                        <x-ui.icon name="envelope" class="mr-2 h-5 w-5" />
+                                        Contacto directo
                                     </a>
                                 </div>
                                 <div class="mt-6 text-sm text-slate-500">
