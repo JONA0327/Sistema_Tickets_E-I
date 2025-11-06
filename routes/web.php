@@ -163,6 +163,9 @@ Route::middleware('auth')->group(function () {
 // Manual de Ayuda - Vista pública (disponible para usuarios autenticados)
 Route::middleware('auth')->group(function () {
     Route::get('/ayuda', [\App\Http\Controllers\HelpController::class, 'index'])->name('help.public');
+    Route::get('/help-images/{filename}', [\App\Http\Controllers\HelpController::class, 'showImage'])
+        ->where('filename', '[A-Za-z0-9_\-.]+')
+        ->name('help.images.show');
 });
 
 require __DIR__.'/auth.php';
