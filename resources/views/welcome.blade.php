@@ -43,106 +43,11 @@
                 </div>
             @endif
 
-            <!-- Hero Section -->
-            <section class="relative overflow-hidden rounded-3xl bg-white/80 backdrop-blur shadow-xl border border-blue-100/60 px-6 py-12 sm:px-10 lg:px-16 mb-12">
-                <div class="absolute -right-24 -top-24 w-60 h-60 bg-blue-200/50 blur-3xl rounded-full"></div>
-                <div class="absolute -left-16 bottom-0 w-48 h-48 bg-blue-100/60 blur-3xl rounded-full"></div>
-
-                <div class="relative grid gap-10 lg:grid-cols-[1.2fr_1fr] items-center">
-                    <div class="text-center lg:text-left">
-                        <span class="inline-flex items-center rounded-full border border-blue-200 bg-blue-50 px-4 py-1 text-sm font-medium text-blue-700">
-                            Centro de Soporte Técnico
-                        </span>
-                        <h1 class="mt-5 text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-900 leading-tight">
-                            Gestión moderna de tickets para <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-blue-800">atención inmediata</span>
-                        </h1>
-                        <p class="mt-4 text-base sm:text-lg text-slate-600 max-w-2xl mx-auto lg:mx-0">
-                            Centraliza y da seguimiento a tus solicitudes de soporte con un panel claro, accesos rápidos y herramientas pensadas para tu equipo.
-                        </p>
-                        <div class="mt-6 flex flex-col sm:flex-row sm:justify-center lg:justify-start gap-3">
-                            @auth
-                                <a href="#acciones" class="inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-500/30 hover:from-blue-700 hover:to-blue-800 transition-colors">
-                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                                    </svg>
-                                    Crear un ticket
-                                </a>
-                                <a href="{{ route('tickets.mine') ?? '#' }}" class="inline-flex items-center justify-center rounded-xl border border-blue-200 bg-white px-6 py-3 text-sm font-semibold text-blue-700 hover:border-blue-300 hover:bg-blue-50 transition-colors shadow-sm">
-                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                    </svg>
-                                    Ver mis tickets
-                                </a>
-                            @else
-                                <a href="#acceso" class="inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-500/30 hover:from-blue-700 hover:to-blue-800 transition-colors">
-                                    Conoce cómo acceder
-                                </a>
-                                <a href="{{ route('help.public') }}" class="inline-flex items-center justify-center rounded-xl border border-blue-200 bg-white px-6 py-3 text-sm font-semibold text-blue-700 hover:border-blue-300 hover:bg-blue-50 transition-colors shadow-sm">
-                                    Manual de ayuda
-                                </a>
-                            @endauth
-                        </div>
-                    </div>
-
-                    <div class="relative hidden lg:flex justify-center">
-                        <div class="relative w-full max-w-sm">
-                            <div class="absolute -top-10 -right-6 w-24 h-24 rounded-3xl bg-gradient-to-br from-blue-500/20 to-blue-300/10"></div>
-                            <div class="absolute -bottom-10 -left-4 w-20 h-20 rounded-full bg-gradient-to-tr from-blue-400/20 to-blue-200/20"></div>
-
-                            <div class="relative overflow-hidden rounded-3xl border border-blue-200/60 bg-white/90 shadow-2xl shadow-blue-500/10">
-                                <div class="px-6 py-5 border-b border-blue-100/70 bg-gradient-to-r from-blue-50 to-white">
-                                    <div class="flex items-center justify-between">
-                                        <div class="flex items-center space-x-3">
-                                            <div class="flex items-center justify-center w-12 h-12 rounded-2xl bg-blue-100 text-blue-600">
-                                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                                                </svg>
-                                            </div>
-                                            <div>
-                                                <p class="text-xs uppercase tracking-wide text-blue-600 font-semibold">Panel activo</p>
-                                                <p class="text-lg font-semibold text-slate-900">Tickets al día</p>
-                                            </div>
-                                        </div>
-                                        <span class="rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700">Tiempo real</span>
-                                    </div>
-                                </div>
-                                <div class="px-6 py-6 space-y-4">
-                                    <div class="flex items-center justify-between">
-                                        <div class="flex items-center space-x-3">
-                                            <span class="flex h-10 w-10 items-center justify-center rounded-2xl bg-blue-50 text-blue-600">1</span>
-                                            <div>
-                                                <p class="text-sm font-semibold text-slate-900">Reporta incidencias</p>
-                                                <p class="text-xs text-slate-500">Software, hardware o mantenimiento</p>
-                                            </div>
-                                        </div>
-                                        <span class="text-xs font-semibold text-blue-600">2 min</span>
-                                    </div>
-                                    <div class="flex items-center justify-between">
-                                        <div class="flex items-center space-x-3">
-                                            <span class="flex h-10 w-10 items-center justify-center rounded-2xl bg-blue-50 text-blue-600">2</span>
-                                            <div>
-                                                <p class="text-sm font-semibold text-slate-900">Seguimiento claro</p>
-                                                <p class="text-xs text-slate-500">Recibe notificaciones oportunas</p>
-                                            </div>
-                                        </div>
-                                        <span class="text-xs font-semibold text-blue-600">Automático</span>
-                                    </div>
-                                    <div class="flex items-center justify-between">
-                                        <div class="flex items-center space-x-3">
-                                            <span class="flex h-10 w-10 items-center justify-center rounded-2xl bg-blue-50 text-blue-600">3</span>
-                                            <div>
-                                                <p class="text-sm font-semibold text-slate-900">Solución garantizada</p>
-                                                <p class="text-xs text-slate-500">Confirmas cuando esté resuelto</p>
-                                            </div>
-                                        </div>
-                                        <span class="text-xs font-semibold text-blue-600">100%</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
+            <!-- Hero/banner removed as requested; show a simple header instead -->
+            <div class="mb-6">
+                <h1 class="text-2xl font-bold text-slate-900">Centro de Soporte Técnico</h1>
+                <p class="mt-2 text-sm text-slate-600">Gestiona y crea tus solicitudes de soporte técnico.</p>
+            </div>
 
             @guest
                 <!-- Login/Register Section for Non-Authenticated Users -->

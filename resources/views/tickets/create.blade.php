@@ -33,42 +33,7 @@
                 $config = $tipoConfig[$tipo];
             @endphp
 
-            <!-- Hero -->
-            <section class="relative overflow-hidden rounded-3xl border border-blue-100/70 bg-white/80 px-6 py-12 sm:px-12 shadow-xl shadow-blue-500/10 backdrop-blur">
-                <div class="absolute -right-24 -top-24 h-48 w-48 rounded-full bg-blue-200/50 blur-3xl"></div>
-                <div class="absolute -left-20 bottom-0 h-32 w-32 rounded-full bg-blue-100/70 blur-3xl"></div>
-
-                <div class="relative flex flex-col items-center text-center sm:flex-row sm:items-start sm:text-left gap-8">
-                    <div class="flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-500/40">
-                        <svg class="h-12 w-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $config['icon'] }}"></path>
-                        </svg>
-                    </div>
-                    <div class="space-y-4">
-                        <div class="inline-flex items-center rounded-full border border-blue-200 bg-blue-50 px-4 py-1 text-sm font-semibold text-blue-700">
-                            Ticket de {{ ucfirst($tipo) }}
-                        </div>
-                        <div>
-                            <h1 class="text-3xl sm:text-4xl font-bold text-slate-900">{{ $config['title'] }}</h1>
-                            <p class="mt-3 text-base sm:text-lg text-slate-600 max-w-2xl">{{ $config['subtitle'] }}</p>
-                        </div>
-                        <div class="flex flex-col sm:flex-row gap-3 text-sm text-slate-500">
-                            <div class="flex items-center gap-2">
-                                <span class="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-blue-600 font-semibold">1</span>
-                                <span>Completa la información del incidente</span>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <span class="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-blue-600 font-semibold">2</span>
-                                <span>Adjunta evidencia y selecciona prioridad</span>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <span class="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-blue-600 font-semibold">3</span>
-                                <span>Enviaremos confirmación y seguimiento</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
+            <!-- Banner removed: focusing page on the form -->
 
             <!-- Formulario -->
             <div class="relative mt-10 overflow-hidden rounded-3xl border border-blue-100/60 bg-white/90 shadow-2xl shadow-blue-500/10 backdrop-blur">
