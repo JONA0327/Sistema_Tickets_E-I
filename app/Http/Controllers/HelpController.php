@@ -257,9 +257,8 @@ class HelpController extends Controller
             abort(404);
         }
 
-        $fileContents = Storage::disk('public')->get($path);
-        $mimeType = Storage::disk('public')->mimeType($path) ?? 'image/jpeg';
+        $response = Storage::disk('public')->response($path);
 
-        return response($fileContents, 200)->header('Content-Type', $mimeType);
+        return $response->header('Cache-Control', 'public, max-age=31536000');
     }
 }
