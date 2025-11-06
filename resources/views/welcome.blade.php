@@ -89,7 +89,7 @@
             <!-- Quick help link for guests: placed under the login/register card -->
             <div class="text-center mb-8">
                 <a href="{{ route('help.public') }}" class="text-sm text-blue-600 hover:text-blue-700 underline">
-                    ¿Tienes dudas para registrarte? Consulta el manual de ayuda.
+                    Necesito ayuda
                 </a>
             </div>
             @endguest
