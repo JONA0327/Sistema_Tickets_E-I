@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class HelpSection extends Model
 {
@@ -48,6 +49,22 @@ class HelpSection extends Model
      */
     public function getImageUrl($imageName)
     {
+        // Buscar por filename o por reference en las imágenes almacenadas
+        $images = $this->images ?? [];
+        foreach ($images as $image) {
+            if ((isset($image['filename']) && $image['filename'] === $imageName) || (isset($image['reference']) && $image['reference'] === $imageName)) {
+                // Si tenemos data URI almacenada, devolverla directamente
+                if (isset($image['data'])) {
+                    return $image['data'];
+                }
+                // Si no, intentar devolver la ruta legacy
+                if (isset($image['filename'])) {
+                    return route('help.images.show', ['filename' => $image['filename']]);
+                }
+            }
+        }
+
+        // Fallback: assume $imageName is a filename and return route
         return route('help.images.show', ['filename' => $imageName]);
     }
 
@@ -61,7 +78,15 @@ class HelpSection extends Model
         }
 
         return collect($this->images)->mapWithKeys(function ($image) {
-            return [$image['reference'] => $this->getImageUrl($image['filename'])];
+            $key = $image['reference'] ?? ($image['filename'] ?? Str::random(8));
+            // Preferir data URI en 'data'
+            if (isset($image['data'])) {
+                return [$key => $image['data']];
+            }
+            if (isset($image['filename'])) {
+                return [$key => $this->getImageUrl($image['filename'])];
+            }
+            return [$key => null];
         })->toArray();
     }
 

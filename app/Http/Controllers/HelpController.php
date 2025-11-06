@@ -149,23 +149,18 @@ class HelpController extends Controller
     private function processImages(Request $request, HelpSection $helpSection)
     {
         $images = $helpSection->images ?? [];
-        
-        // Asegurar que el directorio existe
-        if (!Storage::disk('public')->exists('help-images')) {
-            Storage::disk('public')->makeDirectory('help-images');
-        }
-
         foreach ($request->file('images') as $file) {
             // Generar nombre único para el archivo
             $filename = time() . '-' . Str::random(10) . '.' . $file->getClientOriginalExtension();
+            // Leer contenido y guardarlo como base64 (data URI)
+            $contents = file_get_contents($file->getRealPath());
+            $base64 = base64_encode($contents);
+            $dataUri = 'data:' . $file->getMimeType() . ';base64,' . $base64;
 
-            // Guardar archivo
-            Storage::disk('public')->putFileAs('help-images', $file, $filename);
-            
             // Generar referencia para la imagen
             $reference = $helpSection->generateImageReference($file->getClientOriginalName());
-            
-            // Agregar metadatos de la imagen
+
+            // Agregar metadatos de la imagen (guardando el data URI en 'data')
             $images[] = [
                 'filename' => $filename,
                 'original_name' => $file->getClientOriginalName(),
@@ -173,6 +168,7 @@ class HelpController extends Controller
                 'size' => $file->getSize(),
                 'mime_type' => $file->getMimeType(),
                 'uploaded_at' => now()->toISOString(),
+                'data' => $dataUri,
             ];
         }
         
@@ -187,15 +183,12 @@ class HelpController extends Controller
         $images = $helpSection->images ?? [];
         
         if (isset($images[$imageIndex])) {
-            // Eliminar archivo físico
-            Storage::disk('public')->delete('help-images/' . $images[$imageIndex]['filename']);
-            
-            // Remover de la lista
+            // Remover de la lista (no hay archivo físico cuando usamos base64)
             unset($images[$imageIndex]);
             $images = array_values($images); // Reindexar array
-            
+
             $helpSection->update(['images' => $images]);
-            
+
             return response()->json(['success' => true, 'message' => 'Imagen eliminada exitosamente']);
         }
         
@@ -215,13 +208,14 @@ class HelpController extends Controller
         
         // Generar nombre único para el archivo
         $filename = time() . '-' . Str::random(10) . '.' . $file->getClientOriginalExtension();
-        
-        // Guardar archivo
-        Storage::disk('public')->putFileAs('help-images', $file, $filename);
-        
+        // Leer contenido y convertir a base64
+        $contents = file_get_contents($file->getRealPath());
+        $base64 = base64_encode($contents);
+        $dataUri = 'data:' . $file->getMimeType() . ';base64,' . $base64;
+
         // Generar referencia para la imagen
         $reference = $helpSection->generateImageReference($file->getClientOriginalName());
-        
+
         // Agregar metadatos de la imagen
         $images = $helpSection->images ?? [];
         $imageData = [
@@ -231,11 +225,12 @@ class HelpController extends Controller
             'size' => $file->getSize(),
             'mime_type' => $file->getMimeType(),
             'uploaded_at' => now()->toISOString(),
+            'data' => $dataUri,
         ];
-        
+
         $images[] = $imageData;
         $helpSection->update(['images' => $images]);
-        
+
         return response()->json([
             'success' => true,
             'image' => $imageData,
@@ -250,14 +245,27 @@ class HelpController extends Controller
      */
     public function showImage($filename)
     {
-        $path = 'help-images/' . $filename;
-
-        if (!Storage::disk('public')->exists($path)) {
-            abort(404);
+        // Buscar la imagen en las secciones de ayuda y devolverla si existe (cuando se almacenan como base64)
+        $sections = HelpSection::all();
+        foreach ($sections as $section) {
+            $images = $section->images ?? [];
+            foreach ($images as $image) {
+                if (isset($image['filename']) && $image['filename'] === $filename) {
+                    if (isset($image['data'])) {
+                        // data URI -> extraer mime y base64
+                        if (preg_match('/^data:(.*);base64,(.*)$/', $image['data'], $matches)) {
+                            $mime = $matches[1];
+                            $b64 = $matches[2];
+                            $content = base64_decode($b64);
+                            return response($content, 200)
+                                ->header('Content-Type', $mime)
+                                ->header('Cache-Control', 'public, max-age=31536000');
+                        }
+                    }
+                }
+            }
         }
 
-        $response = Storage::disk('public')->response($path);
-
-        return $response->header('Cache-Control', 'public, max-age=31536000');
+        abort(404);
     }
 }
