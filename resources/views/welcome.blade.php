@@ -86,6 +86,12 @@
                     <p class="text-xs sm:text-sm text-gray-500">Las nuevas cuentas deben ser aprobadas por el administrador para garantizar que pertenezcan a la organización.</p>
                 </div>
             </div>
+            <!-- Quick help link for guests: placed under the login/register card -->
+            <div class="text-center mb-8">
+                <a href="{{ route('help.public') }}" class="text-sm text-blue-600 hover:text-blue-700 underline">
+                    ¿Tienes dudas para registrarte? Consulta el manual de ayuda.
+                </a>
+            </div>
             @endguest
 
             @auth
