@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ComputerProfile;
 use App\Models\MaintenanceSlot;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -130,6 +131,7 @@ class MaintenanceController extends Controller
         return view('admin.maintenance.index', [
             'groupedSlots' => $groupedSlots,
             'componentOptions' => $this->getReplacementComponentOptions(),
+            'users' => User::orderBy('name')->get(['id', 'name', 'email']),
         ]);
     }
 
