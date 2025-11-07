@@ -48,10 +48,8 @@
         <div class="flex h-24 items-center justify-between">
             <div class="flex items-center gap-4">
                 <a href="{{ route('welcome') }}" class="relative flex items-center gap-4 px-2 py-2">
-                    <span class="relative flex h-14 w-14 flex-shrink-0 items-center justify-center">
-                        <span class="absolute inset-0 rounded-2xl bg-blue-100 blur-xl opacity-80"></span>
-                        <span class="absolute inset-0 rounded-2xl border border-blue-200 opacity-70"></span>
-                        <img src="{{ asset('images/logo-ei.png') }}?v={{ filemtime(public_path('images/logo-ei.png')) }}" alt="E&I Logo" class="relative h-12 w-auto">
+                    <span class="flex flex-shrink-0 items-center">
+                        <img src="{{ asset('images/logo-ei.png') }}?v={{ filemtime(public_path('images/logo-ei.png')) }}" alt="E&I Logo" class="h-12 w-auto">
                     </span>
                     <div class="min-w-0 leading-tight">
                         <p class="text-base sm:text-lg font-semibold text-slate-800 truncate" style="max-width:240px">Sistema de Tickets</p>
