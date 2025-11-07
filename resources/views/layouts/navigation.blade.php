@@ -45,26 +45,26 @@
 <nav x-data="{ mobileOpen: false }" class="relative z-50 border-b border-slate-200 bg-white text-slate-700 shadow-md shadow-slate-200/70">
 
     <div class="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div class="flex h-24 items-center justify-between">
+        <div class="flex h-20 items-center justify-between">
             <div class="flex items-center gap-4">
                 <a href="{{ route('welcome') }}" class="relative flex items-center gap-4 px-2 py-2">
                     <span class="flex flex-shrink-0 items-center">
-                        <img src="{{ asset('images/logo-ei.png') }}?v={{ filemtime(public_path('images/logo-ei.png')) }}" alt="E&I Logo" class="h-12 w-auto">
+                        <img src="{{ asset('images/logo-ei.png') }}?v={{ filemtime(public_path('images/logo-ei.png')) }}" alt="E&I Logo" class="h-10 w-auto">
                     </span>
                     <div class="min-w-0 leading-tight">
-                        <p class="text-base sm:text-lg font-semibold text-slate-800 truncate" style="max-width:240px">Sistema de Tickets</p>
-                        <p class="text-sm sm:text-base font-medium text-slate-500 truncate" style="max-width:240px">E&amp;I - Tecnología</p>
+                        <p class="text-sm sm:text-base font-semibold text-slate-800 truncate" style="max-width:240px">Sistema de Tickets</p>
+                        <p class="text-xs sm:text-sm font-medium text-slate-500 truncate" style="max-width:240px">E&amp;I - Tecnología</p>
                     </div>
                 </a>
             </div>
 
             @auth
-                <div class="hidden items-center gap-8 lg:flex pr-4 lg:pr-8">
-                    <div class="flex items-center gap-3 pr-4">
+                <div class="hidden items-center gap-6 lg:flex pr-4 lg:pr-6">
+                    <div class="flex items-center gap-2.5 pr-4">
                         @foreach ($filteredItems as $item)
                             @php
                                 $isActive = $item['active'];
-                                $linkClasses = 'group inline-flex items-center gap-3 rounded-2xl px-5 py-3 text-base font-semibold transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/60 focus-visible:ring-offset-2 focus-visible:ring-offset-white';
+                                $linkClasses = 'group inline-flex items-center gap-2.5 rounded-2xl px-4 py-2.5 text-sm font-semibold transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/60 focus-visible:ring-offset-2 focus-visible:ring-offset-white';
                                 $activeClasses = 'bg-blue-600 text-white shadow-lg shadow-blue-500/30 ring-1 ring-blue-500/60';
                                 $inactiveClasses = 'text-slate-600 hover:text-blue-600 hover:bg-blue-50';
                                 $iconWrapper = $isActive
@@ -72,8 +72,8 @@
                                     : 'bg-blue-100 text-blue-600 transition-colors duration-200 group-hover:bg-blue-200 group-hover:text-blue-700';
                             @endphp
                             <a href="{{ $item['route'] }}" class="{{ $linkClasses }} {{ $isActive ? $activeClasses : $inactiveClasses }}">
-                                <span class="flex h-11 w-11 items-center justify-center rounded-xl {{ $iconWrapper }}">
-                                    <x-ui.icon :name="$item['icon']" class="h-6 w-6" />
+                                <span class="flex h-9 w-9 items-center justify-center rounded-xl {{ $iconWrapper }}">
+                                    <x-ui.icon :name="$item['icon']" class="h-5 w-5" />
                                 </span>
                                 <span>{{ $item['label'] }}</span>
                             </a>
@@ -91,9 +91,9 @@
                                     type="button"
                                     @click="open = !open"
                                     @click.outside="open = false"
-                                    class="inline-flex items-center gap-2 rounded-full border border-blue-100 bg-blue-50 px-3 py-2 text-sm text-slate-700 shadow-sm shadow-blue-100/50 transition-all duration-200 hover:bg-blue-100 hover:text-blue-700 hover:shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/60 focus-visible:ring-offset-2 focus-visible:ring-offset-white"
+                                    class="inline-flex items-center gap-2 rounded-full border border-blue-100 bg-blue-50 px-3 py-1.5 text-xs sm:text-sm text-slate-700 shadow-sm shadow-blue-100/50 transition-all duration-200 hover:bg-blue-100 hover:text-blue-700 hover:shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/60 focus-visible:ring-offset-2 focus-visible:ring-offset-white"
                                 >
-                                    <span class="flex h-11 w-11 items-center justify-center rounded-full bg-blue-600 text-white text-base font-semibold shadow-md shadow-blue-500/30">
+                                    <span class="flex h-10 w-10 items-center justify-center rounded-full bg-blue-600 text-white text-sm font-semibold shadow-md shadow-blue-500/30">
                                         {{ $initials }}
                                     </span>
                                     <svg class="h-4 w-4 text-slate-500 transition-transform duration-200" :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -113,24 +113,24 @@
                                 x-transition:leave-end="transform opacity-0 scale-95"
                                 class="absolute right-0 mt-3 w-80 overflow-hidden rounded-2xl border border-blue-100/80 bg-white/95 shadow-2xl shadow-blue-500/10 backdrop-blur-xl z-60"
                             >
-                                <div class="border-b border-blue-100/70 bg-gradient-to-r from-blue-50/70 to-white px-4 py-3">
-                                    <p class="text-sm font-semibold text-slate-900">{{ $user?->name }}</p>
-                                    <p class="text-xs text-slate-500">{{ $user?->email }}</p>
-                                    <span class="mt-2 inline-flex items-center gap-1 rounded-full bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700">
-                                        <x-ui.icon name="check-badge" class="h-4 w-4" />
+                                <div class="border-b border-blue-100/70 bg-gradient-to-r from-blue-50/70 to-white px-4 py-2.5">
+                                    <p class="text-xs font-semibold text-slate-900">{{ $user?->name }}</p>
+                                    <p class="text-[11px] text-slate-500">{{ $user?->email }}</p>
+                                    <span class="mt-1.5 inline-flex items-center gap-1 rounded-full bg-blue-50 px-2 py-0.5 text-[11px] font-medium text-blue-700">
+                                        <x-ui.icon name="check-badge" class="h-3.5 w-3.5" />
                                         {{ $roleLabel }}
                                     </span>
                                 </div>
 
                                 <div class="py-2">
-                                    <a href="{{ route('profile.edit') }}" class="flex items-center px-4 py-2 text-sm text-slate-600 transition-colors duration-150 hover:bg-blue-50/60">
-                                        <x-ui.icon name="pencil-square" class="mr-3 h-5 w-5 text-slate-400" />
+                                    <a href="{{ route('profile.edit') }}" class="flex items-center px-4 py-2 text-xs sm:text-sm text-slate-600 transition-colors duration-150 hover:bg-blue-50/60">
+                                        <x-ui.icon name="pencil-square" class="mr-3 h-4 w-4 text-slate-400" />
                                         Mi perfil
                                     </a>
                                     <form method="POST" action="{{ route('logout') }}" class="mt-1">
                                         @csrf
-                                        <button type="submit" class="flex w-full items-center px-4 py-2 text-sm font-medium text-red-600 transition-colors duration-150 hover:bg-red-50">
-                                            <x-ui.icon name="arrow-right-on-rectangle" class="mr-3 h-5 w-5 text-red-400" />
+                                        <button type="submit" class="flex w-full items-center px-4 py-2 text-xs sm:text-sm font-medium text-red-600 transition-colors duration-150 hover:bg-red-50">
+                                            <x-ui.icon name="arrow-right-on-rectangle" class="mr-3 h-4 w-4 text-red-400" />
                                             Cerrar sesión
                                         </button>
                                     </form>
@@ -142,7 +142,7 @@
             @endauth
 
             @auth
-                <div class="flex items-center gap-3 lg:hidden text-blue-600">
+                <div class="flex items-center gap-2.5 lg:hidden text-blue-600">
                     @if ($user && method_exists($user, 'isAdmin') && $user->isAdmin())
                         <x-admin.notification-center />
                     @endif
@@ -150,7 +150,7 @@
                     <button
                         type="button"
                         @click="mobileOpen = !mobileOpen"
-                        class="inline-flex h-12 w-12 items-center justify-center rounded-2xl border border-blue-100 bg-blue-50 text-blue-600 shadow-sm shadow-blue-100/50 transition-colors duration-200 hover:bg-blue-100 hover:text-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/60 focus-visible:ring-offset-2 focus-visible:ring-offset-white"
+                        class="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-blue-100 bg-blue-50 text-blue-600 shadow-sm shadow-blue-100/50 transition-colors duration-200 hover:bg-blue-100 hover:text-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/60 focus-visible:ring-offset-2 focus-visible:ring-offset-white"
                         aria-label="Abrir menú"
                     >
                         <svg x-show="!mobileOpen" class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -179,13 +179,13 @@
         >
             <div class="space-y-4 px-4 pt-4 pb-6">
                 @if ($user)
-                    <div class="flex items-center gap-3 rounded-2xl border border-blue-100/70 bg-blue-50/50 px-3 py-3">
-                        <span class="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-blue-600 to-blue-500 text-white font-semibold shadow-md shadow-blue-500/30">{{ $initials }}</span>
+                    <div class="flex items-center gap-2.5 rounded-2xl border border-blue-100/70 bg-blue-50/50 px-3 py-2.5">
+                        <span class="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-blue-600 to-blue-500 text-white text-sm font-semibold shadow-md shadow-blue-500/30">{{ $initials }}</span>
                         <div>
-                            <p class="text-sm font-semibold text-slate-900">{{ $user?->name }}</p>
-                            <p class="text-xs text-slate-500">{{ $user?->email }}</p>
-                            <span class="mt-1 inline-flex items-center gap-1 rounded-full bg-white/80 px-2 py-0.5 text-xs font-medium text-blue-600">
-                                <x-ui.icon name="check-badge" class="h-4 w-4" />
+                            <p class="text-xs font-semibold text-slate-900">{{ $user?->name }}</p>
+                            <p class="text-[11px] text-slate-500">{{ $user?->email }}</p>
+                            <span class="mt-1 inline-flex items-center gap-1 rounded-full bg-white/80 px-2 py-0.5 text-[11px] font-medium text-blue-600">
+                                <x-ui.icon name="check-badge" class="h-3.5 w-3.5" />
                                 {{ $roleLabel }}
                             </span>
                         </div>
