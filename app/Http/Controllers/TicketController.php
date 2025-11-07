@@ -10,6 +10,7 @@ use App\Models\Ticket;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
@@ -183,8 +184,80 @@ class TicketController extends Controller
             }
         });
 
+        if ($ticket) {
+            $this->notifyN8nTicketCreated($ticket);
+        }
+
         return redirect()->route('tickets.mis-tickets')->with('success',
             "¡Ticket creado exitosamente! Folio: {$ticket->folio}.");
+    }
+
+    protected function notifyN8nTicketCreated(Ticket $ticket): void
+    {
+        $webhookUrl = config('services.n8n.webhook_url');
+
+        if (empty($webhookUrl)) {
+            \Log::info('Webhook de n8n no configurado. Se omite notificación.', [
+                'ticket_id' => $ticket->id,
+            ]);
+
+            return;
+        }
+
+        DB::afterCommit(function () use ($ticket, $webhookUrl) {
+            try {
+                $ticket->loadMissing(['maintenanceSlot', 'maintenanceBooking', 'user']);
+
+                $payload = [
+                    'ticket' => [
+                        'id' => $ticket->id,
+                        'folio' => $ticket->folio,
+                        'tipo_problema' => $ticket->tipo_problema,
+                        'estado' => $ticket->estado,
+                        'prioridad' => $ticket->prioridad,
+                        'descripcion_problema' => $ticket->descripcion_problema,
+                        'nombre_programa' => $ticket->nombre_programa,
+                        'fecha_creacion' => optional($ticket->created_at)->toIso8601String(),
+                        'fecha_actualizacion' => optional($ticket->updated_at)->toIso8601String(),
+                        'imagenes' => $ticket->imagenes,
+                        'maintenance_slot' => $ticket->maintenanceSlot ? [
+                            'id' => $ticket->maintenanceSlot->id,
+                            'date' => optional($ticket->maintenanceSlot->date)->toDateString(),
+                            'start' => optional($ticket->maintenanceSlot->start_date_time)->toIso8601String(),
+                            'end' => optional($ticket->maintenanceSlot->end_date_time)->toIso8601String(),
+                        ] : null,
+                        'maintenance_booking' => $ticket->maintenanceBooking ? [
+                            'id' => $ticket->maintenanceBooking->id,
+                            'additional_details' => $ticket->maintenanceBooking->additional_details,
+                        ] : null,
+                    ],
+                    'user' => [
+                        'id' => $ticket->user_id,
+                        'nombre' => $ticket->nombre_solicitante,
+                        'correo' => $ticket->correo_solicitante,
+                    ],
+                ];
+
+                $response = Http::timeout(10)->post($webhookUrl, $payload);
+
+                if ($response->failed()) {
+                    \Log::error('No se pudo enviar el webhook de n8n.', [
+                        'ticket_id' => $ticket->id,
+                        'status' => $response->status(),
+                        'body' => $response->body(),
+                    ]);
+                } else {
+                    \Log::info('Webhook de n8n enviado correctamente.', [
+                        'ticket_id' => $ticket->id,
+                    ]);
+                }
+            } catch (\Throwable $exception) {
+                \Log::error('Error al enviar el webhook de n8n.', [
+                    'ticket_id' => $ticket->id,
+                    'error' => $exception->getMessage(),
+                ]);
+            }
+        });
     }
 
     /**
