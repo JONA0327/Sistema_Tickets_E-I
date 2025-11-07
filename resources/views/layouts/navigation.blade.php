@@ -48,7 +48,11 @@
         <div class="flex h-20 items-center justify-between">
             <div class="flex items-center gap-4">
                 <a href="{{ route('welcome') }}" class="relative flex items-center gap-3 px-1.5 py-1.5">
-                    <img src="{{ asset('images/logo-ei.png') }}?v={{ filemtime(public_path('images/logo-ei.png')) }}" alt="E&I Logo" class="h-9 w-auto flex-shrink-0 bg-transparent" style="background-color: transparent;">
+                    <span class="relative flex h-12 w-12 flex-shrink-0 items-center justify-center">
+                        <span class="absolute inset-0 rounded-2xl bg-white/30 blur-xl opacity-80"></span>
+                        <span class="absolute inset-0 rounded-2xl border border-white/40 opacity-70"></span>
+                        <img src="{{ asset('images/logo-ei.png') }}?v={{ filemtime(public_path('images/logo-ei.png')) }}" alt="E&I Logo" class="relative h-9 w-auto bg-transparent" style="background-color: transparent;">
+                    </span>
                     <div class="min-w-0 leading-tight">
                         <p class="text-sm sm:text-base font-semibold text-white truncate" style="max-width:220px">Sistema de Tickets</p>
                         <p class="text-xs sm:text-sm font-medium text-white/70 truncate" style="max-width:220px">E&amp;I - Tecnología</p>
