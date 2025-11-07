@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ComputerProfile;
 use App\Models\MaintenanceSlot;
+use App\Models\Ticket;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
@@ -391,9 +392,48 @@ class MaintenanceController extends Controller
 
     public function showComputerProfile(ComputerProfile $profile): View
     {
+        $profile->loadMissing([
+            'ticket' => function ($query) {
+                $query->with(['maintenanceSlot', 'user'])->latest('created_at');
+            },
+        ]);
+
+        $latestTicket = $profile->ticket;
+
+        if (!$latestTicket) {
+            $latestTicket = Ticket::query()
+                ->where('tipo_problema', 'mantenimiento')
+                ->where(function ($query) use ($profile) {
+                    $query->where('computer_profile_id', $profile->id);
+
+                    if ($profile->identifier) {
+                        $query->orWhere('equipment_identifier', $profile->identifier);
+                    }
+                })
+                ->with(['maintenanceSlot', 'user'])
+                ->latest('created_at')
+                ->first();
+        }
+
+        $historyTickets = Ticket::query()
+            ->where('tipo_problema', 'mantenimiento')
+            ->where(function ($query) use ($profile) {
+                $query->where('computer_profile_id', $profile->id);
+
+                if ($profile->identifier) {
+                    $query->orWhere('equipment_identifier', $profile->identifier);
+                }
+            })
+            ->with(['maintenanceSlot'])
+            ->orderByDesc('created_at')
+            ->limit(6)
+            ->get();
+
         return view('admin.maintenance.computers.show', [
             'profile' => $profile,
             'componentOptions' => $this->getReplacementComponentOptions(),
+            'latestTicket' => $latestTicket,
+            'historyTickets' => $historyTickets,
         ]);
     }
 

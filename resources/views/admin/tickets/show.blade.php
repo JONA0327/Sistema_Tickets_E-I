@@ -463,7 +463,7 @@
                                                         <div class="relative group">
                                                             <img src="data:image/jpeg;base64,{{ $imagen }}" alt="Imagen {{ $index + 1 }}" class="w-full h-24 object-cover rounded-lg border border-gray-200 cursor-pointer hover:opacity-75 hover:border-blue-400 transition-all shadow-sm hover:shadow-md" onclick="openImageModal('data:image/jpeg;base64,{{ $imagen }}', 'Imagen Administrador {{ $index + 1 }}')">
                                                             <div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                                <button type="button" onclick="removeExistingAdminImage({{ $index }})" class="bg-red-500 hover:bg-red-600 text-white rounded-full p-1.5 text-xs shadow-lg">
+                                                                <button type="button" onclick="removeExistingAdminImage(event, {{ $index }})" class="bg-red-500 hover:bg-red-600 text-white rounded-full p-1.5 text-xs shadow-lg">
                                                                     <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                                                                     </svg>
@@ -696,20 +696,29 @@ Referente a su ticket {{ $ticket->folio }}..."
                 }
             }
 
-            function removeExistingAdminImage(index) {
-                // Agregar el índice a la lista de imágenes a remover
-                removedAdminImages.push(index);
-                
-                // Ocultar la imagen visualmente
-                event.target.closest('.relative').style.display = 'none';
-                
-                // Crear un campo hidden para enviar qué imágenes remover
-                const form = document.querySelector('form');
-                const hiddenInput = document.createElement('input');
-                hiddenInput.type = 'hidden';
-                hiddenInput.name = 'removed_admin_images[]';
-                hiddenInput.value = index;
-                form.appendChild(hiddenInput);
+            function removeExistingAdminImage(event, index) {
+                if (!event) {
+                    return;
+                }
+
+                if (!removedAdminImages.includes(index)) {
+                    removedAdminImages.push(index);
+                }
+
+                const trigger = event.currentTarget || event.target;
+                const container = trigger.closest('.relative');
+                if (container) {
+                    container.style.display = 'none';
+                }
+
+                const form = trigger.closest('form') || document.querySelector('form');
+                if (form && !form.querySelector(`input[name="removed_admin_images[]"][value="${index}"]`)) {
+                    const hiddenInput = document.createElement('input');
+                    hiddenInput.type = 'hidden';
+                    hiddenInput.name = 'removed_admin_images[]';
+                    hiddenInput.value = index;
+                    form.appendChild(hiddenInput);
+                }
             }
 
             function openImageModal(src, name) {
