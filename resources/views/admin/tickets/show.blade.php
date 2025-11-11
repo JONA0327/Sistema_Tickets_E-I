@@ -30,7 +30,7 @@
                         <div class="flex justify-between items-start mb-6">
                             <div>
                                 <h2 class="text-2xl font-bold text-gray-900 mb-2">{{ $ticket->folio }}</h2>
-                                <p class="text-gray-600">Creado el {{ $ticket->created_at->format('d/m/Y \a \l\a\s H:i') }}</p>
+                                <p class="text-gray-600">Creado el {{ $ticket->created_at->timezone('America/Mexico_City')->format('d/m/Y \a \l\a\s H:i') }}</p>
                             </div>
                             <div class="flex space-x-2">
                                 <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium {{ $ticket->estado_badge }}">
@@ -53,7 +53,7 @@
                                     <p class="mt-1">
                                         {{ $ticket->nombre_solicitante }} cerró el folio {{ $ticket->folio }}
                                         @if($ticket->closed_by_user_at)
-                                            el {{ $ticket->closed_by_user_at->format('d/m/Y \a \l\a\s H:i') }}.
+                                            el {{ $ticket->closed_by_user_at->timezone('America/Mexico_City')->format('d/m/Y \a \l\a\s H:i') }}.
                                         @else
                                             recientemente.
                                         @endif
@@ -144,7 +144,7 @@
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-700">
                                     <div>
                                         <p class="text-gray-500 text-xs uppercase tracking-wider">Fecha programada</p>
-                                        <p class="font-semibold text-gray-900">{{ optional($ticket->maintenance_scheduled_at)->format('d/m/Y H:i') ?? 'Sin definir' }}</p>
+                                        <p class="font-semibold text-gray-900">{{ optional($ticket->maintenance_scheduled_at)->timezone('America/Mexico_City')->format('d/m/Y H:i') ?? 'Sin definir' }}</p>
                                     </div>
                                     <div>
                                         <p class="text-gray-500 text-xs uppercase tracking-wider">Horario</p>
@@ -514,19 +514,25 @@
                                 <div class="space-y-3 text-sm">
                                     <div class="flex justify-between">
                                         <span class="text-gray-500">Apertura:</span>
-                                        <span class="text-gray-900">{{ $ticket->fecha_apertura->format('d/m/Y H:i') }}</span>
+                                        <span class="text-gray-900">
+                                            @if($ticket->fecha_apertura)
+                                                {{ $ticket->fecha_apertura->timezone('America/Mexico_City')->format('d/m/Y H:i') }}
+                                            @else
+                                                Sin registro
+                                            @endif
+                                        </span>
                                     </div>
                                     
                                     @if($ticket->fecha_cierre)
                                     <div class="flex justify-between">
                                         <span class="text-gray-500">Cierre:</span>
-                                        <span class="text-gray-900">{{ $ticket->fecha_cierre->format('d/m/Y H:i') }}</span>
+                                        <span class="text-gray-900">{{ $ticket->fecha_cierre->timezone('America/Mexico_City')->format('d/m/Y H:i') }}</span>
                                     </div>
                                     @endif
                                     
                                     <div class="flex justify-between">
                                         <span class="text-gray-500">Última actualización:</span>
-                                        <span class="text-gray-900">{{ $ticket->updated_at->format('d/m/Y H:i') }}</span>
+                                        <span class="text-gray-900">{{ $ticket->updated_at->timezone('America/Mexico_City')->format('d/m/Y H:i') }}</span>
                                     </div>
                                 </div>
                             </div>

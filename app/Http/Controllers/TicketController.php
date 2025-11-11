@@ -136,7 +136,7 @@ class TicketController extends Controller
                 'imagenes' => $imagenes,
                 'estado' => 'abierto',
                 'is_read' => false,
-                'notified_at' => now(),
+                'notified_at' => now('America/Mexico_City'),
             ];
 
             if ($validated['tipo_problema'] === 'mantenimiento') {
@@ -324,7 +324,7 @@ class TicketController extends Controller
 
         // Si se cierra el ticket, agregar fecha de cierre
         if ($validated['estado'] === 'cerrado' && $ticket->estado !== 'cerrado') {
-            $data['fecha_cierre'] = now();
+            $data['fecha_cierre'] = now('America/Mexico_City');
         }
 
         if ($validated['estado'] !== 'cerrado') {
@@ -433,7 +433,7 @@ class TicketController extends Controller
                     }
 
                     if ($validated['estado'] === 'cerrado') {
-                        $profileData['last_maintenance_at'] = now();
+                        $profileData['last_maintenance_at'] = now('America/Mexico_City');
                     }
 
                     $profile->fill(array_filter($profileData, fn ($value) => !is_null($value)));
@@ -492,13 +492,21 @@ class TicketController extends Controller
         if (!empty($userNotificationMessages)) {
             $ticket->forceFill([
                 'user_has_updates' => true,
-                'user_notified_at' => now(),
+                'user_notified_at' => now('America/Mexico_City'),
                 'user_notification_summary' => implode(' ', $userNotificationMessages),
             ])->save();
         }
 
-        return redirect()->route('admin.tickets.index')
-            ->with('success', 'Ticket actualizado exitosamente');
+        $redirectTo = $request->input('redirect_to');
+        $targetTicketId = $request->input('target_ticket_id', $ticket->id);
+
+        $redirectResponse = $redirectTo
+            ? redirect()->to($redirectTo)
+            : redirect()->route('admin.tickets.index');
+
+        return $redirectResponse
+            ->with('success', 'Ticket actualizado exitosamente')
+            ->with('active_ticket_form', $targetTicketId);
     }
 
     /**
@@ -531,7 +539,7 @@ class TicketController extends Controller
 
         $ticket->forceFill([
             'user_has_updates' => false,
-            'user_last_read_at' => now(),
+            'user_last_read_at' => now('America/Mexico_City'),
         ])->save();
 
         if ($request->wantsJson()) {
@@ -553,7 +561,7 @@ class TicketController extends Controller
             ->where('user_has_updates', true)
             ->update([
                 'user_has_updates' => false,
-                'user_last_read_at' => now(),
+                'user_last_read_at' => now('America/Mexico_City'),
             ]);
 
         if ($request->wantsJson()) {
@@ -607,13 +615,15 @@ class TicketController extends Controller
             );
         }
 
+        $nowMexico = now('America/Mexico_City');
+
         $ticket->forceFill([
             'estado' => 'cerrado',
-            'fecha_cierre' => now(),
+            'fecha_cierre' => $nowMexico,
             'closed_by_user' => true,
-            'closed_by_user_at' => now(),
+            'closed_by_user_at' => $nowMexico,
             'is_read' => false,
-            'notified_at' => now(),
+            'notified_at' => $nowMexico,
         ])->save();
 
         $message = "Ticket {$folio} cancelado exitosamente. El equipo de TI ha sido notificado.";
@@ -729,7 +739,7 @@ class TicketController extends Controller
                     'maintenance_slot_id' => $newSlot->id,
                     'is_read' => false,
                     'user_has_updates' => true,
-                    'notified_at' => now(),
+                    'notified_at' => now('America/Mexico_City'),
                 ]);
 
                 \Log::info('Fecha de mantenimiento cambiada por administrador', [
@@ -766,7 +776,7 @@ class TicketController extends Controller
         }
 
         $slots = MaintenanceSlot::active()
-            ->where('date', '>=', now()->toDateString())
+            ->where('date', '>=', now('America/Mexico_City')->toDateString())
             ->where('capacity', '>', DB::raw('booked_count'))
             ->orderBy('date')
             ->orderBy('start_time')

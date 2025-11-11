@@ -87,6 +87,25 @@
 
                                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                         <div>
+                                            <label for="maintenance_ticket_id" class="block text-sm font-medium text-gray-700 mb-1">Ticket de mantenimiento relacionado</label>
+                                            <select id="maintenance_ticket_id" name="maintenance_ticket_id"
+                                                class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                                <option value="">Selecciona un ticket</option>
+                                                @foreach ($maintenanceTickets as $ticket)
+                                                    @php
+                                                        $createdAt = optional($ticket->created_at)->timezone('America/Mexico_City');
+                                                    @endphp
+                                                    <option value="{{ $ticket->id }}" {{ (string) old('maintenance_ticket_id') === (string) $ticket->id ? 'selected' : '' }}>
+                                                        {{ $ticket->folio }} · {{ $ticket->nombre_solicitante }} · {{ $createdAt ? $createdAt->format('d/m/Y H:i') : 'Sin fecha' }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                            <p class="text-xs text-gray-500 mt-1">El ticket seleccionado se vinculará como el último mantenimiento realizado.</p>
+                                            @error('maintenance_ticket_id')
+                                                <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
+                                            @enderror
+                                        </div>
+                                        <div>
                                             <label for="brand" class="block text-sm font-medium text-gray-700 mb-1">Marca</label>
                                             <input type="text" id="brand" name="brand" value="{{ old('brand') }}"
                                                 class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
@@ -231,6 +250,159 @@
                             </button>
                         </div>
                     </form>
+
+                    <div class="border border-blue-100 rounded-2xl bg-white shadow-sm">
+                        <div class="px-5 py-4 border-b border-blue-100 flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+                            <div>
+                                <h4 class="text-lg font-semibold text-slate-900">Seguimiento administrativo de tickets</h4>
+                                <p class="text-sm text-slate-500">Actualiza observaciones, reportes y evidencias directamente desde la ficha técnica.</p>
+                            </div>
+                            <div class="flex items-center gap-2 text-xs text-slate-500 bg-blue-50 border border-blue-100 rounded-lg px-3 py-1.5">
+                                <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                </svg>
+                                Selecciona un ticket para mostrar el formulario.
+                            </div>
+                        </div>
+
+                        <div class="p-6 space-y-6">
+                            @php
+                                $activeTicketId = old('target_ticket_id', session('active_ticket_form'));
+                            @endphp
+
+                            @if($maintenanceTickets->isEmpty())
+                                <p class="text-sm text-slate-500">Aún no hay tickets de mantenimiento registrados para administrar desde esta vista.</p>
+                            @else
+                                <div class="space-y-2">
+                                    <label for="maintenanceTicketSelector" class="block text-sm font-medium text-slate-700">Ticket de mantenimiento</label>
+                                    <select id="maintenanceTicketSelector" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" data-default="{{ $activeTicketId ? 'ticket-' . $activeTicketId : '' }}">
+                                        <option value="">Selecciona un ticket para gestionarlo</option>
+                                        @foreach($maintenanceTickets as $ticket)
+                                            @php
+                                                $createdAt = optional($ticket->created_at)->timezone('America/Mexico_City');
+                                                $closedAt = optional($ticket->fecha_cierre)->timezone('America/Mexico_City');
+                                                $label = $ticket->folio . ' · ' . $ticket->nombre_solicitante;
+                                            @endphp
+                                            <option value="ticket-{{ $ticket->id }}" {{ (string) $activeTicketId === (string) $ticket->id ? 'selected' : '' }}>
+                                                {{ $label }} ({{ $createdAt ? $createdAt->format('d/m/Y H:i') : 'Sin fecha' }})
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+
+                                <div class="space-y-6" id="maintenanceTicketForms">
+                                    @foreach($maintenanceTickets as $ticket)
+                                        @php
+                                            $isActiveTicket = (string) $activeTicketId === (string) $ticket->id;
+                                            $createdAt = optional($ticket->created_at)->timezone('America/Mexico_City');
+                                            $closedAt = optional($ticket->fecha_cierre)->timezone('America/Mexico_City');
+                                            $scheduledAt = optional($ticket->maintenance_scheduled_at)->timezone('America/Mexico_City');
+                                            $observacionesValue = $isActiveTicket ? old('observaciones', $ticket->observaciones) : $ticket->observaciones;
+                                            $maintenanceReportValue = $isActiveTicket ? old('maintenance_report', $ticket->maintenance_report) : $ticket->maintenance_report;
+                                            $closureObservationsValue = $isActiveTicket ? old('closure_observations', $ticket->closure_observations) : $ticket->closure_observations;
+                                            $removedImages = $isActiveTicket ? (array) old('removed_admin_images', []) : [];
+                                        @endphp
+                                        <div class="border border-slate-200 rounded-xl bg-slate-50/60 p-5 space-y-4 hidden" data-ticket-panel="ticket-{{ $ticket->id }}">
+                                            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                                                <div>
+                                                    <p class="text-xs font-semibold tracking-[0.3em] uppercase text-slate-500">Ticket de mantenimiento</p>
+                                                    <h5 class="text-lg font-semibold text-slate-900">{{ $ticket->folio }}</h5>
+                                                    <p class="text-xs text-slate-500 mt-1">
+                                                        Creado {{ $createdAt ? $createdAt->format('d/m/Y H:i') : 'sin fecha' }} ·
+                                                        Estado {{ ucfirst(str_replace('_', ' ', $ticket->estado)) }}
+                                                        @if($closedAt)
+                                                            · Cerrado {{ $closedAt->format('d/m/Y H:i') }}
+                                                        @endif
+                                                        @if($scheduledAt)
+                                                            · Programado {{ $scheduledAt->format('d/m/Y H:i') }}
+                                                        @endif
+                                                    </p>
+                                                </div>
+                                                <a href="{{ route('admin.tickets.show', $ticket) }}" class="inline-flex items-center px-3 py-2 text-xs font-semibold text-blue-600 bg-white border border-blue-200 rounded-lg hover:bg-blue-50 transition">
+                                                    Ver ticket completo
+                                                    <svg class="w-3.5 h-3.5 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                                    </svg>
+                                                </a>
+                                            </div>
+
+                                            <form method="POST" action="{{ route('admin.tickets.update', $ticket) }}" class="space-y-5" enctype="multipart/form-data">
+                                                @csrf
+                                                @method('PATCH')
+
+                                                <input type="hidden" name="estado" value="{{ $isActiveTicket ? old('estado', $ticket->estado) : $ticket->estado }}">
+                                                <input type="hidden" name="target_ticket_id" value="{{ $ticket->id }}">
+                                                <input type="hidden" name="redirect_to" value="{{ request()->fullUrl() }}">
+
+                                                <div class="space-y-2">
+                                                    <label for="adminObservations{{ $ticket->id }}" class="block text-xs font-medium text-slate-700">Observaciones del administrador</label>
+                                                    <textarea id="adminObservations{{ $ticket->id }}" name="observaciones" rows="3" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">{{ $observacionesValue }}</textarea>
+                                                    @if($isActiveTicket)
+                                                        @error('observaciones')<p class="text-xs text-red-600">{{ $message }}</p>@enderror
+                                                    @endif
+                                                </div>
+
+                                                <div class="space-y-3">
+                                                    <div class="space-y-2">
+                                                        <label for="adminImages{{ $ticket->id }}" class="block text-xs font-medium text-slate-700">Imágenes del administrador</label>
+                                                        <input type="file" id="adminImages{{ $ticket->id }}" name="imagenes_admin[]" multiple accept="image/*" class="block w-full text-sm border border-slate-300 rounded-lg px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:bg-blue-100 file:text-blue-800 hover:file:bg-blue-200" data-maintenance-upload>
+                                                        <p class="text-xs text-slate-500" data-upload-status>0 archivos seleccionados.</p>
+                                                        @if($isActiveTicket)
+                                                            @error('imagenes_admin')<p class="text-xs text-red-600">{{ $message }}</p>@enderror
+                                                            @error('imagenes_admin.*')<p class="text-xs text-red-600">{{ $message }}</p>@enderror
+                                                        @endif
+                                                    </div>
+
+                                                    @if($ticket->imagenes_admin && count($ticket->imagenes_admin) > 0)
+                                                        <div class="bg-white border border-slate-200 rounded-lg p-3 space-y-2">
+                                                            <p class="text-xs font-semibold text-slate-700">Imágenes existentes</p>
+                                                            <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                                                                @foreach($ticket->imagenes_admin as $index => $imagen)
+                                                                    <label class="group relative cursor-pointer border border-slate-200 rounded-lg overflow-hidden">
+                                                                        <img src="data:image/jpeg;base64,{{ $imagen }}" alt="Imagen administrador {{ $index + 1 }}" class="h-24 w-full object-cover">
+                                                                        <span class="absolute bottom-1 left-1 bg-slate-900/80 text-white text-[10px] font-medium px-2 py-0.5 rounded">IMG {{ $index + 1 }}</span>
+                                                                        <input type="checkbox" name="removed_admin_images[]" value="{{ $index }}" class="absolute top-2 right-2 h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500" {{ in_array($index, $removedImages, true) ? 'checked' : '' }}>
+                                                                    </label>
+                                                                @endforeach
+                                                            </div>
+                                                            <p class="text-[11px] text-slate-500">Marca las imágenes que deseas eliminar antes de guardar.</p>
+                                                        </div>
+                                                    @endif
+                                                </div>
+
+                                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                    <div class="space-y-2">
+                                                        <label for="maintenanceReport{{ $ticket->id }}" class="block text-xs font-medium text-slate-700">Reporte técnico</label>
+                                                        <textarea id="maintenanceReport{{ $ticket->id }}" name="maintenance_report" rows="3" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">{{ $maintenanceReportValue }}</textarea>
+                                                        @if($isActiveTicket)
+                                                            @error('maintenance_report')<p class="text-xs text-red-600">{{ $message }}</p>@enderror
+                                                        @endif
+                                                    </div>
+                                                    <div class="space-y-2">
+                                                        <label for="closureObservations{{ $ticket->id }}" class="block text-xs font-medium text-slate-700">Observaciones al cerrar</label>
+                                                        <textarea id="closureObservations{{ $ticket->id }}" name="closure_observations" rows="3" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">{{ $closureObservationsValue }}</textarea>
+                                                        @if($isActiveTicket)
+                                                            @error('closure_observations')<p class="text-xs text-red-600">{{ $message }}</p>@enderror
+                                                        @endif
+                                                    </div>
+                                                </div>
+
+                                                <div class="pt-3 border-t border-slate-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                                                    <p class="text-[11px] text-slate-500">Los cambios se guardarán directamente en el ticket seleccionado.</p>
+                                                    <button type="submit" class="inline-flex items-center px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg transition">
+                                                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                                        </svg>
+                                                        Guardar seguimiento
+                                                    </button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            @endif
+                        </div>
+                    </div>
                 </section>
 
                 <section id="tab-bulk" data-tab-panel class="space-y-8 hidden">
@@ -785,7 +957,53 @@
             }
             if (totalSlotsLabel) {
                 totalSlotsLabel.textContent = totalSlots.toString();
-            }
         }
-    </script>
+
+        const maintenanceSelector = document.getElementById('maintenanceTicketSelector');
+        const maintenancePanels = document.querySelectorAll('[data-ticket-panel]');
+
+        if (maintenanceSelector && maintenancePanels.length) {
+            const showMaintenancePanel = (panelId) => {
+                maintenancePanels.forEach((panel) => {
+                    panel.classList.toggle('hidden', panel.dataset.ticketPanel !== panelId || !panelId);
+                });
+            };
+
+            const applyDefaultPanel = () => {
+                const defaultValue = maintenanceSelector.dataset.default;
+
+                if (maintenanceSelector.value) {
+                    showMaintenancePanel(maintenanceSelector.value);
+                } else if (defaultValue) {
+                    maintenanceSelector.value = defaultValue;
+                    showMaintenancePanel(defaultValue);
+                } else {
+                    showMaintenancePanel('');
+                }
+            };
+
+            maintenanceSelector.addEventListener('change', (event) => {
+                showMaintenancePanel(event.target.value);
+            });
+
+            applyDefaultPanel();
+        }
+
+        document.querySelectorAll('[data-ticket-panel] input[type="file"][data-maintenance-upload]').forEach((input) => {
+            const panel = input.closest('[data-ticket-panel]');
+            const statusLabel = panel ? panel.querySelector('[data-upload-status]') : null;
+
+            if (!statusLabel) {
+                return;
+            }
+
+            input.addEventListener('change', () => {
+                const count = input.files ? input.files.length : 0;
+                statusLabel.textContent = count === 1
+                    ? '1 archivo seleccionado.'
+                    : `${count} archivos seleccionados.`;
+            });
+        });
+    }
+</script>
 @endsection

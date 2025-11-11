@@ -38,7 +38,9 @@
             ]);
 
         $imageCount = $userImages->count() + $adminImages->count();
-        $lastUpdatedAt = $profile->last_maintenance_at ?? optional($latestTicket)->updated_at ?? $profile->updated_at;
+        $lastMaintenanceAt = $profile->last_maintenance_at ? $profile->last_maintenance_at->copy()->timezone('America/Mexico_City') : null;
+        $nextMaintenanceAt = $lastMaintenanceAt ? $lastMaintenanceAt->copy()->addMonths(4) : null;
+        $lastUpdatedAt = $lastMaintenanceAt ?? optional($latestTicket)->updated_at ?? $profile->updated_at;
     @endphp
 
     <main class="max-w-6xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
@@ -100,6 +102,11 @@
                             Mantenimiento {{ $latestTicket->maintenance_scheduled_at->timezone('America/Mexico_City')->format('d/m/Y H:i') }}
                         </span>
                     @endif
+                    @if($nextMaintenanceAt)
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700">
+                            Próximo {{ $nextMaintenanceAt->format('d/m/Y H:i') }}
+                        </span>
+                    @endif
                 </div>
             </div>
 
@@ -132,10 +139,20 @@
                                 <div>
                                     <p class="text-xs font-medium text-slate-500 uppercase">Último mantenimiento registrado</p>
                                     <p class="text-base text-slate-800 mt-1">
-                                        @if($profile->last_maintenance_at)
-                                            {{ $profile->last_maintenance_at->timezone('America/Mexico_City')->format('d/m/Y H:i') }}
+                                        @if($lastMaintenanceAt)
+                                            {{ $lastMaintenanceAt->format('d/m/Y H:i') }}
                                         @else
                                             Sin registro
+                                        @endif
+                                    </p>
+                                </div>
+                                <div>
+                                    <p class="text-xs font-medium text-slate-500 uppercase">Próximo mantenimiento estimado</p>
+                                    <p class="text-base text-slate-800 mt-1">
+                                        @if($nextMaintenanceAt)
+                                            {{ $nextMaintenanceAt->format('d/m/Y H:i') }}
+                                        @else
+                                            En seguimiento
                                         @endif
                                     </p>
                                 </div>
@@ -299,8 +316,8 @@
                                 <div>
                                     <dt class="text-slate-500">Última intervención</dt>
                                     <dd class="font-medium">
-                                        @if($profile->last_maintenance_at)
-                                            {{ $profile->last_maintenance_at->timezone('America/Mexico_City')->format('d/m/Y H:i') }}
+                                        @if($lastMaintenanceAt)
+                                            {{ $lastMaintenanceAt->format('d/m/Y H:i') }}
                                         @elseif($latestTicket)
                                             {{ $latestTicket->updated_at->timezone('America/Mexico_City')->format('d/m/Y H:i') }}
                                         @else
