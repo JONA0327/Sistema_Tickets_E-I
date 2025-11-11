@@ -129,10 +129,18 @@ class MaintenanceController extends Controller
 
         $groupedSlots = $slots->groupBy(fn ($slot) => Carbon::parse($slot->date)->format('Y-m-d'));
 
+        $maintenanceTickets = Ticket::query()
+            ->where('tipo_problema', 'mantenimiento')
+            ->with(['computerProfile', 'maintenanceSlot'])
+            ->orderByDesc('created_at')
+            ->limit(15)
+            ->get();
+
         return view('admin.maintenance.index', [
             'groupedSlots' => $groupedSlots,
             'componentOptions' => $this->getReplacementComponentOptions(),
             'users' => User::orderBy('name')->get(['id', 'name', 'email']),
+            'maintenanceTickets' => $maintenanceTickets,
         ]);
     }
 
@@ -370,10 +378,21 @@ class MaintenanceController extends Controller
     {
         $validated = $this->validateComputerProfile($request);
 
+        $request->validate([
+            'maintenance_ticket_id' => [
+                'nullable',
+                Rule::exists('tickets', 'id')->where(fn ($query) => $query->where('tipo_problema', 'mantenimiento')),
+            ],
+        ]);
+
         $profile = new ComputerProfile();
         $profile->fill(collect($validated)->except(['replacement_components', 'is_loaned'])->toArray());
         $profile->replacement_components = $validated['replacement_components'] ?? [];
         $profile->is_loaned = $request->boolean('is_loaned');
+
+        if (!empty($validated['last_maintenance_at'])) {
+            $profile->last_maintenance_at = Carbon::parse($validated['last_maintenance_at'], 'America/Mexico_City');
+        }
 
         if ($profile->is_loaned) {
             $profile->loaned_to_name = $validated['loaned_to_name'] ?? null;
@@ -384,6 +403,36 @@ class MaintenanceController extends Controller
         }
 
         $profile->save();
+
+        if ($request->filled('maintenance_ticket_id')) {
+            /** @var Ticket $ticket */
+            $ticket = Ticket::where('tipo_problema', 'mantenimiento')
+                ->where('id', $request->input('maintenance_ticket_id'))
+                ->first();
+
+            if ($ticket) {
+                $profile->last_ticket_id = $ticket->id;
+
+                if (empty($validated['last_maintenance_at'])) {
+                    $maintenanceDate = $ticket->fecha_cierre
+                        ? $ticket->fecha_cierre->copy()->timezone('America/Mexico_City')
+                        : ($ticket->maintenance_scheduled_at
+                            ? $ticket->maintenance_scheduled_at->copy()->timezone('America/Mexico_City')
+                            : null);
+
+                    if ($maintenanceDate) {
+                        $profile->last_maintenance_at = $maintenanceDate;
+                    }
+                }
+
+                $profile->save();
+
+                if ($ticket->computer_profile_id !== $profile->id) {
+                    $ticket->computer_profile_id = $profile->id;
+                    $ticket->save();
+                }
+            }
+        }
 
         return redirect()
             ->route('admin.maintenance.computers.index')
@@ -452,6 +501,10 @@ class MaintenanceController extends Controller
         $profile->fill(collect($validated)->except(['replacement_components', 'is_loaned'])->toArray());
         $profile->replacement_components = $validated['replacement_components'] ?? [];
         $profile->is_loaned = $request->boolean('is_loaned');
+
+        if (!empty($validated['last_maintenance_at'])) {
+            $profile->last_maintenance_at = Carbon::parse($validated['last_maintenance_at'], 'America/Mexico_City');
+        }
 
         if ($profile->is_loaned) {
             $profile->loaned_to_name = $validated['loaned_to_name'] ?? null;

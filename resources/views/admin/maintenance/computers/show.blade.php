@@ -38,7 +38,9 @@
             ]);
 
         $imageCount = $userImages->count() + $adminImages->count();
-        $lastUpdatedAt = $profile->last_maintenance_at ?? optional($latestTicket)->updated_at ?? $profile->updated_at;
+        $lastMaintenanceAt = $profile->last_maintenance_at ? $profile->last_maintenance_at->copy()->timezone('America/Mexico_City') : null;
+        $nextMaintenanceAt = $lastMaintenanceAt ? $lastMaintenanceAt->copy()->addMonths(4) : null;
+        $lastUpdatedAt = $lastMaintenanceAt ?? optional($latestTicket)->updated_at ?? $profile->updated_at;
     @endphp
 
     <main class="max-w-6xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
@@ -100,6 +102,11 @@
                             Mantenimiento {{ $latestTicket->maintenance_scheduled_at->timezone('America/Mexico_City')->format('d/m/Y H:i') }}
                         </span>
                     @endif
+                    @if($nextMaintenanceAt)
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700">
+                            Próximo {{ $nextMaintenanceAt->format('d/m/Y H:i') }}
+                        </span>
+                    @endif
                 </div>
             </div>
 
@@ -132,10 +139,20 @@
                                 <div>
                                     <p class="text-xs font-medium text-slate-500 uppercase">Último mantenimiento registrado</p>
                                     <p class="text-base text-slate-800 mt-1">
-                                        @if($profile->last_maintenance_at)
-                                            {{ $profile->last_maintenance_at->timezone('America/Mexico_City')->format('d/m/Y H:i') }}
+                                        @if($lastMaintenanceAt)
+                                            {{ $lastMaintenanceAt->format('d/m/Y H:i') }}
                                         @else
                                             Sin registro
+                                        @endif
+                                    </p>
+                                </div>
+                                <div>
+                                    <p class="text-xs font-medium text-slate-500 uppercase">Próximo mantenimiento estimado</p>
+                                    <p class="text-base text-slate-800 mt-1">
+                                        @if($nextMaintenanceAt)
+                                            {{ $nextMaintenanceAt->format('d/m/Y H:i') }}
+                                        @else
+                                            En seguimiento
                                         @endif
                                     </p>
                                 </div>
@@ -299,8 +316,8 @@
                                 <div>
                                     <dt class="text-slate-500">Última intervención</dt>
                                     <dd class="font-medium">
-                                        @if($profile->last_maintenance_at)
-                                            {{ $profile->last_maintenance_at->timezone('America/Mexico_City')->format('d/m/Y H:i') }}
+                                        @if($lastMaintenanceAt)
+                                            {{ $lastMaintenanceAt->format('d/m/Y H:i') }}
                                         @elseif($latestTicket)
                                             {{ $latestTicket->updated_at->timezone('America/Mexico_City')->format('d/m/Y H:i') }}
                                         @else
@@ -334,6 +351,105 @@
                                 <p class="text-sm text-slate-500">Aún no hay tickets de mantenimiento relacionados con este equipo.</p>
                             @endif
                         </div>
+
+                        @if($latestTicket)
+                            <div class="rounded-3xl border border-blue-200 bg-blue-50 p-6 shadow-inner">
+                                <h3 class="text-sm font-semibold text-blue-900 mb-2">Actualizar seguimiento administrativo</h3>
+                                <p class="text-xs text-blue-700 mb-4">Los cambios que realices aquí se guardan directamente en el ticket {{ $latestTicket->folio }}.</p>
+
+                                <form method="POST" action="{{ route('admin.tickets.update', $latestTicket) }}" class="space-y-5" enctype="multipart/form-data">
+                                    @csrf
+                                    @method('PATCH')
+
+                                    <input type="hidden" name="estado" value="{{ old('estado', $latestTicket->estado) }}">
+
+                                    <div class="space-y-2">
+                                        <label for="maintenance_observaciones" class="block text-xs font-medium text-blue-900">Observaciones del administrador</label>
+                                        <textarea id="maintenance_observaciones"
+                                                  name="observaciones"
+                                                  rows="3"
+                                                  class="w-full border border-blue-200 rounded-lg px-3 py-2 text-sm text-blue-900 bg-white focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400"
+                                                  placeholder="Registra notas importantes sobre este mantenimiento">{{ old('observaciones', $latestTicket->observaciones) }}</textarea>
+                                        @error('observaciones')<p class="text-xs text-red-600">{{ $message }}</p>@enderror
+                                    </div>
+
+                                    <div class="space-y-3">
+                                        <div class="space-y-2">
+                                            <label for="maintenanceAdminImages" class="block text-xs font-medium text-blue-900">Imágenes del administrador</label>
+                                            <input type="file"
+                                                   id="maintenanceAdminImages"
+                                                   name="imagenes_admin[]"
+                                                   multiple
+                                                   accept="image/*"
+                                                   class="block w-full text-sm text-blue-900 border border-blue-200 rounded-lg px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:bg-blue-100 file:text-blue-800 hover:file:bg-blue-200">
+                                            <p class="text-xs text-blue-700">Puedes adjuntar evidencias visuales o capturas del trabajo realizado.</p>
+                                            @error('imagenes_admin')<p class="text-xs text-red-600">{{ $message }}</p>@enderror
+                                            @error('imagenes_admin.*')<p class="text-xs text-red-600">{{ $message }}</p>@enderror
+                                        </div>
+
+                                        <div id="maintenanceImagePreview" class="grid grid-cols-2 gap-3" style="display: none;"></div>
+
+                                        <div id="maintenanceUploadStatus" class="hidden text-xs text-blue-800 bg-blue-100 border border-blue-200 rounded-lg px-3 py-2">
+                                            <span id="maintenanceFileCount">0</span> archivo(s) seleccionado(s). Recuerda guardar los cambios para aplicar la actualización.
+                                        </div>
+
+                                        @if($latestTicket->imagenes_admin && count($latestTicket->imagenes_admin) > 0)
+                                            <div class="bg-white border border-blue-200 rounded-lg p-3 space-y-2">
+                                                <p class="text-xs font-semibold text-blue-900">Imágenes existentes ({{ count($latestTicket->imagenes_admin) }})</p>
+                                                <div class="grid grid-cols-2 gap-2">
+                                                    @foreach($latestTicket->imagenes_admin as $index => $imagen)
+                                                        <div class="relative group rounded-lg overflow-hidden border border-blue-200">
+                                                            <img src="data:image/jpeg;base64,{{ $imagen }}"
+                                                                 alt="Imagen administrador {{ $index + 1 }}"
+                                                                 class="h-24 w-full object-cover cursor-pointer transition duration-200 group-hover:scale-105"
+                                                                 onclick="openMaintenanceImageModal('data:image/jpeg;base64,{{ $imagen }}', 'Imagen administrador {{ $index + 1 }}')">
+                                                            <button type="button"
+                                                                    onclick="removeExistingMaintenanceAdminImage(event, {{ $index }})"
+                                                                    class="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-1 shadow-lg opacity-0 group-hover:opacity-100 transition">
+                                                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                                                </svg>
+                                                            </button>
+                                                            <span class="absolute bottom-1 left-1 bg-blue-900/80 text-white text-[10px] font-medium px-2 py-0.5 rounded">IMG {{ $index + 1 }}</span>
+                                                        </div>
+                                                    @endforeach
+                                                </div>
+                                            </div>
+                                        @endif
+                                    </div>
+
+                                    <div class="grid grid-cols-1 gap-4">
+                                        <div class="space-y-2">
+                                            <label for="maintenance_report_form" class="block text-xs font-medium text-blue-900">Reporte técnico</label>
+                                            <textarea id="maintenance_report_form"
+                                                      name="maintenance_report"
+                                                      rows="3"
+                                                      class="w-full border border-blue-200 rounded-lg px-3 py-2 text-sm text-blue-900 bg-white focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400"
+                                                      placeholder="Describe el trabajo realizado, piezas reemplazadas u observaciones relevantes">{{ old('maintenance_report', $latestTicket->maintenance_report) }}</textarea>
+                                            @error('maintenance_report')<p class="text-xs text-red-600">{{ $message }}</p>@enderror
+                                        </div>
+                                        <div class="space-y-2">
+                                            <label for="closure_observations_form" class="block text-xs font-medium text-blue-900">Observaciones al cerrar</label>
+                                            <textarea id="closure_observations_form"
+                                                      name="closure_observations"
+                                                      rows="2"
+                                                      class="w-full border border-blue-200 rounded-lg px-3 py-2 text-sm text-blue-900 bg-white focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400"
+                                                      placeholder="Notas finales cuando se cierre el ticket">{{ old('closure_observations', $latestTicket->closure_observations) }}</textarea>
+                                            @error('closure_observations')<p class="text-xs text-red-600">{{ $message }}</p>@enderror
+                                        </div>
+                                    </div>
+
+                                    <div class="pt-3 border-t border-blue-200">
+                                        <button type="submit" class="w-full inline-flex items-center justify-center px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg transition">
+                                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                            </svg>
+                                            Guardar seguimiento
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        @endif
                     </aside>
                 </div>
             </div>
@@ -397,5 +513,110 @@
                 closeMaintenanceImageModal();
             }
         });
+
+        let maintenanceSelectedFiles = [];
+        const maintenanceImagesInput = document.getElementById('maintenanceAdminImages');
+
+        if (maintenanceImagesInput) {
+            maintenanceImagesInput.addEventListener('change', (event) => {
+                const files = Array.from(event.target.files);
+                maintenanceSelectedFiles = [...maintenanceSelectedFiles, ...files];
+                updateMaintenanceImagePreview();
+            });
+        }
+
+        function updateMaintenanceImagePreview() {
+            const previewContainer = document.getElementById('maintenanceImagePreview');
+            const uploadStatus = document.getElementById('maintenanceUploadStatus');
+            const fileCount = document.getElementById('maintenanceFileCount');
+
+            if (!previewContainer || !uploadStatus || !fileCount) {
+                return;
+            }
+
+            previewContainer.innerHTML = '';
+
+            if (maintenanceSelectedFiles.length > 0) {
+                previewContainer.style.display = 'grid';
+                uploadStatus.classList.remove('hidden');
+                fileCount.textContent = maintenanceSelectedFiles.length;
+
+                maintenanceSelectedFiles.forEach((file, index) => {
+                    if (file && file.type && file.type.startsWith('image/')) {
+                        const reader = new FileReader();
+                        reader.onload = function (e) {
+                            const card = document.createElement('div');
+                            card.className = 'relative group';
+                            card.innerHTML = `
+                                <img src="${e.target.result}" alt="Vista previa ${index + 1}" class="h-24 w-full object-cover rounded-lg border border-blue-200 cursor-pointer transition hover:border-blue-400" onclick="openMaintenanceImageModal('${e.target.result}', 'Vista previa ${index + 1}')">
+                                <div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition">
+                                    <button type="button" onclick="removeMaintenancePreviewImage(${index})" class="bg-red-500 hover:bg-red-600 text-white rounded-full p-1.5 text-xs shadow-lg">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                    </button>
+                                </div>
+                                <span class="absolute bottom-1 left-1 bg-blue-900/80 text-white text-[10px] font-medium px-2 py-0.5 rounded">${Math.round(file.size / 1024)} KB</span>
+                            `;
+                            previewContainer.appendChild(card);
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                });
+            } else {
+                previewContainer.style.display = 'none';
+                uploadStatus.classList.add('hidden');
+            }
+
+            updateMaintenanceFileInput();
+        }
+
+        function updateMaintenanceFileInput() {
+            if (!maintenanceImagesInput) {
+                return;
+            }
+
+            const dt = new DataTransfer();
+
+            maintenanceSelectedFiles.forEach(file => {
+                if (file) {
+                    dt.items.add(file);
+                }
+            });
+
+            maintenanceImagesInput.files = dt.files;
+        }
+
+        function removeMaintenancePreviewImage(index) {
+            maintenanceSelectedFiles.splice(index, 1);
+            updateMaintenanceImagePreview();
+        }
+
+        let maintenanceRemovedAdminImages = [];
+
+        function removeExistingMaintenanceAdminImage(event, index) {
+            if (!event) {
+                return;
+            }
+
+            if (!maintenanceRemovedAdminImages.includes(index)) {
+                maintenanceRemovedAdminImages.push(index);
+            }
+
+            const trigger = event.currentTarget || event.target;
+            const container = trigger.closest('.relative');
+            if (container) {
+                container.style.display = 'none';
+            }
+
+            const form = trigger.closest('form');
+            if (form && !form.querySelector(`input[name="removed_admin_images[]"][value="${index}"]`)) {
+                const hiddenInput = document.createElement('input');
+                hiddenInput.type = 'hidden';
+                hiddenInput.name = 'removed_admin_images[]';
+                hiddenInput.value = index;
+                form.appendChild(hiddenInput);
+            }
+        }
     </script>
 @endpush

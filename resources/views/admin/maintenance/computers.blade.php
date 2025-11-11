@@ -31,6 +31,7 @@
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Identificador</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Equipo</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Último mantenimiento</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Próximo mantenimiento</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Préstamo</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
                             </tr>
@@ -57,11 +58,24 @@
                                             </div>
                                         @endif
                                     </td>
+                                    @php
+                                        $lastMaintenance = $profile->last_maintenance_at
+                                            ? $profile->last_maintenance_at->copy()->timezone('America/Mexico_City')
+                                            : null;
+                                        $nextMaintenance = $lastMaintenance ? $lastMaintenance->copy()->addMonths(4) : null;
+                                    @endphp
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                                        @if($profile->last_maintenance_at)
-                                            {{ $profile->last_maintenance_at->format('d/m/Y H:i') }}
+                                        @if($lastMaintenance)
+                                            {{ $lastMaintenance->format('d/m/Y H:i') }}
                                         @else
                                             <span class="text-gray-400">Sin registro</span>
+                                        @endif
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                                        @if($nextMaintenance)
+                                            {{ $nextMaintenance->format('d/m/Y H:i') }}
+                                        @else
+                                            <span class="text-gray-400">Pendiente</span>
                                         @endif
                                     </td>
                                     <td class="px-6 py-4 text-sm text-gray-600">
@@ -89,7 +103,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="5" class="px-6 py-10 text-center text-gray-500">
+                                    <td colspan="6" class="px-6 py-10 text-center text-gray-500">
                                         No hay expedientes registrados aún.
                                     </td>
                                 </tr>
