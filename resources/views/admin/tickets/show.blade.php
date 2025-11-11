@@ -413,47 +413,57 @@
                             @endif
 
                             <!-- Observaciones -->
-                            <div>
-                                <label for="observaciones" class="block text-sm font-medium text-gray-700 mb-2">
-                                    Observaciones del Administrador
-                                </label>
-                                <textarea name="observaciones"
-                                          id="observaciones"
-                                          rows="4"
-                                          placeholder="Agregar notas, comentarios o instrucciones..."
-                                          class="block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200">{{ $ticket->observaciones }}</textarea>
-                            </div>
+                            @if($ticket->tipo_problema !== 'mantenimiento')
+                                <div>
+                                    <label for="observaciones" class="block text-sm font-medium text-gray-700 mb-2">
+                                        Observaciones del Administrador
+                                    </label>
+                                    <textarea name="observaciones"
+                                              id="observaciones"
+                                              rows="4"
+                                              placeholder="Agregar notas, comentarios o instrucciones..."
+                                              class="block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200">{{ $ticket->observaciones }}</textarea>
+                                </div>
+                            @else
+                                @php
+                                    $maintenanceLink = $ticket->computerProfile
+                                        ? route('admin.maintenance.computers.show', $ticket->computerProfile)
+                                        : route('admin.maintenance.index');
+                                @endphp
+                                <div class="bg-blue-50 border border-blue-100 text-blue-800 text-sm px-4 py-3 rounded-lg">
+                                    <p class="font-semibold">Gestión del mantenimiento</p>
+                                    <p class="mt-1">Las observaciones, reportes técnicos e imágenes del administrador ahora se administran desde la ficha técnica del equipo en <a href="{{ $maintenanceLink }}" class="underline font-medium">/admin/maintenance</a>.</p>
+                                </div>
+                            @endif
 
-                            @if($ticket->tipo_problema === 'mantenimiento')
+                            @if($ticket->tipo_problema !== 'mantenimiento')
                                 <div class="mt-6">
-                                        <h4 class="text-sm font-semibold text-gray-700 mb-4">Imágenes del administrador</h4>
-                                        <div class="space-y-4">
-                                            <div>
+                                    <h4 class="text-sm font-semibold text-gray-700 mb-4">Imágenes del administrador</h4>
+                                    <div class="space-y-4">
+                                        <div>
                                             <label for="imagenes_admin" class="block text-xs font-medium text-gray-600 mb-1">Anexar imágenes (solo administrador)</label>
                                             <input type="file" id="imagenes_admin" name="imagenes_admin[]" multiple accept="image/*" class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:bg-gray-50 file:text-gray-700 hover:file:bg-gray-100">
                                             <p class="text-xs text-gray-500 mt-1">
                                                 <strong>📸 Múltiples archivos:</strong> Puedes seleccionar varias imágenes a la vez.<br>
                                                 <strong>🔍 Vista previa:</strong> Haz click en cualquier imagen para verla en tamaño completo.<br>
                                                 <strong>📍 Ubicación:</strong> Las imágenes también aparecerán en la sección "Imágenes" principal.
-                                                <br>
-                                                <button type="button" onclick="testModal()" class="mt-2 px-3 py-1 bg-blue-100 text-blue-800 rounded text-xs hover:bg-blue-200">🧪 Probar Modal</button>
                                             </p>
                                             @error('imagenes_admin')<p class="text-xs text-red-600 mt-1">{{ $message }}</p>@enderror
                                             @error('imagenes_admin.*')<p class="text-xs text-red-600 mt-1">{{ $message }}</p>@enderror
                                         </div>
-                                        
+
                                         <!-- Preview de imágenes -->
                                         <div id="imagePreviewAdmin" class="grid grid-cols-2 md:grid-cols-3 gap-3 mt-4" style="display: none;">
                                         </div>
-                                        
+
                                         <!-- Mensaje de estado -->
                                         <div id="uploadStatus" class="hidden mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
                                             <p class="text-sm text-blue-700">
-                                                <span id="fileCount">0</span> archivo(s) seleccionado(s). 
+                                                <span id="fileCount">0</span> archivo(s) seleccionado(s).
                                                 <span class="font-medium">Recuerda hacer clic en "Actualizar" para guardar los cambios.</span>
                                             </p>
                                         </div>
-                                        
+
                                         <!-- Imágenes existentes -->
                                         @if($ticket->imagenes_admin && count($ticket->imagenes_admin) > 0)
                                             <div class="mt-4">
@@ -477,12 +487,11 @@
                                                 </div>
                                             </div>
                                         @endif
-                                            </div>
-                                        </div>
+                                    </div>
+                                </div>
 
-                                        <!-- Reportes y observaciones -->
-                                        <div class="mt-6">
-                                            <h4 class="text-sm font-semibold text-gray-700 mb-4">Reportes y observaciones</h4>
+                                <div class="mt-6">
+                                    <h4 class="text-sm font-semibold text-gray-700 mb-4">Reportes y observaciones</h4>
                                     <div class="space-y-4">
                                         <div>
                                             <label for="maintenance_report" class="block text-xs font-medium text-gray-600 mb-1">Reporte técnico</label>
@@ -496,8 +505,6 @@
                                         </div>
                                     </div>
                                 </div>
-
-                                <!-- Imágenes del administrador -->
                             @endif
 
                             <!-- Información de Fechas -->
@@ -600,19 +607,26 @@ Referente a su ticket {{ $ticket->folio }}..."
             let selectedFiles = [];
 
             // Funciones para manejo de imágenes del administrador
-            document.getElementById('imagenes_admin').addEventListener('change', function(event) {
-                const files = Array.from(event.target.files);
-                selectedFiles = [...selectedFiles, ...files]; // Agregar archivos nuevos
-                updateImagePreview();
-            });
+            const adminImagesInput = document.getElementById('imagenes_admin');
+            if (adminImagesInput) {
+                adminImagesInput.addEventListener('change', function(event) {
+                    const files = Array.from(event.target.files);
+                    selectedFiles = [...selectedFiles, ...files]; // Agregar archivos nuevos
+                    updateImagePreview();
+                });
+            }
 
             function updateImagePreview() {
                 const previewContainer = document.getElementById('imagePreviewAdmin');
                 const uploadStatus = document.getElementById('uploadStatus');
                 const fileCount = document.getElementById('fileCount');
-                
+
+                if (!previewContainer || !uploadStatus || !fileCount) {
+                    return;
+                }
+
                 previewContainer.innerHTML = '';
-                
+
                 if (selectedFiles.length > 0) {
                     previewContainer.style.display = 'grid';
                     uploadStatus.classList.remove('hidden');
@@ -656,8 +670,11 @@ Referente a su ticket {{ $ticket->folio }}..."
 
             function updateFileInput() {
                 const fileInput = document.getElementById('imagenes_admin');
+                if (!fileInput) {
+                    return;
+                }
                 const dt = new DataTransfer();
-                
+
                 selectedFiles.forEach(file => {
                     if (file) {
                         dt.items.add(file);
@@ -670,12 +687,6 @@ Referente a su ticket {{ $ticket->folio }}..."
             function removePreviewImage(index) {
                 selectedFiles.splice(index, 1); // Remover archivo del array
                 updateImagePreview(); // Actualizar la preview
-            }
-
-            // Función de prueba para el modal
-            function testModal() {
-                console.log('Test modal clicked');
-                openImageModal('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==', 'Imagen de Prueba');
             }
 
             let removedAdminImages = [];
