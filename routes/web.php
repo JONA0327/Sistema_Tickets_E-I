@@ -16,6 +16,10 @@ Route::get('/', function () {
     return view('welcome');
 })->name('welcome');
 
+Route::get('/erp-menu', function () {
+    return view('erp_menu');
+})->name('erp.menu');
+
 // Rutas de autenticación
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
