@@ -3,9 +3,7 @@
 @section('title', 'Inventario - E&I Sistema de Tickets')
 
 @push('styles')
-<style>
-    body { background: linear-gradient(135deg, rgb(240 253 244) 0%, rgb(220 252 231) 100%); }
-</style>
+    @vite('resources/css/pages/inventario-index.css')
 @endpush
 
 

@@ -12,16 +12,8 @@
     <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700" rel="stylesheet" />
 
     <!-- Styles / Scripts -->
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-    
-    <!-- Alpine.js -->
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    
+    @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/css/pages/inventario-index.css'])
     @stack('styles')
-
-    <style>
-        [x-cloak] { display: none !important; }
-    </style>
 </head>
 <body class="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100">
     @include('layouts.navigation')
