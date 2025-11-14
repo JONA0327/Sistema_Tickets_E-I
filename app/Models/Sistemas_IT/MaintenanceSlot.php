@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\Sistemas_IT;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Carbon\Carbon;
 
 class MaintenanceSlot extends Model
 {

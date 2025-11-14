@@ -1,28 +1,20 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Sistemas_IT;
 
-use App\Models\Ticket;
+use App\Http\Controllers\Controller;
+use App\Models\Sistemas_IT\Ticket;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 
 class NotificationController extends Controller
 {
-    /**
-     * Obtener el número de tickets no leídos
-     */
     public function getUnreadCount(): JsonResponse
     {
         $count = Ticket::where('is_read', false)->count();
-        
-        return response()->json([
-            'count' => $count
-        ]);
+        return response()->json(['count' => $count]);
     }
 
-    /**
-     * Obtener tickets no leídos para la bandeja de notificaciones
-     */
     public function getUnreadTickets(): JsonResponse
     {
         $tickets = Ticket::where('is_read', false)
@@ -52,41 +44,18 @@ class NotificationController extends Controller
         ]);
     }
 
-    /**
-     * Marcar ticket como leído
-     */
     public function markAsRead(Request $request, Ticket $ticket): JsonResponse
     {
-        $ticket->update([
-            'is_read' => true,
-            'read_at' => now()
-        ]);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Ticket marcado como leído'
-        ]);
+        $ticket->update(['is_read' => true, 'read_at' => now()]);
+        return response()->json(['success' => true, 'message' => 'Ticket marcado como leído']);
     }
 
-    /**
-     * Marcar todos los tickets como leídos
-     */
     public function markAllAsRead(): JsonResponse
     {
-        Ticket::where('is_read', false)->update([
-            'is_read' => true,
-            'read_at' => now()
-        ]);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Todos los tickets marcados como leídos'
-        ]);
+        Ticket::where('is_read', false)->update(['is_read' => true, 'read_at' => now()]);
+        return response()->json(['success' => true, 'message' => 'Todos los tickets marcados como leídos']);
     }
 
-    /**
-     * Obtener estadísticas de notificaciones
-     */
     public function getStats(): JsonResponse
     {
         $stats = [
@@ -99,7 +68,6 @@ class NotificationController extends Controller
             'today_tickets' => Ticket::whereDate('created_at', today())->count(),
             'pending_tickets' => Ticket::where('estado', 'abierto')->count()
         ];
-
         return response()->json($stats);
     }
 }

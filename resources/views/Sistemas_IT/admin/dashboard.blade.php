@@ -66,36 +66,12 @@
                         'accent' => 'from-emerald-500 to-emerald-600',
                     ],
                     [
-                        'title' => 'Inventario',
-                        'description' => 'Controla equipos, ubicaciones y disponibilidad.',
-                        'route' => route('inventario.index'),
-                        'cta' => 'Abrir inventario',
-                        'icon' => 'M3 7l9-4 9 4m-9 13l-9-4V7m9 9l9-4m-9 9V7',
-                        'accent' => 'from-violet-500 to-violet-600',
-                    ],
-                    [
-                        'title' => 'Solicitudes',
-                        'description' => 'Aprueba o rechaza solicitudes de inventario.',
-                        'route' => route('prestamos.index'),
-                        'cta' => 'Ver solicitudes',
-                        'icon' => 'M12 6v12m6-6H6',
-                        'accent' => 'from-orange-500 to-orange-600',
-                    ],
-                    [
                         'title' => 'Usuarios',
                         'description' => 'Administra cuentas y permisos del personal.',
                         'route' => route('admin.users'),
                         'cta' => 'Gestionar usuarios',
                         'icon' => 'M16 14a4 4 0 10-8 0m8 0v5H8v-5m8 0h3a2 2 0 002-2V7a2 2 0 00-2-2h-1M8 14H5a2 2 0 01-2-2V7a2 2 0 002-2h1',
                         'accent' => 'from-sky-500 to-sky-600',
-                    ],
-                    [
-                        'title' => 'Manual de ayuda',
-                        'description' => 'Actualiza guías y recursos de soporte.',
-                        'route' => route('admin.help.index'),
-                        'cta' => 'Editar manual',
-                        'icon' => 'M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253',
-                        'accent' => 'from-indigo-500 to-indigo-600',
                     ],
                 ];
             @endphp

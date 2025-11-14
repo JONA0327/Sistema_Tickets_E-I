@@ -123,14 +123,7 @@
                             <span class="text-sm text-gray-600">Tickets Cerrados:</span>
                             <span class="font-semibold text-green-600">{{ $stats['tickets_cerrados'] }}</span>
                         </div>
-                        <div class="flex justify-between items-center">
-                            <span class="text-sm text-gray-600">Total Préstamos:</span>
-                            <span class="font-semibold text-purple-600">{{ $stats['total_prestamos'] }}</span>
-                        </div>
-                        <div class="flex justify-between items-center">
-                            <span class="text-sm text-gray-600">Préstamos Activos:</span>
-                            <span class="font-semibold text-orange-600">{{ $stats['prestamos_activos'] }}</span>
-                        </div>
+                        <!-- Se eliminaron métricas de préstamos -->
                     </div>
                 </div>
             </div>
@@ -193,57 +186,7 @@
                 @endif
             </div>
             
-            <!-- Historial de Préstamos -->
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200">
-                <div class="p-6 border-b border-gray-200">
-                    <h3 class="text-lg font-semibold text-gray-900 flex items-center">
-                        📦 Historial de Préstamos ({{ $prestamos->count() }})
-                    </h3>
-                </div>
-                
-                @if($prestamos->count() > 0)
-                    <div class="divide-y divide-gray-200 max-h-96 overflow-y-auto">
-                        @foreach($prestamos as $prestamo)
-                        <div class="p-4">
-                            <div class="flex justify-between items-start">
-                                <div class="flex-1">
-                                    <div class="flex items-center gap-2 mb-2">
-                                        <span class="text-sm font-medium text-gray-900">{{ $prestamo->inventario->articulo ?? 'Artículo eliminado' }}</span>
-                                        @if($prestamo->estado_prestamo === 'activo')
-                                            <span class="inline-flex items-center px-2 py-1 text-xs font-medium bg-orange-100 text-orange-800 rounded-full">
-                                                📤 Prestado
-                                            </span>
-                                        @else
-                                            <span class="inline-flex items-center px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">
-                                                📥 Devuelto
-                                            </span>
-                                        @endif
-                                    </div>
-                                    <p class="text-sm text-gray-600 mb-1">{{ $prestamo->motivo_prestamo }}</p>
-                                    <div class="flex items-center gap-4 text-xs text-gray-500">
-                                        <span>📅 Inicio: {{ $prestamo->fecha_inicio_prestamo->format('d/m/Y') }}</span>
-                                        @if($prestamo->fecha_fin_prestamo)
-                                            <span>📅 Fin: {{ $prestamo->fecha_fin_prestamo->format('d/m/Y') }}</span>
-                                        @endif
-                                    </div>
-                                </div>
-                                <a href="{{ route('prestamos.show', $prestamo) }}" 
-                                   class="ml-4 text-purple-600 hover:text-purple-800 text-sm font-medium">
-                                    Ver →
-                                </a>
-                            </div>
-                        </div>
-                        @endforeach
-                    </div>
-                @else
-                    <div class="p-6 text-center text-gray-500">
-                        <svg class="w-12 h-12 mx-auto mb-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
-                        </svg>
-                        <p>Sin préstamos registrados</p>
-                    </div>
-                @endif
-            </div>
+            <!-- Se eliminó el historial de préstamos -->
             
         </div>
     </div>

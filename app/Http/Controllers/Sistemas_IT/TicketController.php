@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Sistemas_IT;
 
-use App\Models\ComputerProfile;
-use App\Models\MaintenanceBooking;
-use App\Models\MaintenanceSlot;
-use App\Models\PrestamoInventario;
-use App\Models\Ticket;
+use App\Http\Controllers\Controller;
+use App\Models\Sistemas_IT\ComputerProfile;
+use App\Models\Sistemas_IT\MaintenanceBooking;
+use App\Models\Sistemas_IT\MaintenanceSlot;
+use App\Models\Sistemas_IT\Ticket;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\DB;
@@ -16,13 +16,9 @@ use Illuminate\Validation\ValidationException;
 
 class TicketController extends Controller
 {
-    /**
-     * Mostrar formulario de ticket por tipo
-     */
     public function create($tipo)
     {
         $tipos_validos = ['software', 'hardware', 'mantenimiento'];
-        
         if (!in_array($tipo, $tipos_validos)) {
             abort(404);
         }
@@ -34,32 +30,9 @@ class TicketController extends Controller
         if ($tipo === 'hardware' && auth()->check()) {
             $user = auth()->user();
 
-            $assignedComputerLoan = PrestamoInventario::with('inventario')
-                ->where('user_id', $user->id)
-                ->where('estado_prestamo', 'activo')
-                ->whereHas('inventario', function ($query) {
-                    $query->where('categoria', 'computadoras');
-                })
-                ->latest('fecha_prestamo')
-                ->first();
-
-            if (!$assignedComputerLoan) {
-                $assignedComputerProfile = ComputerProfile::where('is_loaned', true)
-                    ->whereNotNull('loaned_to_email')
-                    ->where('loaned_to_email', $user->email)
-                    ->first();
-            }
-
-            $assignedPrinterLoan = PrestamoInventario::with('inventario')
-                ->where('user_id', $user->id)
-                ->where('estado_prestamo', 'activo')
-                ->whereHas('inventario', function ($query) {
-                    $query->where(function ($q) {
-                        $q->where('articulo', 'like', '%impresora%')
-                          ->orWhere('modelo', 'like', '%impresora%');
-                    });
-                })
-                ->latest('fecha_prestamo')
+            $assignedComputerProfile = ComputerProfile::where('is_loaned', true)
+                ->whereNotNull('loaned_to_email')
+                ->where('loaned_to_email', $user->email)
                 ->first();
         }
 
@@ -71,12 +44,8 @@ class TicketController extends Controller
         ));
     }
 
-    /**
-     * Guardar nuevo ticket
-     */
     public function store(Request $request)
     {
-        // Log de debug
         \Log::info('TicketController::store - Datos recibidos', [
             'tipo_problema' => $request->input('tipo_problema'),
             'maintenance_slot_id' => $request->input('maintenance_slot_id'),
@@ -103,7 +72,6 @@ class TicketController extends Controller
 
         \Log::info('TicketController::store - Datos validados', $validated);
 
-        // Manejar imágenes en base64
         $imagenes = [];
         if ($request->hasFile('imagenes')) {
             foreach ($request->file('imagenes') as $imagen) {
@@ -120,7 +88,6 @@ class TicketController extends Controller
         $ticket = null;
 
         DB::transaction(function () use ($request, $imagenes, &$ticket, $validated) {
-            // Determinar el nombre del programa
             $nombrePrograma = $validated['nombre_programa'] ?? null;
             if ($nombrePrograma === 'Otro' && !empty($validated['otro_programa_nombre'])) {
                 $nombrePrograma = $validated['otro_programa_nombre'];
@@ -167,7 +134,6 @@ class TicketController extends Controller
                 ]);
 
                 $slot->increment('booked_count');
-                
                 \Log::info('TicketController::store - Ticket de mantenimiento creado exitosamente', [
                     'ticket_id' => $ticket->id,
                     'folio' => $ticket->folio,
@@ -175,7 +141,6 @@ class TicketController extends Controller
                 ]);
             } else {
                 $ticket = Ticket::create($ticketData);
-                
                 \Log::info('TicketController::store - Ticket regular creado exitosamente', [
                     'ticket_id' => $ticket->id,
                     'folio' => $ticket->folio,
@@ -200,7 +165,6 @@ class TicketController extends Controller
             \Log::info('Webhook de n8n no configurado. Se omite notificación.', [
                 'ticket_id' => $ticket->id,
             ]);
-
             return;
         }
 
@@ -260,26 +224,17 @@ class TicketController extends Controller
         });
     }
 
-    /**
-     * Ver todos los tickets (admin)
-     */
     public function index()
     {
         $tickets = Ticket::orderBy('created_at', 'desc')->paginate(15);
         return view('admin.tickets.index', compact('tickets'));
     }
 
-    /**
-     * Ver detalles del ticket (admin)
-     */
     public function show(Ticket $ticket)
     {
         return view('admin.tickets.show', compact('ticket'));
     }
 
-    /**
-     * Actualizar ticket (admin)
-     */
     public function update(Request $request, Ticket $ticket)
     {
         $rules = [
@@ -322,7 +277,6 @@ class TicketController extends Controller
         $originalMaintenanceReport = $ticket->maintenance_report;
         $originalClosureObservations = $ticket->closure_observations;
 
-        // Si se cierra el ticket, agregar fecha de cierre
         if ($validated['estado'] === 'cerrado' && $ticket->estado !== 'cerrado') {
             $data['fecha_cierre'] = now('America/Mexico_City');
         }
@@ -369,20 +323,15 @@ class TicketController extends Controller
                 $replacementComponentsProvided = true;
             }
 
-            // Procesamiento de imágenes del administrador
             $existingImages = $ticket->imagenes_admin ?? [];
-            
-            // Remover imágenes marcadas para eliminación
             if ($request->has('removed_admin_images')) {
                 $removedIndices = $request->input('removed_admin_images');
                 foreach ($removedIndices as $index) {
                     unset($existingImages[$index]);
                 }
-                // Reindexar el array
                 $existingImages = array_values($existingImages);
             }
 
-            // Agregar nuevas imágenes
             if ($request->hasFile('imagenes_admin')) {
                 foreach ($request->file('imagenes_admin') as $imagen) {
                     if ($imagen->isValid()) {
@@ -393,7 +342,6 @@ class TicketController extends Controller
             }
 
             $maintenanceData['imagenes_admin'] = $existingImages;
-
             $data = array_merge($data, $maintenanceData);
         }
 
@@ -433,7 +381,7 @@ class TicketController extends Controller
                     }
 
                     if ($validated['estado'] === 'cerrado') {
-                        $profileData['last_maintenance_at'] = now('America/Mexico_City');
+                        $profile->last_maintenance_at = now('America/Mexico_City');
                     }
 
                     $profile->fill(array_filter($profileData, fn ($value) => !is_null($value)));
@@ -509,9 +457,6 @@ class TicketController extends Controller
             ->with('active_ticket_form', $targetTicketId);
     }
 
-    /**
-     * Ver mis tickets (usuario autenticado)
-     */
     public function misTickets(Request $request)
     {
         $tickets = Ticket::where('user_id', auth()->id())
@@ -530,9 +475,6 @@ class TicketController extends Controller
         ));
     }
 
-    /**
-     * Marcar una actualización de ticket como revisada por el usuario
-     */
     public function acknowledgeUpdate(Request $request, Ticket $ticket)
     {
         abort_if($ticket->user_id !== auth()->id(), 403);
@@ -552,9 +494,6 @@ class TicketController extends Controller
         return redirect()->route('tickets.mis-tickets')->with('success', 'Actualización marcada como revisada.');
     }
 
-    /**
-     * Marcar todas las actualizaciones como revisadas por el usuario
-     */
     public function acknowledgeAllUpdates(Request $request)
     {
         $updated = Ticket::where('user_id', auth()->id())
@@ -579,9 +518,6 @@ class TicketController extends Controller
                 : 'No tienes notificaciones pendientes.');
     }
 
-    /**
-     * Eliminar ticket
-     */
     public function destroy(Ticket $ticket)
     {
         $user = auth()->user();
@@ -589,14 +525,12 @@ class TicketController extends Controller
         $solicitante = $ticket->nombre_solicitante;
         $isAdmin = $user && method_exists($user, 'isAdmin') ? $user->isAdmin() : false;
 
-        // Liberar slot de mantenimiento si es un ticket de mantenimiento
         if ($ticket->tipo_problema === 'mantenimiento' && $ticket->maintenance_slot_id) {
             $this->releaseMaintenanceSlot($ticket);
         }
 
         if ($isAdmin) {
             $ticket->delete();
-
             return redirect()->back()->with(
                 'success',
                 "Ticket {$folio} de {$solicitante} eliminado exitosamente desde el panel administrativo." .
@@ -634,26 +568,16 @@ class TicketController extends Controller
         return redirect()->back()->with('success', $message);
     }
 
-    /**
-     * Liberar slot de mantenimiento cuando se cancela un ticket
-     */
     private function releaseMaintenanceSlot(Ticket $ticket)
     {
         try {
-            // Buscar la reserva de mantenimiento
             $booking = MaintenanceBooking::where('ticket_id', $ticket->id)->first();
-            
             if ($booking) {
                 $slot = $booking->slot;
-                
-                // Decrementar el contador de reservas
                 if ($slot && $slot->booked_count > 0) {
                     $slot->decrement('booked_count');
                 }
-                
-                // Eliminar la reserva
                 $booking->delete();
-                
                 \Log::info('MaintenanceSlot liberado', [
                     'ticket_id' => $ticket->id,
                     'slot_id' => $slot->id ?? 'no encontrado',
@@ -669,13 +593,9 @@ class TicketController extends Controller
         }
     }
 
-    /**
-     * Enviar email de confirmación
-     */
     private function enviarEmailConfirmacion(Ticket $ticket)
     {
         try {
-            // Solo enviar email si está configurado
             if (config('mail.default') && config('mail.mailers.smtp.host')) {
                 Mail::send('emails.ticket-confirmacion', ['ticket' => $ticket], function($message) use ($ticket) {
                     $message->to($ticket->correo_solicitante, $ticket->nombre_solicitante)
@@ -687,22 +607,16 @@ class TicketController extends Controller
         }
     }
 
-    /**
-     * Cambiar fecha de mantenimiento (Solo administrador)
-     */
     public function changeMaintenanceDate(Request $request, Ticket $ticket)
     {
-        // Verificar que el usuario sea administrador
         if (!auth()->user()->isAdmin()) {
             return redirect()->back()->with('error', 'No tienes permisos para realizar esta acción.');
         }
 
-        // Verificar que sea un ticket de mantenimiento
         if ($ticket->tipo_problema !== 'mantenimiento') {
             return redirect()->back()->with('error', 'Solo se puede cambiar la fecha de tickets de mantenimiento.');
         }
 
-        // Validar la nueva fecha
         $request->validate([
             'new_maintenance_slot_id' => 'required|exists:maintenance_slots,id',
         ], [
@@ -711,30 +625,24 @@ class TicketController extends Controller
         ]);
 
         $newSlot = MaintenanceSlot::find($request->new_maintenance_slot_id);
-        
-        // Verificar que el nuevo slot tenga capacidad disponible
         if ($newSlot->available_capacity <= 0) {
             return redirect()->back()->with('error', 'El horario seleccionado no tiene capacidad disponible.');
         }
 
         try {
             DB::transaction(function () use ($ticket, $newSlot) {
-                // Liberar el slot actual si existe
                 if ($ticket->maintenance_slot_id) {
                     $this->releaseMaintenanceSlot($ticket);
                 }
 
-                // Asignar el nuevo slot
                 $booking = MaintenanceBooking::create([
                     'maintenance_slot_id' => $newSlot->id,
                     'ticket_id' => $ticket->id,
                     'additional_details' => 'Fecha cambiada por administrador',
                 ]);
 
-                // Incrementar el contador de reservas del nuevo slot
                 $newSlot->increment('booked_count');
 
-                // Actualizar el ticket
                 $ticket->update([
                     'maintenance_slot_id' => $newSlot->id,
                     'is_read' => false,
@@ -753,7 +661,7 @@ class TicketController extends Controller
             });
 
             return redirect()->back()->with('success', 
-                "La fecha del mantenimiento ha sido cambiada exitosamente. El usuario será notificado del cambio."
+                'La fecha del mantenimiento ha sido cambiada exitosamente. El usuario será notificado del cambio.'
             );
 
         } catch (\Exception $e) {
@@ -761,14 +669,10 @@ class TicketController extends Controller
                 'ticket_id' => $ticket->id,
                 'error' => $e->getMessage()
             ]);
-
             return redirect()->back()->with('error', 'Hubo un error al cambiar la fecha del mantenimiento.');
         }
     }
 
-    /**
-     * Obtener slots de mantenimiento disponibles (para AJAX)
-     */
     public function getAvailableMaintenanceSlots(Request $request)
     {
         if (!auth()->user()->isAdmin()) {
