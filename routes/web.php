@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\AdminController;
+use App\Sistemas_IT\Http\Controllers\AdminController;
 use App\Http\Controllers\ArchivoProblemasController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DiscoEnUsoController;
@@ -19,6 +19,14 @@ Route::get('/', function () {
 Route::get('/erp-menu', function () {
     return view('erp_menu');
 })->name('erp.menu');
+
+// Áreas adicionales (placeholders)
+Route::get('/recursos-humanos', function () {
+    return view('Recursos_Humanos.index');
+})->name('recursos-humanos.index');
+Route::get('/logistica', function () {
+    return view('Logistica.index');
+})->name('logistica.index');
 
 // Rutas de autenticación
 Route::middleware('guest')->group(function () {
