@@ -6,7 +6,7 @@
 
 
         <!-- Main Content -->
-        <main class="max-w-4xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
+        <main class="max-w-4xl mx-auto py-10 px-4 sm:px-6 lg:px-8" data-inventory-edit>
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
                     <div class="flex items-center justify-between mb-6">
@@ -563,8 +563,10 @@
                                                                     No
                                                                 </button>
                                                                 <button type="button"
-                                                                        onclick="eliminarImagen({{ $inventario->id }}, {{ $index }})"
-                                                                        class="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded text-xs">
+                                                                        class="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded text-xs"
+                                                                        data-delete-image
+                                                                        data-inventory-id="{{ $inventario->id }}"
+                                                                        data-image-index="{{ $index }}">
                                                                     Sí
                                                                 </button>
                                                             </div>
@@ -622,112 +624,9 @@
             </div>
         </footer>
 
-        <script>
-            // Preview de nuevas imágenes
-            document.getElementById('nuevas_imagenes').addEventListener('change', function(e) {
-                const previewContainer = document.getElementById('image_preview');
-                const counterSpan = document.getElementById('image_count');
-                previewContainer.innerHTML = '';
-                
-                const files = Array.from(e.target.files);
-                
-                // Validar tipos de archivo
-                const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
-                const invalidFiles = files.filter(file => !validTypes.includes(file.type));
-                
-                if (invalidFiles.length > 0) {
-                    alert('❌ Solo se permiten archivos JPG, JPEG y PNG.\n\nArchivos no válidos detectados:\n' + 
-                          invalidFiles.map(f => f.name).join('\n'));
-                    e.target.value = '';
-                    counterSpan.textContent = '';
-                    return;
-                }
-                
-                // Actualizar contador
-                if (files.length > 0) {
-                    counterSpan.textContent = `📸 ${files.length} nueva${files.length > 1 ? 's' : ''} imagen${files.length > 1 ? 'es' : ''} seleccionada${files.length > 1 ? 's' : ''}`;
-                    counterSpan.className = 'text-xs text-green-600 font-medium bg-green-50 px-2 py-1 rounded';
-                } else {
-                    counterSpan.textContent = '';
-                    counterSpan.className = 'text-xs text-green-600 font-medium';
-                }
-                
-                files.forEach((file, index) => {
-                    if (file.type.startsWith('image/')) {
-                        const reader = new FileReader();
-                        reader.onload = function(e) {
-                            const previewDiv = document.createElement('div');
-                            previewDiv.className = 'relative border rounded-lg overflow-hidden bg-blue-50';
-                            previewDiv.innerHTML = `
-                                <img src="${e.target.result}" class="w-full h-20 object-cover" />
-                                <div class="text-xs text-center p-1 bg-blue-100">
-                                    <span class="font-medium text-blue-700">Nuevo #${index + 1}</span>
-                                </div>
-                                <div class="text-xs text-gray-600 truncate px-1" title="${file.name}">${file.name}</div>
-                            `;
-                            previewContainer.appendChild(previewDiv);
-                        };
-                        reader.readAsDataURL(file);
-                    }
-                });
-            });
-
-            // Función para eliminar imagen existente
-            function eliminarImagen(inventarioId, indiceImagen) {
-                if (confirm('¿Estás seguro de eliminar esta imagen?')) {
-                    const form = document.createElement('form');
-                    form.method = 'POST';
-                    form.action = `/inventario/${inventarioId}/eliminar-imagen`;
-                    
-                    const csrfToken = document.createElement('input');
-                    csrfToken.type = 'hidden';
-                    csrfToken.name = '_token';
-                    csrfToken.value = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || 
-                                     document.querySelector('input[name="_token"]')?.value;
-                    
-                    const methodField = document.createElement('input');
-                    methodField.type = 'hidden';
-                    methodField.name = '_method';
-                    methodField.value = 'DELETE';
-                    
-                    const indiceField = document.createElement('input');
-                    indiceField.type = 'hidden';
-                    indiceField.name = 'indice';
-                    indiceField.value = indiceImagen;
-                    
-                    form.appendChild(csrfToken);
-                    form.appendChild(methodField);
-                    form.appendChild(indiceField);
-                    
-                    document.body.appendChild(form);
-                    form.submit();
-                }
-            }
-
-            // Validación del formulario
-            document.querySelector('form').addEventListener('submit', function(e) {
-                const files = document.getElementById('nuevas_imagenes').files;
-                
-                if (files.length > 5) {
-                    if (!confirm(`Estás a punto de subir ${files.length} nuevas imágenes. Esto puede tardar un momento. ¿Continuar?`)) {
-                        e.preventDefault();
-                        return false;
-                    }
-                }
-                
-                // Cambiar texto del botón
-                const submitBtn = document.querySelector('button[type="submit"]');
-                if (submitBtn && files.length > 0) {
-                    submitBtn.innerHTML = `
-                        <svg class="w-4 h-4 mr-2 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-                        </svg>
-                        Actualizando...
-                    `;
-                    submitBtn.disabled = true;
-                }
-            });
-        </script>
+        @push('scripts')
+            @vite('resources/js/pages/inventario-edit.js')
+        @endpush
 
         <!-- Meta tag para CSRF -->
         <meta name="csrf-token" content="{{ csrf_token() }}">

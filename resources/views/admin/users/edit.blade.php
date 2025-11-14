@@ -3,7 +3,7 @@
 @section('title', 'Editar Usuario - ' . $user->name)
 
 @section('content')
-<main class="max-w-4xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
+<main class="max-w-4xl mx-auto py-10 px-4 sm:px-6 lg:px-8" data-admin-user-edit>
     <!-- Header -->
     <div class="mb-8">
         <div class="flex items-center gap-4 mb-4">
@@ -184,26 +184,8 @@
     </div>
 </main>
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const emailInput = document.getElementById('email');
-    
-    // Validación en tiempo real con mejor UX
-    emailInput.addEventListener('input', function() {
-        const value = this.value.trim();
-        
-        // Remover clases anteriores
-        this.classList.remove('border-red-500', 'border-green-500');
-        
-        if (value) {
-            if (!this.validity.valid) {
-                this.classList.add('border-red-500');
-            } else {
-                this.classList.add('border-green-500');
-            }
-        }
-    });
-});
-</script>
+@push('scripts')
+    @vite('resources/js/pages/admin-users-edit.js')
+@endpush
 
 @endsection

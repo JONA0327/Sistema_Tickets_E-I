@@ -229,50 +229,8 @@
     </div>
 </main>
 
-<script>
-// Smooth scrolling para los enlaces del índice
-document.addEventListener('DOMContentLoaded', function() {
-    const indexLinks = document.querySelectorAll('a[href^="#section-"]');
-    
-    indexLinks.forEach(link => {
-        link.addEventListener('click', function(e) {
-            e.preventDefault();
-            const targetId = this.getAttribute('href');
-            const targetElement = document.querySelector(targetId);
-            
-            if (targetElement) {
-                targetElement.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'start'
-                });
-            }
-        });
-    });
-
-    // Highlight active section while scrolling
-    const sections = document.querySelectorAll('[id^="section-"]');
-    const indexItems = document.querySelectorAll('a[href^="#section-"]');
-
-    function highlightActiveSection() {
-        let current = '';
-        sections.forEach(section => {
-            const sectionTop = section.offsetTop;
-            const sectionHeight = section.clientHeight;
-            if (window.pageYOffset >= sectionTop - 100) {
-                current = section.getAttribute('id');
-            }
-        });
-
-        indexItems.forEach(item => {
-            item.classList.remove('bg-blue-50', 'border-blue-200');
-            if (item.getAttribute('href') === '#' + current) {
-                item.classList.add('bg-blue-50', 'border-blue-200');
-            }
-        });
-    }
-
-    window.addEventListener('scroll', highlightActiveSection);
-});
-</script>
+@push('scripts')
+    @vite('resources/js/pages/help-index.js')
+@endpush
 
 @endsection

@@ -42,10 +42,6 @@
     $styles = $themeStyles[$theme] ?? $themeStyles['blue'];
 @endphp
 
-@once
-    <style>[x-cloak] { display: none !important; }</style>
-@endonce
-
 @auth
 <div {{ $attributes->merge(['class' => 'w-full']) }}>
     <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-end lg:gap-6">

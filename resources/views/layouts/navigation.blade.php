@@ -38,10 +38,6 @@
     $roleLabel = ($user && method_exists($user, 'isAdmin') && $user->isAdmin()) ? 'Administrador TI' : 'Usuario';
 @endphp
 
-@once
-    <style>[x-cloak] { display: none !important; }</style>
-@endonce
-
 <nav x-data="{ mobileOpen: false }" class="relative z-50 border-b border-slate-200 bg-white text-slate-700 shadow-md shadow-slate-200/70">
 
     <div class="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">

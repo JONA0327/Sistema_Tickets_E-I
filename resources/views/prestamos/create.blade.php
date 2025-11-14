@@ -183,26 +183,7 @@
             </div>
         </footer>
 
-        <script>
-            // Actualizar cantidad máxima basada en inventario seleccionado
-            document.getElementById('inventario_id')?.addEventListener('change', function() {
-                const cantidadInput = document.getElementById('cantidad_prestada');
-                const selectedOption = this.options[this.selectedIndex];
-                
-                if (selectedOption && selectedOption.dataset.disponible) {
-                    const disponible = selectedOption.dataset.disponible;
-                    cantidadInput.max = disponible;
-                    cantidadInput.placeholder = `Máximo: ${disponible}`;
-                    
-                    // Actualizar texto de ayuda
-                    const helpText = cantidadInput.parentNode.querySelector('.text-xs');
-                    if (helpText) {
-                        helpText.textContent = `💡 Disponibles: ${disponible} unidades`;
-                    }
-                } else {
-                    cantidadInput.max = '';
-                    cantidadInput.placeholder = '1';
-                }
-            });
-        </script>
+        @push('scripts')
+            @vite('resources/js/pages/prestamos-create.js')
+        @endpush
 @endsection

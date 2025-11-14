@@ -3,14 +3,12 @@
 @section('title', 'Agregar Artículo - E&I Sistema de Inventario')
 
 @push('styles')
-<style>
-    body { background: linear-gradient(135deg, rgb(240 253 244) 0%, rgb(220 252 231) 100%); }
-</style>
+    @vite('resources/css/pages/inventario-create.css')
 @endpush
 
 @section('content')
         <!-- Main Content -->
-        <main class="max-w-4xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
+        <main class="max-w-4xl mx-auto py-10 px-4 sm:px-6 lg:px-8" data-inventory-create>
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
                     <div class="flex items-center justify-between mb-6">
@@ -656,78 +654,8 @@
             </div>
         </footer>
 
-        <script>
-            // Preview de imágenes
-            document.getElementById('imagenes').addEventListener('change', function(e) {
-                const previewContainer = document.getElementById('image_preview');
-                const counterSpan = document.getElementById('image_count');
-                previewContainer.innerHTML = '';
-                
-                const files = Array.from(e.target.files);
-                
-                // Validar tipos de archivo
-                const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
-                const invalidFiles = files.filter(file => !validTypes.includes(file.type));
-                
-                if (invalidFiles.length > 0) {
-                    alert('❌ Solo se permiten archivos JPG, JPEG y PNG.\n\nArchivos no válidos detectados:\n' + 
-                          invalidFiles.map(f => f.name).join('\n'));
-                    e.target.value = '';
-                    counterSpan.textContent = '';
-                    return;
-                }
-                
-                // Actualizar contador
-                if (files.length > 0) {
-                    counterSpan.textContent = `📸 ${files.length} imagen${files.length > 1 ? 'es' : ''} seleccionada${files.length > 1 ? 's' : ''}`;
-                    counterSpan.className = 'text-xs text-green-600 font-medium bg-green-50 px-2 py-1 rounded';
-                } else {
-                    counterSpan.textContent = '';
-                    counterSpan.className = 'text-xs text-green-600 font-medium';
-                }
-                
-                files.forEach((file, index) => {
-                    if (file.type.startsWith('image/')) {
-                        const reader = new FileReader();
-                        reader.onload = function(e) {
-                            const previewDiv = document.createElement('div');
-                            previewDiv.className = 'relative border rounded-lg overflow-hidden bg-green-50';
-                            previewDiv.innerHTML = `
-                                <img src="${e.target.result}" class="w-full h-20 object-cover" />
-                                <div class="text-xs text-center p-1 bg-green-100">
-                                    <span class="font-medium text-green-700">#${index + 1}</span>
-                                </div>
-                                <div class="text-xs text-gray-600 truncate px-1" title="${file.name}">${file.name}</div>
-                            `;
-                            previewContainer.appendChild(previewDiv);
-                        };
-                        reader.readAsDataURL(file);
-                    }
-                });
-            });
+        @push('scripts')
+            @vite('resources/js/pages/inventario-create.js')
+        @endpush
 
-            // Validación del formulario
-            document.querySelector('form').addEventListener('submit', function(e) {
-                const files = document.getElementById('imagenes').files;
-                
-                if (files.length > 5) {
-                    if (!confirm(`Estás a punto de subir ${files.length} imágenes. Esto puede tardar un momento. ¿Continuar?`)) {
-                        e.preventDefault();
-                        return false;
-                    }
-                }
-                
-                // Cambiar texto del botón
-                const submitBtn = document.querySelector('button[type="submit"]');
-                if (submitBtn && files.length > 0) {
-                    submitBtn.innerHTML = `
-                        <svg class="w-4 h-4 mr-2 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-                        </svg>
-                        Procesando...
-                    `;
-                    submitBtn.disabled = true;
-                }
-            });
-        </script>
 @endsection

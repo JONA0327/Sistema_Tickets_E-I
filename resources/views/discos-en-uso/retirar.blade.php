@@ -152,7 +152,7 @@
                         </div>
                     @endif
 
-                    <form action="{{ route('discos-en-uso.procesar-retiro', $discoEnUso) }}" method="POST">
+                    <form action="{{ route('discos-en-uso.procesar-retiro', $discoEnUso) }}" method="POST" data-disk-withdrawal-form>
                         @csrf
                         @method('PUT')
 
@@ -231,9 +231,9 @@
                                class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200">
                                 ❌ Cancelar
                             </a>
-                            <button type="submit" 
+                            <button type="submit"
                                     class="px-6 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-lg transition-colors duration-200 flex items-center"
-                                    onclick="return confirm('¿Está completamente seguro de retirar este disco? Esta acción registrará la fecha de retiro y liberará el disco en el inventario.')">
+                                    data-confirm-message="¿Está completamente seguro de retirar este disco? Esta acción registrará la fecha de retiro y liberará el disco en el inventario.">
                                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                                 </svg>
@@ -246,17 +246,8 @@
         </main>
 
         <!-- Scripts adicionales -->
-        <script>
-            // Validación adicional en el cliente
-            document.addEventListener('DOMContentLoaded', function() {
-                const form = document.querySelector('form');
-                const submitBtn = form.querySelector('button[type="submit"]');
-                
-                form.addEventListener('submit', function() {
-                    submitBtn.disabled = true;
-                    submitBtn.innerHTML = '<svg class="w-4 h-4 mr-2 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Retirando disco...';
-                });
-            });
-        </script>
+        @push('scripts')
+            @vite('resources/js/pages/discos-uso-retirar.js')
+        @endpush
     </body>
 </html>
