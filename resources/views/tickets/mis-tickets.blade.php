@@ -3,7 +3,7 @@
 @section('title', 'Mis Tickets - Sistema IT')
 
 @section('content')
-    <main class="relative min-h-screen overflow-hidden bg-gradient-to-br from-white via-blue-50 to-blue-100">
+    <main class="relative min-h-screen overflow-hidden bg-gradient-to-br from-white via-blue-50 to-blue-100" data-my-tickets>
         <div class="absolute inset-0 pointer-events-none">
             <div class="absolute -top-40 -left-28 h-[26rem] w-[26rem] rounded-full bg-blue-200/50 blur-3xl"></div>
             <div class="absolute top-1/3 -right-24 h-80 w-80 rounded-full bg-blue-300/30 blur-3xl"></div>
@@ -287,7 +287,9 @@
 
                                             @if($ticket->estado !== 'cerrado')
                                                 <button type="button"
-                                                        onclick="confirmCancel('{{ $ticket->id }}', '{{ $ticket->folio }}')"
+                                                        data-cancel-ticket
+                                                        data-ticket-id="{{ $ticket->id }}"
+                                                        data-ticket-folio="{{ $ticket->folio }}"
                                                         class="inline-flex items-center justify-center rounded-2xl border border-red-200 bg-red-50 px-4 py-2 text-sm font-semibold text-red-600 transition hover:border-red-300 hover:bg-red-100">
                                                     <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
@@ -357,73 +359,7 @@
         </div>
     </div>
 
-    <script>
-        const cancelModal = document.getElementById('cancelModal');
-        const cancelModalMessage = document.getElementById('cancelModalMessage');
-        const cancelModalClose = document.getElementById('cancelModalClose');
-        const cancelModalConfirm = document.getElementById('cancelModalConfirm');
-
-        function openCancelModal() {
-            cancelModal.classList.remove('hidden');
-            cancelModal.classList.add('flex');
-            document.body.classList.add('overflow-hidden');
-        }
-
-        function closeCancelModal() {
-            cancelModal.classList.add('hidden');
-            cancelModal.classList.remove('flex');
-            document.body.classList.remove('overflow-hidden');
-            cancelModal.removeAttribute('data-ticket-id');
-        }
-
-        function confirmCancel(ticketId, folio) {
-            cancelModalMessage.textContent = `¿Estás seguro de que quieres cancelar el ticket ${folio}? Esta acción no se puede deshacer.`;
-            cancelModal.setAttribute('data-ticket-id', ticketId);
-            openCancelModal();
-        }
-
-        function submitCancelForm() {
-            const ticketId = cancelModal.getAttribute('data-ticket-id');
-            if (!ticketId) {
-                return;
-            }
-
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = '/ticket/' + ticketId;
-
-            const csrfToken = document.createElement('input');
-            csrfToken.type = 'hidden';
-            csrfToken.name = '_token';
-            csrfToken.value = '{{ csrf_token() }}';
-
-            const methodField = document.createElement('input');
-            methodField.type = 'hidden';
-            methodField.name = '_method';
-            methodField.value = 'DELETE';
-
-            form.appendChild(csrfToken);
-            form.appendChild(methodField);
-            document.body.appendChild(form);
-            form.submit();
-        }
-
-        cancelModalClose.addEventListener('click', closeCancelModal);
-        cancelModalConfirm.addEventListener('click', () => {
-            submitCancelForm();
-            closeCancelModal();
-        });
-
-        cancelModal.addEventListener('click', (event) => {
-            if (event.target === cancelModal) {
-                closeCancelModal();
-            }
-        });
-
-        document.addEventListener('keydown', (event) => {
-            if (event.key === 'Escape') {
-                closeCancelModal();
-            }
-        });
-    </script>
+    @push('scripts')
+        @vite('resources/js/pages/tickets-my.js')
+    @endpush
 @endsection

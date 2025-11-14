@@ -4,7 +4,7 @@
 
 @section('content')
 
-        <main class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+        <main class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8" data-admin-users-index>
             <!-- Success/Error Messages -->
             @if(session('success'))
                 <div class="mb-6 bg-green-50 border border-green-200 rounded-lg p-4">
@@ -203,8 +203,10 @@
                                                     Editar
                                                 </a>
                                                 @if($user->id !== auth()->id())
-                                                    <button onclick="confirmDelete('{{ $user->id }}', '{{ $user->name }}')"
-                                                            class="text-red-600 hover:text-red-900 font-medium">
+                                                    <button class="text-red-600 hover:text-red-900 font-medium"
+                                                            data-delete-user
+                                                            data-user-id="{{ $user->id }}"
+                                                            data-user-name="{{ $user->name }}">
                                                         Eliminar
                                                     </button>
                                                 @endif
@@ -301,7 +303,7 @@
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $blocked->created_at->format('d/m/Y H:i') }}</td>
                                         <td class="px-6 py-4 whitespace-nowrap text-right">
                                             <form method="POST" action="{{ route('admin.blocked-emails.destroy', $blocked) }}"
-                                                  onsubmit="return confirm('¿Deseas quitar este correo de la lista de no permitidos?');">
+                                                  data-confirm-remove-block>
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" class="inline-flex items-center px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-md transition-colors duration-200">
@@ -328,29 +330,8 @@
         </footer>
 
         <!-- Scripts -->
-        <script>
-            function confirmDelete(userId, userName) {
-                if (confirm(`¿Estás seguro de que quieres eliminar al usuario "${userName}"? Esta acción no se puede deshacer y eliminará todos sus tickets asociados.`)) {
-                    // Crear y enviar formulario de eliminación
-                    const form = document.createElement('form');
-                    form.method = 'POST';
-                    form.action = '/admin/users/' + userId;
-                    
-                    const csrfToken = document.createElement('input');
-                    csrfToken.type = 'hidden';
-                    csrfToken.name = '_token';
-                    csrfToken.value = '{{ csrf_token() }}';
-                    
-                    const methodField = document.createElement('input');
-                    methodField.type = 'hidden';
-                    methodField.name = '_method';
-                    methodField.value = 'DELETE';
-                    
-                    form.appendChild(csrfToken);
-                    form.appendChild(methodField);
-                    document.body.appendChild(form);
-                    form.submit();
-                }
-            }
-        </script>
+        @push('scripts')
+            @vite('resources/js/pages/admin-users-index.js')
+        @endpush
+
 @endsection
